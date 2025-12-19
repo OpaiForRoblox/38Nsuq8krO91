@@ -1,5 +1,6 @@
 --This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.
 --This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.
+--This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.
 local run = function(func)
 	func()
 end
@@ -77,7 +78,7 @@ local function addBlur(parent)
 	blur.Size = UDim2.new(1, 89, 1, 52)
 	blur.Position = UDim2.fromOffset(-48, -31)
 	blur.BackgroundTransparency = 1
-	blur.Image = getcustomasset('meteor/assets/new/blur.png')
+	blur.Image = getcustomasset('myau/assets/new/blur.png')
 	blur.ScaleType = Enum.ScaleType.Slice
 	blur.SliceCenter = Rect.new(52, 31, 261, 502)
 	blur.Parent = parent
@@ -1761,7 +1762,6 @@ run(function()
 end)
 	
 local Fly
-local LongJump
 run(function()
 	local Value
 	local VerticalValue
@@ -1771,13 +1771,44 @@ run(function()
 	local rayCheck = RaycastParams.new()
 	rayCheck.RespectCanCollide = true
 	local up, down, old = 0, 0
+	local damaged = false
+	local DamageAnimValue = Instance.new("IntValue")
+	local damageTween
+	local damageCamConn
+
+	-- ===== DAMAGE CAMERA (clean classic style) =====
+	local DamageCam
+	local function playDamageCam()
+		if not DamageCam.Enabled then return end
+		if damageTween then damageTween:Cancel() end
+
+		-- Animate the value from 1000 -> 0
+		DamageAnimValue.Value = 1000
+		damageTween = tweenService:Create(DamageAnimValue, TweenInfo.new(0.5), {Value = 0})
+		damageTween:Play()
+
+		-- Remove any previous connection
+		if damageCamConn then damageCamConn:Disconnect() end
+		damageCamConn = runService.RenderStepped:Connect(function()
+			if not DamageCam.Enabled then
+				damageCamConn:Disconnect()
+				return
+			end
+			local angle = math.rad(DamageAnimValue.Value / 100)
+			gameCamera.CFrame = gameCamera.CFrame * CFrame.Angles(0, 0, angle)
+		end)
+	end
 
 	Fly = vape.Categories.Blatant:CreateModule({
-		Name = 'Fly',
+		Name = 'Fwy',
 		Function = function(callback)
 			frictionTable.Fly = callback or nil
 			updateVelocity()
+
 			if callback then
+				-- Reset state
+				damaged = false
+				if damageCamConn then damageCamConn:Disconnect() end
 				up, down, old = 0, 0, bedwars.BalloonController.deflateBalloon
 				bedwars.BalloonController.deflateBalloon = function() end
 				local tpTick, tpToggle, oldy = tick(), true
@@ -1785,14 +1816,32 @@ run(function()
 				if lplr.Character and (lplr.Character:GetAttribute('InflatedBalloons') or 0) == 0 and getItem('balloon') then
 					bedwars.BalloonController:inflateBalloon()
 				end
+
 				Fly:Clean(vapeEvents.AttributeChanged.Event:Connect(function(changed)
 					if changed == 'InflatedBalloons' and (lplr.Character:GetAttribute('InflatedBalloons') or 0) == 0 and getItem('balloon') then
 						bedwars.BalloonController:inflateBalloon()
 					end
 				end))
+
+				Fly:Clean(vapeEvents.BalloonPopped.Event:Connect(function(data)
+					if DamageCam.Enabled
+					and data.inflatedBalloon
+					and data.inflatedBalloon:GetAttribute('BalloonOwner') == lplr.UserId then
+						playDamageCam()
+					end
+				end))
+
 				Fly:Clean(runService.PreSimulation:Connect(function(dt)
 					if entitylib.isAlive and not InfiniteFly.Enabled and isnetworkowner(entitylib.character.RootPart) then
 						local flyAllowed = (lplr.Character:GetAttribute('InflatedBalloons') and lplr.Character:GetAttribute('InflatedBalloons') > 0) or store.matchState == 2
+
+						if not flyAllowed and not damaged then
+							damaged = true
+							playDamageCam()
+						elseif flyAllowed then
+							damaged = false
+						end
+
 						local mass = (1.5 + (flyAllowed and 6 or 0) * (tick() % 0.4 < 0.2 and -1 or 1)) + ((up + down) * VerticalValue.Value)
 						local root, moveDirection = entitylib.character.RootPart, entitylib.character.Humanoid.MoveDirection
 						local velo = getSpeed()
@@ -1839,6 +1888,7 @@ run(function()
 						root.AssemblyLinearVelocity = (moveDirection * velo) + Vector3.new(0, mass, 0)
 					end
 				end))
+
 				Fly:Clean(inputService.InputBegan:Connect(function(input)
 					if not inputService:GetFocusedTextBox() then
 						if input.KeyCode == Enum.KeyCode.Space or input.KeyCode == Enum.KeyCode.ButtonA then
@@ -1848,6 +1898,7 @@ run(function()
 						end
 					end
 				end))
+
 				Fly:Clean(inputService.InputEnded:Connect(function(input)
 					if input.KeyCode == Enum.KeyCode.Space or input.KeyCode == Enum.KeyCode.ButtonA then
 						up = 0
@@ -1855,6 +1906,7 @@ run(function()
 						down = 0
 					end
 				end))
+
 				if inputService.TouchEnabled then
 					pcall(function()
 						local jumpButton = lplr.PlayerGui.TouchGui.TouchControlFrame.JumpButton
@@ -1864,7 +1916,13 @@ run(function()
 					end)
 				end
 			else
+				-- Reset state on disable
 				bedwars.BalloonController.deflateBalloon = old
+				damaged = false
+				if damageCamConn then
+					damageCamConn:Disconnect()
+					damageCamConn = nil
+				end
 				if PopBalloons.Enabled and entitylib.isAlive and (lplr.Character:GetAttribute('InflatedBalloons') or 0) > 0 then
 					for _ = 1, 3 do
 						bedwars.BalloonController:deflateBalloon()
@@ -1872,43 +1930,238 @@ run(function()
 				end
 			end
 		end,
-		ExtraText = function()
-			return 'Heatseeker'
+		ExtraText = function() return 'Heatseeker' end,
+		Tooltip = 'Makes you go zoom.'
+	})
+
+	-- Sliders and toggles
+	Value = Fly:CreateSlider({Name='Speed', Min=1, Max=23, Default=23, Suffix=function(val) return val==1 and 'stud' or 'studs' end})
+	VerticalValue = Fly:CreateSlider({Name='Vertical Speed', Min=1, Max=150, Default=50, Suffix=function(val) return val==1 and 'stud' or 'studs' end})
+	WallCheck = Fly:CreateToggle({Name='Wall Check', Default=true})
+	PopBalloons = Fly:CreateToggle({Name='Pop Balloons', Default=true})
+	TP = Fly:CreateToggle({Name='TP Down', Default=true})
+	DamageCam = Fly:CreateToggle({Name='Damage Camera', Default=true, Tooltip='Classic balloon pop camera animation'})
+end)
+
+run(function()
+	local Value
+	local VerticalValue
+	local WallCheck
+	local rayCheck = RaycastParams.new()
+	rayCheck.RespectCanCollide = true
+	local overlapCheck = OverlapParams.new()
+	overlapCheck.RespectCanCollide = true
+	local up, down = 0, 0
+	local success, proper = false, true
+	local clone, oldroot, hip, valid
+	
+	local function doClone()
+		if entitylib.isAlive and entitylib.character.Humanoid.Health > 0 then
+			hip = entitylib.character.Humanoid.HipHeight
+			oldroot = entitylib.character.HumanoidRootPart
+			if not lplr.Character.Parent then return false end
+			lplr.Character.Parent = game
+			clone = oldroot:Clone()
+			clone.Parent = lplr.Character
+			oldroot.Parent = gameCamera
+			bedwars.QueryUtil:setQueryIgnored(oldroot, true)
+			clone.CFrame = oldroot.CFrame
+			lplr.Character.PrimaryPart = clone
+			lplr.Character.Parent = workspace
+			for _, v in lplr.Character:GetDescendants() do
+				if v:IsA('Weld') or v:IsA('Motor6D') then
+					if v.Part0 == oldroot then v.Part0 = clone end
+					if v.Part1 == oldroot then v.Part1 = clone end
+				end
+			end
+			return true
+		end
+		return false
+	end
+	
+	local function revertClone()
+		if not oldroot or not oldroot.Parent or not entitylib.isAlive then return false end
+		lplr.Character.Parent = game
+		oldroot.Parent = lplr.Character
+		lplr.Character.PrimaryPart = oldroot
+		lplr.Character.Parent = workspace
+		oldroot.CanCollide = true
+		for _, v in lplr.Character:GetDescendants() do
+			if v:IsA('Weld') or v:IsA('Motor6D') then
+				if v.Part0 == clone then v.Part0 = oldroot end
+				if v.Part1 == clone then v.Part1 = oldroot end
+			end
+		end
+		local oldclonepos = clone.Position.Y
+		if clone then
+			clone:Destroy()
+			clone = nil
+		end
+		local origcf = {oldroot.CFrame:GetComponents()}
+		if valid then origcf[2] = oldclonepos end
+		oldroot.CFrame = CFrame.new(unpack(origcf))
+		oldroot.Transparency = 1
+		oldroot = nil
+		entitylib.character.Humanoid.HipHeight = hip or 2
+	end
+	
+	InfiniteFly = vape.Categories.Blatant:CreateModule({
+		Name = 'InfiniteFly',
+		Function = function(callback)
+			frictionTable.InfiniteFly = callback or nil
+			updateVelocity()
+			if callback then
+				if vape.Modules.Invisibility and vape.Modules.Invisibility.Enabled then
+					vape.Modules.Invisibility:Toggle()
+					notif('InfiniteFly', 'Invisibility cannot be used with InfiniteFly', 3, 'warning')
+				end
+	
+				if not proper then
+					notif('InfiniteFly', 'Broken state detected', 3, 'alert')
+					InfiniteFly:Toggle()
+					return
+				end
+	
+				success = doClone()
+				if not success then
+					InfiniteFly:Toggle()
+					return
+				end
+	
+				InfiniteFly:Clean(runService.PreSimulation:Connect(function(dt)
+					if entitylib.isAlive then
+						local mass = 1.5 + ((up + down) * VerticalValue.Value)
+						local root = entitylib.character.RootPart
+						local moveDirection = entitylib.character.Humanoid.MoveDirection
+						local velo = getSpeed()
+						local destination = (moveDirection * math.max(Value.Value - velo, 0) * dt)
+						rayCheck.FilterDescendantsInstances = {lplr.Character, gameCamera}
+						if WallCheck.Enabled then
+							local ray = workspace:Raycast(root.Position, destination, rayCheck)
+							if ray then 
+								destination = ((ray.Position + ray.Normal) - root.Position) 
+							end
+						end
+						root.CFrame += destination
+						root.AssemblyLinearVelocity = (moveDirection * velo) + Vector3.new(0, mass, 0)
+	
+						local speedCFrame = {oldroot.CFrame:GetComponents()}
+						if isnetworkowner(oldroot) then
+							speedCFrame[1] = clone.CFrame.X
+							speedCFrame[3] = clone.CFrame.Z
+							if speedCFrame[2] < 2000 then speedCFrame[2] = 100000 end
+							oldroot.CFrame = CFrame.new(unpack(speedCFrame))
+							oldroot.Velocity = Vector3.new(clone.Velocity.X, oldroot.Velocity.Y, clone.Velocity.Z)
+						else
+							speedCFrame[2] = clone.CFrame.Y
+							clone.CFrame = CFrame.new(unpack(speedCFrame))
+						end
+					end
+				end))
+				up, down = 0, 0
+				InfiniteFly:Clean(inputService.InputBegan:Connect(function(input)
+					if not inputService:GetFocusedTextBox() then
+						if input.KeyCode == Enum.KeyCode.Space or input.KeyCode == Enum.KeyCode.ButtonA then
+							up = 1
+						elseif input.KeyCode == Enum.KeyCode.LeftShift or input.KeyCode == Enum.KeyCode.ButtonL2 then
+							down = -1
+						end
+					end
+				end))
+				InfiniteFly:Clean(inputService.InputEnded:Connect(function(input)
+					if input.KeyCode == Enum.KeyCode.Space or input.KeyCode == Enum.KeyCode.ButtonA then
+						up = 0
+					elseif input.KeyCode == Enum.KeyCode.LeftShift or input.KeyCode == Enum.KeyCode.ButtonL2 then
+						down = 0
+					end
+				end))
+				if inputService.TouchEnabled then
+					pcall(function()
+						local jumpButton = lplr.PlayerGui.TouchGui.TouchControlFrame.JumpButton
+						InfiniteFly:Clean(jumpButton:GetPropertyChangedSignal('ImageRectOffset'):Connect(function()
+							up = jumpButton.ImageRectOffset.X == 146 and 1 or 0
+						end))
+					end)
+				end
+			else
+				if success and clone and oldroot and proper then
+					proper = false
+					overlapCheck.FilterDescendantsInstances = {lplr.Character, gameCamera}
+					overlapCheck.CollisionGroup = oldroot.CollisionGroup
+					local ray = workspace:Blockcast(CFrame.new(oldroot.Position.X, clone.CFrame.p.Y, oldroot.Position.Z), Vector3.new(3, entitylib.character.HipHeight, 3), Vector3.new(0, -1000, 0), rayCheck)
+					local origcf = {clone.CFrame:GetComponents()}
+					origcf[1] = oldroot.Position.X
+					origcf[2] = ray and ray.Position.Y + entitylib.character.HipHeight or clone.CFrame.p.Y
+					origcf[3] = oldroot.Position.Z
+					oldroot.CanCollide = true
+					oldroot.Transparency = 0
+					oldroot.Velocity = clone.Velocity * Vector3.new(1, 0, 1)
+					oldroot.CFrame = CFrame.new(unpack(origcf))
+	
+					local touched = false
+					local connection = runService.PreSimulation:Connect(function()
+						if oldroot then
+							oldroot.Velocity = Vector3.zero
+							valid = false
+							if touched then return end
+							local cf = {clone.CFrame:GetComponents()}
+							cf[2] = oldroot.CFrame.Y
+							local newcf = CFrame.new(unpack(cf))
+							for _, v in workspace:GetPartBoundsInBox(newcf, oldroot.Size, overlapCheck) do
+								if (v.Position.Y + (v.Size.Y / 2)) > (newcf.p.Y + 0.5) then
+									touched = true
+									return
+								end
+							end
+							if not workspace:Raycast(newcf.Position, Vector3.new(0, -entitylib.character.HipHeight, 0), rayCheck) then return end
+							oldroot.CFrame = newcf
+							oldroot.Velocity = (clone.Velocity * Vector3.new(1, 0, 1))
+							valid = true
+						end
+					end)
+	
+					notif('InfiniteFly', 'Waiting 1.1s to land', 1.1)
+					task.delay(1.1, function()
+						notif('InfiniteFly', 'Landed!', 1)
+						connection:Disconnect()
+						proper = true
+						if oldroot and clone then 
+							revertClone() 
+						end
+					end)
+				end
+			end
+		end,
+		ExtraText = function() 
+			return 'Heatseeker' 
 		end,
 		Tooltip = 'Makes you go zoom.'
 	})
-	Value = Fly:CreateSlider({
+	Value = InfiniteFly:CreateSlider({
 		Name = 'Speed',
 		Min = 1,
 		Max = 23,
 		Default = 23,
-		Suffix = function(val)
-			return val == 1 and 'stud' or 'studs'
+		Suffix = function(val) 
+			return val == 1 and 'stud' or 'studs' 
 		end
 	})
-	VerticalValue = Fly:CreateSlider({
+	VerticalValue = InfiniteFly:CreateSlider({
 		Name = 'Vertical Speed',
 		Min = 1,
 		Max = 150,
 		Default = 50,
-		Suffix = function(val)
-			return val == 1 and 'stud' or 'studs'
+		Suffix = function(val) 
+			return val == 1 and 'stud' or 'studs' 
 		end
 	})
-	WallCheck = Fly:CreateToggle({
+	WallCheck = InfiniteFly:CreateToggle({
 		Name = 'Wall Check',
 		Default = true
 	})
-	PopBalloons = Fly:CreateToggle({
-		Name = 'Pop Balloons',
-		Default = true
-	})
-	TP = Fly:CreateToggle({
-		Name = 'TP Down',
-		Default = true
-	})
 end)
-	
+
+
 run(function()
 	local Mode
 	local Expand
@@ -2067,7 +2320,7 @@ run(function()
 	end
 
 	Killaura = vape.Categories.Blatant:CreateModule({
-		Name = 'Killaura',
+		Name = 'Killschmaura',
 		Function = function(callback)
 			if callback then
 				if inputService.TouchEnabled then
@@ -2271,7 +2524,7 @@ run(function()
 	SwingRange = Killaura:CreateSlider({
 		Name = 'Swing range',
 		Min = 14,
-		Max = 35,
+		Max = 30,
 		Default = 30,
 		Suffix = function(val)
 			return val == 1 and 'stud' or 'studs'
@@ -2280,7 +2533,7 @@ run(function()
 	AttackRange = Killaura:CreateSlider({
 		Name = 'Attack range',
 		Min = 15.10,
-		Max = 35,
+		Max = 30,
 		Default = 30,
 		Suffix = function(val)
 			return val == 1 and 'stud' or 'studs'
@@ -2288,9 +2541,9 @@ run(function()
 	})
 	ChargeTime = Killaura:CreateSlider({
 		Name = 'Swing time',
-		Min = 0.05,
-		Max = 0.3,
-		Default = 0.115871,
+		Min = 0,
+		Max = 0.2,
+		Default = 0,
 		Decimal = 100
 	})
 	AngleSlider = Killaura:CreateSlider({
@@ -2301,16 +2554,16 @@ run(function()
 	})
 	UpdateRate = Killaura:CreateSlider({
 		Name = 'Update rate',
-		Min = 1,
-		Max = 540,
-		Default = 72,
-		Suffix = 'Meteors'
+		Min = 60,
+		Max = 144,
+		Default = 144,
+		Suffix = 'Meow'
 	})
 	MaxTargets = Killaura:CreateSlider({
 		Name = 'Max targets',
 		Min = 1,
-		Max = 5,
-		Default = 5
+		Max = 3,
+		Default = 3
 	})
 	Sort = Killaura:CreateDropdown({
 		Name = 'Target Mode',
@@ -2497,11 +2750,12 @@ run(function()
 		end,
 		Tooltip = 'Only attacks when the sword is held'
 	})
-	--[[LegitAura = Killaura:CreateToggle({
+	LegitAura = Killaura:CreateToggle({
 		Name = 'Swing only',
 		Tooltip = 'Only attacks while swinging manually'
-	})]]
+	})
 end)
+
 	
 run(function()
 	local Value
@@ -2509,19 +2763,32 @@ run(function()
 	local start
 	local JumpTick, JumpSpeed, Direction = tick(), 0
 	local projectileRemote = {InvokeServer = function() end}
+
 	task.spawn(function()
 		projectileRemote = bedwars.Client:Get(remotes.FireProjectile).instance
 	end)
-	
+
 	local function launchProjectile(item, pos, proj, speed, dir)
 		if not pos then return end
-	
+
 		pos = pos - dir * 0.1
-		local shootPosition = (CFrame.lookAlong(pos, Vector3.new(0, -speed, 0)) * CFrame.new(Vector3.new(-bedwars.BowConstantsTable.RelX, -bedwars.BowConstantsTable.RelY, -bedwars.BowConstantsTable.RelZ)))
-		switchItem(item.tool, 0)
+		local shootPosition = (CFrame.lookAlong(pos, Vector3.new(0, -speed, 0)) *
+			CFrame.new(Vector3.new(-bedwars.BowConstantsTable.RelX, -bedwars.BowConstantsTable.RelY, -bedwars.BowConstantsTable.RelZ)))
+
+		local longjumppath
+		for i,v in game:GetService("ReplicatedStorage"):GetDescendants() do
+			if v.Name == "SetInvItem" and v:IsA("RemoteFunction") then longjumppath = v break end
+		end
+	longjumppath:InvokeServer({hand = item.tool})
 		task.wait(0.1)
-		bedwars.ProjectileController:createLocalProjectile(bedwars.ProjectileMeta[proj], proj, proj, shootPosition.Position, '', shootPosition.LookVector * speed, {drawDurationSeconds = 1})
-		if projectileRemote:InvokeServer(item.tool, proj, proj, shootPosition.Position, pos, shootPosition.LookVector * speed, httpService:GenerateGUID(true), {drawDurationSeconds = 1}, workspace:GetServerTimeNow() - 0.045) then
+		bedwars.ProjectileController:createLocalProjectile(
+			bedwars.ProjectileMeta[proj], proj, proj, shootPosition.Position, '', shootPosition.LookVector * speed, {drawDurationSeconds = 1}
+		)
+
+		if projectileRemote:InvokeServer(item.tool, proj, proj, shootPosition.Position, pos,
+			shootPosition.LookVector * speed, httpService:GenerateGUID(true), {drawDurationSeconds = 1},
+			workspace:GetServerTimeNow() - 0.045) then
+
 			local shoot = bedwars.ItemMeta[item.itemType].projectileSource.launchSound
 			shoot = shoot and shoot[math.random(1, #shoot)] or nil
 			if shoot then
@@ -2529,41 +2796,43 @@ run(function()
 			end
 		end
 	end
-	
-	local LJSpeeds = {}
+
 	local LongJumpMethods = {
-		-- items
-		cannon = function(_, pos, dir, Value)
+		cannon = function(_, pos, dir)
 			pos = pos - Vector3.new(0, (entitylib.character.HipHeight + (entitylib.character.RootPart.Size.Y / 2)) - 3, 0)
 			local rounded = Vector3.new(math.round(pos.X / 3) * 3, math.round(pos.Y / 3) * 3, math.round(pos.Z / 3) * 3)
 			bedwars.placeBlock(rounded, 'cannon', false)
-	
+
 			task.delay(0, function()
 				local block, blockpos = getPlacedBlock(rounded)
 				if block and block.Name == 'cannon' and (entitylib.character.RootPart.Position - block.Position).Magnitude < 20 then
 					local breaktype = bedwars.ItemMeta[block.Name].block.breakType
 					local tool = store.tools[breaktype]
 					if tool then
-						switchItem(tool.tool)
+				local cannonpath
+					for i,v in game:GetService("ReplicatedStorage"):GetDescendants() do
+						if v.Name == "SetInvItem" and v:IsA("RemoteFunction") then cannonpath = v break end
 					end
-	
+				cannonpath:InvokeServer({hand = tool.tool})
+					end
+
 					bedwars.Client:Get(remotes.CannonAim):SendToServer({
 						cannonBlockPos = blockpos,
 						lookVector = dir
 					})
-	
+
 					local broken = 0.1
 					if bedwars.BlockController:calculateBlockDamage(lplr, {blockPosition = blockpos}) < block:GetAttribute('Health') then
 						broken = 0.4
 						bedwars.breakBlock(block, true, true)
 					end
-	
+
 					task.delay(broken, function()
 						for _ = 1, 3 do
 							local call = bedwars.Client:Get(remotes.CannonLaunch):CallServer({cannonBlockPos = blockpos})
 							if call then
 								bedwars.breakBlock(block, true, true)
-								JumpSpeed = Value.Value
+								JumpSpeed = 5.25 * Value.Value
 								JumpTick = tick() + 2.3
 								Direction = Vector3.new(dir.X, 0, dir.Z).Unit
 								break
@@ -2574,49 +2843,57 @@ run(function()
 				end
 			end)
 		end,
-		fireball = function(item, pos, dir, Value)
-			launchProjectile(item, pos, item.tool.Name, 60, dir)
-			if item.tool.Name == 'beehive_grenade' then
-				task.wait(.4)
-				JumpSpeed = Value.Value
-				JumpTick = tick() + 2.4
+
+		cat = function(_, _, dir)
+			LongJump:Clean(vapeEvents.CatPounce.Event:Connect(function()
+				JumpSpeed = 4 * Value.Value
+				JumpTick = tick() + 2.5
 				Direction = Vector3.new(dir.X, 0, dir.Z).Unit
+				entitylib.character.RootPart.Velocity = Vector3.zero
+			end))
+
+			if not bedwars.AbilityController:canUseAbility('CAT_POUNCE') then
+				repeat task.wait() until bedwars.AbilityController:canUseAbility('CAT_POUNCE') or not LongJump.Enabled
+			end
+
+			if bedwars.AbilityController:canUseAbility('CAT_POUNCE') and LongJump.Enabled then
+				bedwars.AbilityController:useAbility('CAT_POUNCE')
 			end
 		end,
-		grappling_hook = function(item, pos, dir, Value)
+
+		fireball = function(item, pos, dir)
+			launchProjectile(item, pos, 'fireball', 60, dir)
+		end,
+
+		grappling_hook = function(item, pos, dir)
 			launchProjectile(item, pos, 'grappling_hook_projectile', 140, dir)
 		end,
-		jade_hammer = function(item, _, dir, Value)
+
+		jade_hammer = function(item, _, dir)
 			if not bedwars.AbilityController:canUseAbility(item.itemType..'_jump') then
 				repeat task.wait() until bedwars.AbilityController:canUseAbility(item.itemType..'_jump') or not LongJump.Enabled
 			end
-	
+
 			if bedwars.AbilityController:canUseAbility(item.itemType..'_jump') and LongJump.Enabled then
 				bedwars.AbilityController:useAbility(item.itemType..'_jump')
-				JumpSpeed = Value.Value
+				JumpSpeed = 1.4 * Value.Value
 				JumpTick = tick() + 2.5
 				Direction = Vector3.new(dir.X, 0, dir.Z).Unit
 			end
 		end,
-		tnt = function(item, pos, dir, Value)
+
+		tnt = function(item, pos, dir)
 			pos = pos - Vector3.new(0, (entitylib.character.HipHeight + (entitylib.character.RootPart.Size.Y / 2)) - 3, 0)
 			local rounded = Vector3.new(math.round(pos.X / 3) * 3, math.round(pos.Y / 3) * 3, math.round(pos.Z / 3) * 3)
 			start = Vector3.new(rounded.X, start.Y, rounded.Z) + (dir * (item.itemType == 'pirate_gunpowder_barrel' and 2.6 or 0.2))
-			bedwars.placeBlock(rounded, item.itemType)
-			if item.tool.Name == 'pirate_gunpowder_barrel' then
-				repeat 
-					local block, blockpos = getPlacedBlock(rounded)
-					if not block then task.wait() continue end
-					task.wait(.1)
-					-- TODO: auto hit the barrel
-				until block.Parent == nil or LongJump.Enabled == false
-			end
+			bedwars.placeBlock(rounded, item.itemType, false)
 		end,
-		wood_dao = function(item, pos, dir, Value)
+
+		wood_dao = function(item, pos, dir)
 			if (lplr.Character:GetAttribute('CanDashNext') or 0) > workspace:GetServerTimeNow() or not bedwars.AbilityController:canUseAbility('dash') then
 				repeat task.wait() until (lplr.Character:GetAttribute('CanDashNext') or 0) < workspace:GetServerTimeNow() and bedwars.AbilityController:canUseAbility('dash') or not LongJump.Enabled
 			end
-	
+
 			if LongJump.Enabled then
 				bedwars.SwordController.lastAttack = workspace:GetServerTimeNow()
 				switchItem(item.tool, 0.1)
@@ -2625,117 +2902,40 @@ run(function()
 					origin = pos,
 					weapon = item.itemType
 				})
-				JumpSpeed = Value.Value
+				JumpSpeed = 4.5 * Value.Value
 				JumpTick = tick() + 2.4
 				Direction = Vector3.new(dir.X, 0, dir.Z).Unit
 			end
-		end,
-		jump_pad = function(_, pos, dir, Value)
-			pos = pos - Vector3.new(0, (entitylib.character.HipHeight + (entitylib.character.RootPart.Size.Y / 2)) - 3, 0)
-			bedwars.placeBlock(pos, 'jump_pad')
-
-			local block, _ = getPlacedBlock(pos)
-			
-			if block and block.Name == 'jump_pad' and (entitylib.character.RootPart.Position - block.Position).Magnitude < 20 then
-				local breaktype = bedwars.ItemMeta[block.Name].block.breakType
-				local tool = store.tools[breaktype]
-				if tool then
-					switchItem(tool.tool)
-				end
-				bedwars.breakBlock(block, true, true)
-				JumpSpeed = Value.Value
-				JumpTick = tick() + 2.5
-				Direction = Vector3.new(dir.X, 0, dir.Z).Unit
-				entitylib.character.RootPart.Velocity = Vector3.zero
-			end
-		end,
-		spear = function(item, pos, dir, Value)
-			launchProjectile(item, pos, 'spear', 60, dir)
-			task.wait(.4)
-			JumpSpeed = Value.Value
-			JumpTick = tick() + 2.5
-			Direction = Vector3.new(dir.X, 0, dir.Z).Unit
-		end,
-		can_of_beans = function(item, pos, dir, Value)
-			game:GetService('ReplicatedStorage'):WaitForChild('rbxts_include'):WaitForChild('node_modules'):WaitForChild('@rbxts'):WaitForChild('net'):WaitForChild('out'):WaitForChild('_NetManaged'):WaitForChild('ConsumeItem'):InvokeServer({
-				item = item.tool
-			})
-			game:GetService('ReplicatedStorage'):WaitForChild('rbxts_include'):WaitForChild('node_modules'):WaitForChild('@rbxts'):WaitForChild('net'):WaitForChild('out'):WaitForChild('_NetManaged'):WaitForChild('CanOfBeansLaunch'):InvokeServer({
-				lookVector = vector.create(math.random(), math.random(), math.random())
-			})
-			task.wait(.1)
-			JumpSpeed = Value.Value
-			JumpTick = tick() + 2.5
-			Direction = Vector3.new(dir.X, 0, dir.Z).Unit
-			entitylib.character.RootPart.Velocity = Vector3.zero
-		end,
-		rocket_belt = function(item, pos, dir, Value)
-			if bedwars.AbilityController:canUseAbility("ROCKET_BELT") then
-				bedwars.AbilityController:useAbility("ROCKET_BELT")
-				JumpSpeed = Value.Value
-				JumpTick = tick() + 2.5
-				Direction = Vector3.new(dir.X, 0, dir.Z).Unit
-				entitylib.character.RootPart.Velocity = Vector3.zero
-			end
-		end,
-		--[[spirit_bridge = function(item, pos, dir, Value)
-			launchProjectile(item, pos, "spirit_bridge", 60, dir)
-			task.wait(.5)
-			JumpSpeed = Value.Value
-			JumpTick = tick() + 2.5
-			Direction = Vector3.new(dir.X, 0, dir.Z).Unit
-		end,]]
-		--[[impulse_gun = function(item, pos, dir)
-			if bedwars.AbilityController:canUseAbility("IMPULSE_GUN") then
-				bedwars.AbilityController:useAbility("IMPULSE_GUN")
-				JumpSpeed = 40
-				JumpTick = tick() + 2.5
-				Direction = Vector3.new(dir.X, -.025, dir.Z).Unit
-				entitylib.character.RootPart.Velocity = Vector3.zero
-			end
-		end,]]
-
-		-- kits
-		cat = function(_, _, dir, Value)
-			LongJump:Clean(vapeEvents.CatPounce.Event:Connect(function()
-				JumpSpeed = Value.Value
-				JumpTick = tick() + 2.5
-				Direction = Vector3.new(dir.X, 0, dir.Z).Unit
-				entitylib.character.RootPart.Velocity = Vector3.zero
-			end))
-	
-			if not bedwars.AbilityController:canUseAbility('CAT_POUNCE') then
-				repeat task.wait() until bedwars.AbilityController:canUseAbility('CAT_POUNCE') or not LongJump.Enabled
-			end
-	
-			if bedwars.AbilityController:canUseAbility('CAT_POUNCE') and LongJump.Enabled then
-				bedwars.AbilityController:useAbility('CAT_POUNCE')
-			end
-		end,
+		end
 	}
+
 	for _, v in {'stone_dao', 'iron_dao', 'diamond_dao', 'emerald_dao'} do
 		LongJumpMethods[v] = LongJumpMethods.wood_dao
 	end
+
 	LongJumpMethods.void_axe = LongJumpMethods.jade_hammer
 	LongJumpMethods.siege_tnt = LongJumpMethods.tnt
 	LongJumpMethods.pirate_gunpowder_barrel = LongJumpMethods.tnt
-	LongJumpMethods.beehive_grenade = LongJumpMethods.fireball
-	
+
 	LongJump = vape.Categories.Blatant:CreateModule({
 		Name = 'LongJump',
 		Function = function(callback)
 			frictionTable.LongJump = callback or nil
 			updateVelocity()
+
 			if callback then
 				LongJump:Clean(vapeEvents.EntityDamageEvent.Event:Connect(function(damageTable)
-					if damageTable.entityInstance == lplr.Character and damageTable.fromEntity == lplr.Character and (not damageTable.knockbackMultiplier or not damageTable.knockbackMultiplier.disabled) then
+					if damageTable.entityInstance == lplr.Character and damageTable.fromEntity == lplr.Character and
+						(not damageTable.knockbackMultiplier or not damageTable.knockbackMultiplier.disabled) then
+						
 						local knockbackBoost = bedwars.KnockbackUtil.calculateKnockbackVelocity(Vector3.one, 1, {
 							vertical = 0,
 							horizontal = (damageTable.knockbackMultiplier and damageTable.knockbackMultiplier.horizontal or 1)
 						}).Magnitude * 1.1
-	
+
 						if knockbackBoost >= JumpSpeed then
-							local pos = damageTable.fromPosition and Vector3.new(damageTable.fromPosition.X, damageTable.fromPosition.Y, damageTable.fromPosition.Z) or damageTable.fromEntity and damageTable.fromEntity.PrimaryPart.Position
+							local pos = damageTable.fromPosition and Vector3.new(damageTable.fromPosition.X, damageTable.fromPosition.Y, damageTable.fromPosition.Z)
+								or damageTable.fromEntity and damageTable.fromEntity.PrimaryPart.Position
 							if not pos then return end
 							local vec = (entitylib.character.RootPart.Position - pos)
 							JumpSpeed = knockbackBoost
@@ -2744,27 +2944,32 @@ run(function()
 						end
 					end
 				end))
+
 				LongJump:Clean(vapeEvents.GrapplingHookFunctions.Event:Connect(function(dataTable)
 					if dataTable.hookFunction == 'PLAYER_IN_TRANSIT' then
 						local vec = entitylib.character.RootPart.CFrame.LookVector
-						JumpSpeed = LJSpeeds.grappling_hook.Value
+						JumpSpeed = 2.5 * Value.Value
 						JumpTick = tick() + 2.5
 						Direction = Vector3.new(vec.X, 0, vec.Z).Unit
 					end
 				end))
-	
+
 				start = entitylib.isAlive and entitylib.character.RootPart.Position or nil
+
 				LongJump:Clean(runService.PreSimulation:Connect(function(dt)
 					local root = entitylib.isAlive and entitylib.character.RootPart or nil
-	
+
 					if root and isnetworkowner(root) then
 						if JumpTick > tick() then
-							root.AssemblyLinearVelocity = Direction * (getSpeed() + ((JumpTick - tick()) > 1.1 and JumpSpeed or 0)) + Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
+							root.AssemblyLinearVelocity = Direction * (getSpeed() + ((JumpTick - tick()) > 1.1 and JumpSpeed or 0))
+								+ Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
+
 							if entitylib.character.Humanoid.FloorMaterial == Enum.Material.Air and not start then
 								root.AssemblyLinearVelocity += Vector3.new(0, dt * (workspace.Gravity - 23), 0)
 							else
 								root.AssemblyLinearVelocity = Vector3.new(root.AssemblyLinearVelocity.X, 15, root.AssemblyLinearVelocity.Z)
 							end
+
 							start = nil
 						else
 							if start then
@@ -2777,12 +2982,13 @@ run(function()
 						start = nil
 					end
 				end))
-	
-				if store.hand and type(store.hand) == "table" and store.hand.tool and LongJumpMethods[store.hand.tool.Name] then
-					task.spawn(LongJumpMethods[store.hand.tool.Name], getItem(store.hand.tool.Name), start, (CameraDir.Enabled and gameCamera or entitylib.character.RootPart).CFrame.LookVector, LJSpeeds[store.hand.tool.Name])
+
+				if store.hand and LongJumpMethods[store.hand.tool.Name] then
+					task.spawn(LongJumpMethods[store.hand.tool.Name], getItem(store.hand.tool.Name),
+						start, (CameraDir.Enabled and gameCamera or entitylib.character.RootPart).CFrame.LookVector)
 					return
 				end
-	
+
 				for i, v in LongJumpMethods do
 					local item = getItem(i)
 					if item or store.equippedKit == i then
@@ -2796,31 +3002,20 @@ run(function()
 				JumpSpeed = 0
 			end
 		end,
-		ExtraText = function()
-			return 'Heatseeker'
-		end,
+		ExtraText = function() return 'Heatseeker' end,
 		Tooltip = 'Lets you jump farther'
 	})
-	for method, func in LongJumpMethods do
-		if method:find("dao") and method ~= "wood_dao" then
-			task.spawn(function()
-				if not LJSpeeds[method] then
-					repeat task.wait() until LJSpeeds.wood_dao
-					LJSpeeds[method] = LJSpeeds.wood_dao
-				end
-			end)
-		else
-			LJSpeeds[method] = LongJump:CreateSlider({
-				Name = `Speed : {method:gsub("_", " ")}`,
-				Min = 1,
-				Max = 37,
-				Default = 37,
-				Suffix = function(val)
-					return val == 1 and 'stud' or 'studs'
-				end
-			})
+
+	Value = LongJump:CreateSlider({
+		Name = 'Speed',
+		Min = 1,
+		Max = 37,
+		Default = 37,
+		Suffix = function(val)
+			return val == 1 and 'stud' or 'studs'
 		end
-	end
+	})
+
 	CameraDir = LongJump:CreateToggle({
 		Name = 'Camera Direction'
 	})
@@ -3157,6 +3352,19 @@ run(function()
 	})
 end)
 	
+local kit_fix = false
+
+run(function()
+	vape.Categories.World:CreateModule({
+		Name = 'Kit Speed Fix',
+		Function = function(callback)
+			kit_fix = callback
+		end,
+		Default = false,
+		Tooltip = 'Fixes movement kits not working when Speed is enabled.'
+	})
+end)
+	
 run(function()
 	local Speed
 	local Value
@@ -3183,7 +3391,7 @@ run(function()
 						if state == Enum.HumanoidStateType.Climbing then return end
 	
 						local root, velo = entitylib.character.RootPart, getSpeed()
-						local moveDirection = AntiFallDirection or entitylib.character.Humanoid.MoveDirection
+						local moveDirection = AntiVoidDirection or entitylib.character.Humanoid.MoveDirection
 						local destination = (moveDirection * math.max(Value.Value - velo, 0) * dt)
 	
 						if WallCheck.Enabled then
@@ -3196,7 +3404,9 @@ run(function()
 						end
 	
 						root.CFrame += destination
-						root.AssemblyLinearVelocity = (moveDirection * velo) + Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
+						if not kit_fix then
+							root.AssemblyLinearVelocity = (moveDirection * velo) + Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
+						end
 						if AutoJump.Enabled and (state == Enum.HumanoidStateType.Running or state == Enum.HumanoidStateType.Landed) and moveDirection ~= Vector3.zero and (Attacking or AlwaysJump.Enabled) then
 							entitylib.character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
 						end
@@ -3211,9 +3421,9 @@ run(function()
 	})
 	Value = Speed:CreateSlider({
 		Name = 'Speed',
-		Min = 1,
-		Max = 23,
-		Default = 23,
+		Min = 20,
+		Max = 44,
+		Default = 22,
 		Suffix = function(val)
 			return val == 1 and 'stud' or 'studs'
 		end
@@ -4477,7 +4687,7 @@ run(function()
 	end
 	
 	local function joinQueue()
-		if not bedwars.Store:getState().Game.customMatch and bedwars.Store:getState().Party.leader.userId == lplr.UserId and bedwars.Store:getState().Party.queueState == 0 then
+		--if not bedwars.Store:getState().Game.customMatch and bedwars.Store:getState().Party.leader.userId == lplr.UserId and bedwars.Store:getState().Party.queueState == 0 then
 			if Random.Enabled then
 				local listofmodes = {}
 				for i, v in bedwars.QueueMeta do
@@ -4489,7 +4699,7 @@ run(function()
 			else
 				bedwars.QueueController:joinQueue(store.queueType)
 			end
-		end
+		--end
 	end
 	
 	AutoPlay = vape.Categories.Utility:CreateModule({
@@ -6326,7 +6536,7 @@ run(function()
 		close.Position = UDim2.new(1, -35, 0, 9)
 		close.BackgroundColor3 = Color3.new(1, 1, 1)
 		close.BackgroundTransparency = 1
-		close.Image = getcustomasset('meteor/assets/new/close.png')
+		close.Image = getcustomasset('myau/assets/new/close.png')
 		close.ImageColor3 = color.Light(uipallet.Text, 0.2)
 		close.ImageTransparency = 0.5
 		close.AutoButtonColor = false
@@ -6440,7 +6650,7 @@ run(function()
 		searchicon.Size = UDim2.fromOffset(14, 14)
 		searchicon.Position = UDim2.new(1, -26, 0, 8)
 		searchicon.BackgroundTransparency = 1
-		searchicon.Image = getcustomasset('meteor/assets/new/search.png')
+		searchicon.Image = getcustomasset('myau/assets/new/search.png')
 		searchicon.ImageColor3 = color.Light(uipallet.Main, 0.37)
 		searchicon.Parent = searchbkg
 		local children = Instance.new('ScrollingFrame')
@@ -6581,7 +6791,7 @@ run(function()
 		textbuttonicon.Position = UDim2.fromScale(0.5, 0.5)
 		textbuttonicon.AnchorPoint = Vector2.new(0.5, 0.5)
 		textbuttonicon.BackgroundTransparency = 1
-		textbuttonicon.Image = getcustomasset('meteor/assets/new/add.png')
+		textbuttonicon.Image = getcustomasset('myau/assets/new/add.png')
 		textbuttonicon.ImageColor3 = Color3.fromHSV(0.46, 0.96, 0.52)
 		textbuttonicon.Parent = textbutton
 		local childrenlist = Instance.new('Frame')
@@ -6674,7 +6884,7 @@ run(function()
 			close.Position = UDim2.new(1, -23, 0, 6)
 			close.BackgroundColor3 = Color3.new(1, 1, 1)
 			close.BackgroundTransparency = 1
-			close.Image = getcustomasset('meteor/assets/new/closemini.png')
+			close.Image = getcustomasset('myau/assets/new/closemini.png')
 			close.ImageColor3 = color.Light(uipallet.Text, 0.2)
 			close.ImageTransparency = 0.5
 			close.AutoButtonColor = false
@@ -7151,7 +7361,7 @@ run(function()
 						Size = UDim2.new(1, 89, 1, 52),
 						Position = UDim2.fromOffset(-48, -31),
 						BackgroundTransparency = 1,
-						Image = getcustomasset('meteor/assets/new/blur.png'),
+						Image = getcustomasset('myau/assets/new/blur.png'),
 						ScaleType = Enum.ScaleType.Slice,
 						SliceCenter = Rect.new(52, 31, 261, 502)
 					}),
@@ -7380,7 +7590,7 @@ run(function()
 	local List
 	local NameToId = {}
 	
-	BedBreakEffect = vape.Legit:CreateModule({
+	BedBreakEffect = vape.Categories.Legit:CreateModule({
 		Name = 'Bed Break Effect',
 		Function = function(callback)
 			if callback then
@@ -7410,7 +7620,7 @@ run(function()
 end)
 	
 run(function()
-	vape.Legit:CreateModule({
+	vape.Categories.Legit:CreateModule({
 		Name = 'Clean Kit',
 		Function = function(callback)
 			if callback then
@@ -7429,7 +7639,7 @@ run(function()
 	local old
 	local Image
 	
-	local Crosshair = vape.Legit:CreateModule({
+	local Crosshair = vape.Categories.Legit:CreateModule({
 		Name = 'Crosshair',
 		Function = function(callback)
 			if callback then
@@ -7474,7 +7684,7 @@ run(function()
 	tab = suc and tab or {}
 	local oldvalues, oldfont = {}
 	
-	DamageIndicator = vape.Legit:CreateModule({
+	DamageIndicator = vape.Categories.Legit:CreateModule({
 		Name = 'Damage Indicator',
 		Function = function(callback)
 			if callback then
@@ -7562,7 +7772,7 @@ run(function()
 	local Value
 	local old, old2
 	
-	FOV = vape.Legit:CreateModule({
+	FOV = vape.Categories.Legit:CreateModule({
 		Name = 'FOV',
 		Function = function(callback)
 			if callback then
@@ -7596,7 +7806,7 @@ run(function()
 	local Visualizer
 	local effects, util = {}, {}
 	
-	FPSBoost = vape.Legit:CreateModule({
+	FPSBoost = vape.Categories.Legit:CreateModule({
 		Name = 'FPS Boost',
 		Function = function(callback)
 			if callback then
@@ -7673,7 +7883,7 @@ run(function()
 	local Color
 	local done = {}
 	
-	HitColor = vape.Legit:CreateModule({
+	HitColor = vape.Categories.Legit:CreateModule({
 		Name = 'Hit Color',
 		Function = function(callback)
 			if callback then 
@@ -7707,7 +7917,7 @@ run(function()
 end)
 	
 run(function()
-	vape.Legit:CreateModule({
+	vape.Categories.Legit:CreateModule({
 		Name = 'HitFix',
 		Function = function(callback)
 			debug.setconstant(bedwars.SwordController.swingSwordAtMouse, 23, callback and 'raycast' or 'Raycast')
@@ -7755,7 +7965,7 @@ run(function()
 		end
 	end
 	
-	Interface = vape.Legit:CreateModule({
+	Interface = vape.Categories.Legit:CreateModule({
 		Name = 'Interface',
 		Function = function(callback)
 			for i, v in (callback and new or old) do
@@ -7913,7 +8123,7 @@ run(function()
 		end
 	}
 	
-	KillEffect = vape.Legit:CreateModule({
+	KillEffect = vape.Categories.Legit:CreateModule({
 		Name = 'Kill Effect',
 		Function = function(callback)
 			if callback then
@@ -7978,7 +8188,7 @@ run(function()
 	local ReachDisplay
 	local label
 	
-	ReachDisplay = vape.Legit:CreateModule({
+	ReachDisplay = vape.Categories.Legit:CreateModule({
 		Name = 'Reach Display',
 		Function = function(callback)
 			if callback then
@@ -8067,7 +8277,7 @@ run(function()
 		end
 	end
 	
-	SongBeats = vape.Legit:CreateModule({
+	SongBeats = vape.Categories.Legit:CreateModule({
 		Name = 'Song Beats',
 		Function = function(callback)
 			if callback then
@@ -8144,7 +8354,7 @@ run(function()
 	local soundlist = {}
 	local old
 	
-	SoundChanger = vape.Legit:CreateModule({
+	SoundChanger = vape.Categories.Legit:CreateModule({
 		Name = 'SoundChanger',
 		Function = function(callback)
 			if callback then
@@ -8221,7 +8431,7 @@ run(function()
 		end
 	end
 	
-	UICleanup = vape.Legit:CreateModule({
+	UICleanup = vape.Categories.Legit:CreateModule({
 		Name = 'UI Cleanup',
 		Function = function(callback)
 			for i, v in (callback and new or old) do
@@ -8353,7 +8563,7 @@ run(function()
 		end
 	end
 	
-	Viewmodel = vape.Legit:CreateModule({
+	Viewmodel = vape.Categories.Legit:CreateModule({
 		Name = 'Viewmodel',
 		Function = function(callback)
 			local viewmodel = gameCamera:FindFirstChild('Viewmodel')
@@ -8465,7 +8675,7 @@ run(function()
 	local List
 	local NameToId = {}
 	
-	WinEffect = vape.Legit:CreateModule({
+	WinEffect = vape.Categories.Legit:CreateModule({
 		Name = 'WinEffect',
 		Function = function(callback)
 			if callback then
@@ -8495,7 +8705,7 @@ run(function()
 	})
 end)
 
--- meteor
+-- myau
 
 run(function()
 	local ItemTP
@@ -9168,8 +9378,8 @@ end);
 
 
 
-if not isfile('meteor/profiles/nofirst.txt') then
-	writefile('meteor/profiles/nofirst.txt', 'true')
+if not isfile('myau/profiles/nofirst.txt') then
+	writefile('myau/profiles/nofirst.txt', 'true')
 end
 
 run(function()
@@ -9263,7 +9473,7 @@ run(function()
 	local DamageIndicatorTextObjects = {}
     local DamageIndicatorMode1
     local DamageMessages = {
-		'Pow!',
+		'Myau!',
 		'Pop!',
 		'Hit!',
 		'Smack!',
@@ -9271,7 +9481,7 @@ run(function()
 		'Boom!',
 		'Whoop!',
 		'Damage!',
-		'-9e9!',
+		'Meow!',
 		'Whack!',
 		'Crash!',
 		'Slam!',
@@ -9778,8 +9988,8 @@ run(function()
                 if not getgenv().Config then
                     getgenv().Config = {
                         Headless = false,
-                        FakeDisplayName = "meteor",
-                        FakeName = "meteor",
+                        FakeDisplayName = "myau",
+                        FakeName = "myau",
                         FakeId = 18,
                     }
                 end
@@ -10099,24 +10309,8 @@ end)
 run(function()
     local pack1
 	local packassetids = {
-		['Exhibition'] = 'rbxassetid://14060102755',
-		['Snoopy'] = 'rbxassetid://13782395340',
-		['Floshpa 16x'] = 'rbxassetid://14312698987',
-		['64x hentai'] = 'rbxassetid://14390823554',
-		['ducky 32x'] = 'rbxassetid://14415658661',
-		['GOOGLE CHROME'] = 'rbxassetid://14258942293',
-		['Chad'] = 'rbxassetid://14274833803',
-		['Looks like a fucking dick'] = 'rbxassetid://14614456664',
-		['SystemVoid 16x'] = 'rbxassetid://14217402799',
-		['Snoopy 16x Pack 2'] = 'rbxassetid://93716357946641',
-		['High res'] = 'rbxassetid://13780890894',
-		['Sentry 32x'] = 'rbxassetid://14254581941',
 		['Mastadawn'] = 'rbxassetid://14190963148',
-		['Old Meteor'] = 'rbxassetid://13802020264',
-		['Novoline'] = 'rbxassetid://13802560031',
 		['Minecraft Swords'] = 'rbxassetid://14427750969',
-		['MeteorX'] = 'rbxassetid://14028489054',
-		['Meteor older'] = 'rbxassetid://13993784995',
 	}
     local TexturePacks 
 	TexturePacks = vape.Categories.Render:CreateModule({
@@ -10220,4 +10414,2240 @@ run(function()
 			end
 		end
     })
+end)
+run(function()
+    SpeedBoost = vape.Categories.Blatant:CreateModule({
+        Name = 'SpeedBoost',
+        Function = function(callback)
+            local Players = game:GetService("Players")
+            local RunService = game:GetService("RunService")
+            local Workspace = game:GetService("Workspace")
+
+            local player = Players.LocalPlayer
+            local connections = {}
+
+            local function applySpeedBoost(char)
+                local hrp = char:WaitForChild("HumanoidRootPart", 5)
+                local humanoid = char:WaitForChild("Humanoid", 5)
+                if not hrp or not humanoid then return end
+
+                humanoid.AutoRotate = false
+                local useCFrame = true
+                local speed = 31
+                local normalSpeed = 16
+                local running = true
+
+                task.spawn(function()
+                    while SpeedBoost.Enabled and running do
+                        useCFrame = true
+                        humanoid.WalkSpeed = 0
+                        task.wait(1)
+                        useCFrame = false
+                        humanoid.WalkSpeed = normalSpeed
+                        task.wait(1)
+                    end
+                end)
+
+                table.insert(connections, RunService.RenderStepped:Connect(function(dt)
+                    if not useCFrame or not hrp or not char or not char.Parent then return end
+
+                    local direction = humanoid.MoveDirection
+                    if direction.Magnitude > 0 then
+                        local moveDelta = direction.Unit * speed * dt
+                        local newPos = hrp.Position + moveDelta
+
+                        local rayParams = RaycastParams.new()
+                        rayParams.FilterType = Enum.RaycastFilterType.Blacklist
+                        rayParams.FilterDescendantsInstances = {char}
+
+                        local result = Workspace:Raycast(hrp.Position, moveDelta, rayParams)
+
+                        if not result then
+                            hrp.CFrame = CFrame.new(newPos, newPos + Vector3.new(direction.X, 0, direction.Z))
+                        end
+                    end
+                end))
+            end
+
+            for _, conn in pairs(connections) do conn:Disconnect() end
+            table.clear(connections)
+
+            if callback then
+                if player.Character then
+                    applySpeedBoost(player.Character)
+                end
+                table.insert(connections, player.CharacterAdded:Connect(function(char)
+                    if SpeedBoost.Enabled then
+                        task.wait(1)
+                        applySpeedBoost(char)
+                    end
+                end))
+            else
+                if player.Character and player.Character:FindFirstChild("Humanoid") then
+                    player.Character.Humanoid.WalkSpeed = 16
+                    player.Character.Humanoid.AutoRotate = true
+                end
+                for _, conn in pairs(connections) do conn:Disconnect() end
+                table.clear(connections)
+	     end																																																
+        end,
+        Default = false,
+        Tooltip = "Bypass go brrr"
+    })
+end)
+run(function()
+    local Players = game:GetService("Players")
+    local LocalPlayer = Players.LocalPlayer
+    local animationId = "rbxassetid://4940563117"
+    local activeTracks = {}
+    local respawnConnection
+
+    SetEmote = vape.Categories.Blatant:CreateModule({
+        Name = 'SetEmote',
+        Function = function(callback)
+            local function applyLoopingAnimation(character)
+                local humanoid = character:WaitForChild("Humanoid")
+                local animation = Instance.new("Animation")
+                animation.AnimationId = animationId
+                local mainAnim = humanoid:LoadAnimation(animation)
+
+                mainAnim.Priority = Enum.AnimationPriority.Action4
+                mainAnim.Looped = true
+                mainAnim:Play()
+                table.insert(activeTracks, mainAnim)
+
+                -- Watchdog to keep animation active
+                task.spawn(function()
+                    while SetEmote.Enabled and character and character.Parent do
+                        for _, track in ipairs(humanoid:GetPlayingAnimationTracks()) do
+                            if track.Animation.AnimationId ~= animationId then
+                                track:Stop()
+                            elseif not track.Looped then
+                                track.Looped = true
+                            end
+                        end
+                        if not mainAnim.IsPlaying then
+                            mainAnim:Play()
+                        end
+                        task.wait(0.05)
+                    end
+                end)
+            end
+
+            if callback then
+                -- Apply to current character
+                if LocalPlayer.Character then
+                    applyLoopingAnimation(LocalPlayer.Character)
+                end
+
+                -- Reapply on respawn
+                respawnConnection = LocalPlayer.CharacterAdded:Connect(function(char)
+                    applyLoopingAnimation(char)
+                end)
+            else
+                -- Stop all active animation tracks
+                for _, track in ipairs(activeTracks) do
+                    if track and track.IsPlaying then
+                        track:Stop()
+                    end
+                end
+                activeTracks = {}
+
+                -- Disconnect respawn handler
+                if respawnConnection then
+                    respawnConnection:Disconnect()
+                    respawnConnection = nil
+                end
+            end
+        end,
+        Tooltip = 'Looped emote animation'
+    })
+end)
+
+shared.slowmode = 0
+run(function()
+    local HttpService = game:GetService("HttpService")
+    local StaffDetectionSystem = {
+        Enabled = false
+    }
+    local StaffDetectionSystemConfig = {
+        GameMode = "Bedwars",
+        CustomGroupEnabled = false,
+        IgnoreOnline = false,
+        AutoCheck = false,
+        MemberLimit = 50,
+        CustomGroupId = "",
+        CustomRoles = {}
+    }
+    local StaffDetectionSystemStaffData = {
+        Games = {
+            Bedwars = {groupId = 5774246, roles = {79029254, 86172137, 43926962, 37929139, 87049509, 37929138}},
+            PS99 = {groupId = 5060810, roles = {33738740, 33738765}}
+        },
+        Detected = {}
+    }
+
+    local DetectionUtils = {
+        resetSlowmode = function() end,
+        fetchUsersInRole = function() end,
+        fetchUserPresence = function() end,
+        fetchGroupRoles = function() end,
+        getDetectionConfig = function() end,
+        scanStaff = function() end
+    }
+
+    DetectionUtils = {
+        resetSlowmode = function()
+            task.spawn(function()
+                while shared.slowmode > 0 do
+                    shared.slowmode = shared.slowmode - 1
+                    task.wait(1)
+                end
+                shared.slowmode = 0
+            end)
+        end,
+
+        fetchUsersInRole = function(groupId, roleId, cursor)
+            local url = string.format("https://groups.roblox.com/v1/groups/%d/roles/%d/users?limit=%d%s", groupId, roleId, StaffDetectionSystemConfig.MemberLimit, cursor and "&cursor=" .. cursor or "")
+            local success, response = pcall(function()
+                return request({Url = url, Method = "GET"})
+            end)
+            return success and HttpService:JSONDecode(response.Body) or {}
+        end,
+
+        fetchUserPresence = function(userIds)
+            local success, response = pcall(function()
+                return request({
+                    Url = "https://presence.roblox.com/v1/presence/users",
+                    Method = "POST",
+                    Headers = {["Content-Type"] = "application/json"},
+                    Body = HttpService:JSONEncode({userIds = userIds})
+                })
+            end)
+            return success and HttpService:JSONDecode(response.Body) or {userPresences = {}}
+        end,
+
+        fetchGroupRoles = function(groupId)
+            local success, response = pcall(function()
+                return request({
+                    Url = "https://groups.roblox.com/v1/groups/" .. groupId .. "/roles",
+                    Method = "GET"
+                })
+            end)
+            if success and response.StatusCode == 200 then
+                local roles = {}
+                for _, role in pairs(HttpService:JSONDecode(response.Body).roles) do
+                    table.insert(roles, role.id)
+                end
+                return true, roles
+            end
+            return false, nil, "Failed to fetch roles: " .. (success and response.StatusCode or "Network error")
+        end,
+
+        getDetectionConfig = function()
+            if StaffDetectionSystemConfig.CustomGroupEnabled then
+                if not StaffDetectionSystemConfig.CustomGroupId or StaffDetectionSystemConfig.CustomGroupId == "" then
+                    return false, nil, "Custom Group ID not specified", false, nil, "Custom"
+                end
+                if #StaffDetectionSystemConfig.CustomRoles == 0 then
+                    return true, tonumber(StaffDetectionSystemConfig.CustomGroupId), nil, false, nil, "Custom roles not specified"
+                end
+                local success, roles, error = DetectionUtils.fetchGroupRoles(StaffDetectionSystemConfig.CustomGroupId)
+                return true, tonumber(StaffDetectionSystemConfig.CustomGroupId), nil, success, roles, error, "Custom"
+            else
+                local gameData = StaffDetectionSystemStaffData.Games[StaffDetectionSystemConfig.GameMode]
+                return true, gameData.groupId, nil, true, gameData.roles, nil, "Normal"
+            end
+        end,
+
+        scanStaff = function(groupId, roleId)
+            local users, userIds = {}, {}
+            local cursor = nil
+            repeat
+                local data = DetectionUtils.fetchUsersInRole(groupId, roleId, cursor)
+                for _, user in pairs(data.data or {}) do
+                    table.insert(users, user)
+                    table.insert(userIds, user.userId)
+                end
+                cursor = data.nextPageCursor
+            until not cursor
+
+            local presenceData = DetectionUtils.fetchUserPresence(userIds)
+            for _, user in pairs(users) do
+                for _, presence in pairs(presenceData.userPresences) do
+                    if user.userId == presence.userId then
+                        user.presenceType = presence.userPresenceType
+                        user.lastLocation = presence.lastLocation
+                        break
+                    end
+                end
+            end
+            return users
+        end
+    }
+
+    local function processStaffCheck()
+        if shared.slowmode > 0 and not StaffDetectionSystemConfig.AutoCheck then
+            errorNotification("StaffDetector", "Slowmode active! Wait " .. shared.slowmode .. " seconds", shared.slowmode)
+            return
+        end
+
+        shared.slowmode = 5
+        DetectionUtils.resetSlowmode()
+        InfoNotification("StaffDetector", "Checking staff presence...", 5)
+
+        local groupSuccess, groupId, groupError, rolesSuccess, roles, rolesError, mode = DetectionUtils.getDetectionConfig()
+        if not groupSuccess or not rolesSuccess then
+            shared.slowmode = 0
+            if groupError then errorNotification("StaffDetector", groupError, 5) end
+            if rolesError then errorNotification("StaffDetector", rolesError, 5) end
+            return
+        end
+
+        local detectedStaff, uniqueIds = {}, {}
+        for _, roleId in pairs(roles) do
+            for _, user in pairs(DetectionUtils.scanStaff(groupId, roleId)) do
+				local resolve = {
+					["Offline"] = '<font color="rgb(128,128,128)">Offline</font>',
+					["Online"] = '<font color="rgb(0,255,0)">Online</font>',
+					["In Game"] = '<font color="rgb(16, 150, 234)">In Game</font>',
+					["In Studio"] = '<font color="rgb(255,165,0)">In Studio</font>'
+				}
+                local status = ({
+                    [0] = "Offline",
+                    [1] = "Online",
+                    [2] = "In Game",
+                    [3] = "In Studio"
+                })[user.presenceType or 0]
+
+                if (status == "In Game" or (not StaffDetectionSystemConfig.IgnoreOnline and status == "Online")) and
+                   not table.find(uniqueIds, user.userId) then
+                    table.insert(uniqueIds, user.userId)
+                    local userData = {UserID = tostring(user.userId), Username = user.username, Status = status}
+                    if not table.find(detectedStaff, userData) then
+                        table.insert(detectedStaff, userData)
+                        errorNotification("StaffDetector", "@" .. userData.Username .. "(" .. userData.UserID .. ") is " .. resolve[status], 7)
+                    end
+                end
+            end
+        end
+        InfoNotification("StaffDetector", #detectedStaff .. " staff members detected online/in-game!", 7)
+    end
+
+    StaffDetectionSystem = vape.Categories.Utility:CreateModule({
+        Name = 'StaffFetcher - Roblox',
+        Function = function(enabled)
+            StaffDetectionSystem.Enabled = enabled
+            if enabled then
+                if StaffDetectionSystemConfig.AutoCheck then
+                    task.spawn(function()
+                        repeat
+                            processStaffCheck()
+                            task.wait(30)
+                        until not StaffDetectionSystem.Enabled or not StaffDetectionSystemConfig.AutoCheck
+                        StaffDetectionSystem:Toggle(false)
+                    end)
+                else
+                    processStaffCheck()
+                    StaffDetectionSystem:Toggle(false)
+                end
+            end
+        end
+    })
+
+    local StaffDetectionSystemUI = {}
+
+    local gameList = {}
+    for game in pairs(StaffDetectionSystemStaffData.Games) do table.insert(gameList, game) end
+    StaffDetectionSystemUI.GameSelector = StaffDetectionSystem:CreateDropdown({
+        Name = "Game Mode",
+        Function = function(value) StaffDetectionSystemConfig.GameMode = value end,
+        List = gameList
+    })
+
+    StaffDetectionSystemUI.RolesList = StaffDetectionSystem:CreateTextList({
+        Name = "Custom Roles",
+        TempText = "Role ID (number)",
+        Function = function(values) StaffDetectionSystemConfig.CustomRoles = values end
+    })
+
+    StaffDetectionSystemUI.GroupIdInput = StaffDetectionSystem:CreateTextBox({
+        Name = "Custom Group ID",
+        TempText = "Group ID (number)",
+        Function = function(value) StaffDetectionSystemConfig.CustomGroupId = value end
+    })
+
+    StaffDetectionSystem:CreateToggle({
+        Name = "Custom Group",
+        Function = function(enabled)
+            StaffDetectionSystemConfig.CustomGroupEnabled = enabled
+            StaffDetectionSystemUI.GroupIdInput.Object.Visible = enabled
+            StaffDetectionSystemUI.RolesList.Object.Visible = enabled
+            StaffDetectionSystemUI.GameSelector.Object.Visible = not enabled
+        end,
+        Tooltip = "Use a custom staff group",
+        Default = false
+    })
+
+    StaffDetectionSystem:CreateToggle({
+        Name = "Ignore Online Staff",
+        Function = function(enabled) StaffDetectionSystemConfig.IgnoreOnline = enabled end,
+        Tooltip = "Only show in-game staff, ignoring online staff",
+        Default = false
+    })
+
+    StaffDetectionSystem:CreateSlider({
+        Name = "Member Limit",
+        Min = 1,
+        Max = 100,
+        Function = function(value) StaffDetectionSystemConfig.MemberLimit = value end,
+        Default = 50
+    })
+
+    StaffDetectionSystem:CreateToggle({
+        Name = "Auto Check",
+        Function = function(enabled)
+            StaffDetectionSystemConfig.AutoCheck = enabled
+            if enabled and shared.slowmode > 0 then
+                errorNotification("StaffDetector", "Disable Auto Check to use manually during slowmode!", 5)
+            end
+        end,
+        Tooltip = "Automatically check every 30 seconds",
+        Default = false
+    })
+
+    StaffDetectionSystemUI.GroupIdInput.Object.Visible = false
+    StaffDetectionSystemUI.RolesList.Object.Visible = false
+end)
+
+if not shared.CheatEngineMode then
+	local inputService = game:GetService('UserInputService')
+	local isMobile = inputService.TouchEnabled and not inputService.KeyboardEnabled and not inputService.MouseEnabled
+	run(function()
+		local controller
+		local LegacyLayout = {Enabled = false}
+		LegacyLayout = vape.Categories.World:CreateModule({
+			Name = "LegacyLayout",
+			Function = function(call)
+				if not controller then
+					controller = require(game:GetService("ReplicatedStorage").rbxts_include.node_modules["@flamework"].core.out).Flamework.resolveDependency("@easy-games/game-core:client/controllers/ability/ability-controller@AbilityController").mobileAbilityUIController.mobileLayoutController
+				end
+				if call and not isMobile then
+					warningNotification("LegacyLayout", "Mobile devices only!", 3)
+					--LegacyLayout:Toggle(false)
+				end
+				controller:setIsLegacyMode(call)
+			end
+		})
+	end)
+end
+
+run(function()
+	local a = {Enabled = false}
+	a = vape.Categories.World:CreateModule({
+		Name = "Leave Party",
+		Function = function(call)
+			if call then
+				a:Toggle(false)
+				game:GetService("ReplicatedStorage"):WaitForChild("events-@easy-games/lobby:shared/event/lobby-events@getEvents.Events"):WaitForChild("leaveParty"):FireServer()
+			end
+		end
+	})
+end)
+run(function()
+	local TexturePacks = {["Enabled"] = false}
+	local packselected = {["Value"] = "OldBedwars"}
+
+	local toolFunction = function() end
+	local con
+
+	local packfunctions = {
+		SeventhPack = function() 
+			task.spawn(function()
+				local Players = game:GetService("Players")
+				local ReplicatedStorage = game:GetService("ReplicatedStorage")
+				local Workspace = game:GetService("Workspace")
+				local objs = game:GetObjects("rbxassetid://14033898270")
+				local import = objs[1]
+				import.Parent = ReplicatedStorage
+				local index = {
+					{
+						name = "wood_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-100), math.rad(-90)),
+						model = import:WaitForChild("Wood_Sword"),
+					},	
+					{
+						name = "stone_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-100), math.rad(-90)),
+						model = import:WaitForChild("Stone_Sword"),
+					},
+					{
+						name = "iron_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-100), math.rad(-90)),
+						model = import:WaitForChild("Iron_Sword"),
+					},
+					{
+						name = "diamond_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-100), math.rad(-90)),
+						model = import:WaitForChild("Diamond_Sword"),
+					},
+					{
+						name = "emerald_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-100), math.rad(-90)),
+						model = import:WaitForChild("Emerald_Sword"),
+					},
+					{
+						name = "wood_pickaxe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-190), math.rad(-95)),
+						model = import:WaitForChild("Wood_Pickaxe"),
+					},
+					{
+						name = "stone_pickaxe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-190), math.rad(-95)),
+						model = import:WaitForChild("Stone_Pickaxe"),
+					},
+					{
+						name = "iron_pickaxe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-190), math.rad(-95)),
+						model = import:WaitForChild("Iron_Pickaxe"),
+					},
+					{
+						name = "diamond_pickaxe",
+						offset = CFrame.Angles(math.rad(0), math.rad(80), math.rad(-95)),
+						model = import:WaitForChild("Diamond_Pickaxe"),
+					},	
+					{
+						name = "wood_axe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-10), math.rad(-95)),
+						model = import:WaitForChild("Wood_Axe"),
+					},	
+					{
+						name = "stone_axe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-10), math.rad(-95)),
+						model = import:WaitForChild("Stone_Axe"),
+					},	
+					{
+						name = "iron_axe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-10), math.rad(-95)),
+						model = import:WaitForChild("Iron_Axe"),
+					},	
+					{
+						name = "diamond_axe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-90), math.rad(-95)),
+						model = import:WaitForChild("Diamond_Axe"),
+					},	
+					{
+						name = "fireball",
+						offset = CFrame.Angles(math.rad(0), math.rad(-90), math.rad(90)),
+						model = import:WaitForChild("Fireball"),
+					},	
+					{
+						name = "telepearl",
+						offset = CFrame.Angles(math.rad(0), math.rad(-90), math.rad(90)),
+						model = import:WaitForChild("Telepearl"),
+					},
+				}
+				toolFunction = function(tool)	
+					if not tool:IsA("Accessory") then return end	
+					for _, v in ipairs(index) do	
+						if v.name == tool.Name then		
+							for _, part in ipairs(tool:GetDescendants()) do
+								if part:IsA("BasePart") or part:IsA("MeshPart") or part:IsA("UnionOperation") then				
+									part.Transparency = 1
+								end			
+							end		
+							local model = v.model:Clone()
+							model.CFrame = tool:WaitForChild("Handle").CFrame * v.offset
+							model.CFrame *= CFrame.Angles(math.rad(0), math.rad(-50), math.rad(0))
+							model.Parent = tool			
+							local weld = Instance.new("WeldConstraint", model)
+							weld.Part0 = model
+							weld.Part1 = tool:WaitForChild("Handle")			
+							local tool2 = Players.LocalPlayer.Character:WaitForChild(tool.Name)			
+							for _, part in ipairs(tool2:GetDescendants()) do
+								if part:IsA("BasePart") or part:IsA("MeshPart") or part:IsA("UnionOperation") then				
+									part.Transparency = 1				
+								end			
+							end			
+							local model2 = v.model:Clone()
+							model2.Anchored = false
+							model2.CFrame = tool2:WaitForChild("Handle").CFrame * v.offset
+							model2.CFrame *= CFrame.Angles(math.rad(0), math.rad(-50), math.rad(0))
+							if v.name:match("sword") or v.name:match("blade") then
+								model2.CFrame *= CFrame.new(.5, 0, -1.1) - Vector3.new(0, 0, -.3)
+							elseif v.name:match("axe") and not v.name:match("pickaxe") and v.name:match("diamond") then
+								model2.CFrame *= CFrame.new(.08, 0, -1.1) - Vector3.new(0, 0, -.9)
+							elseif v.name:match("axe") and not v.name:match("pickaxe") and not v.name:match("diamond") then
+								model2.CFrame *= CFrame.new(-.2, 0, -2.4) + Vector3.new(0, 0, 2.12)
+							else
+								model2.CFrame *= CFrame.new(.2, 0, -.09)
+							end
+							model2.Parent = tool2
+							local weld2 = Instance.new("WeldConstraint", model)
+							weld2.Part0 = model2
+							weld2.Part1 = tool2:WaitForChild("Handle")
+						end
+					end
+				end
+			end)
+		end,
+		EighthPack = function() 
+			task.spawn(function()
+				local Players = game:GetService("Players")
+				local ReplicatedStorage = game:GetService("ReplicatedStorage")
+				local Workspace = game:GetService("Workspace")
+				local objs = game:GetObjects("rbxassetid://14078540433")
+				local import = objs[1]
+				import.Parent = game:GetService("ReplicatedStorage")
+				index = {
+					{
+						name = "wood_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Wood_Sword"),
+					},
+					{
+						name = "stone_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Stone_Sword"),
+					},
+					{
+						name = "iron_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Iron_Sword"),
+					},
+					{
+						name = "diamond_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Diamond_Sword"),
+					},
+					{
+						name = "emerald_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Emerald_Sword"),
+					},
+					{
+						name = "rageblade",
+						offset = CFrame.Angles(math.rad(0),math.rad(-90),math.rad(90)),
+						model = import:WaitForChild("Rageblade"),
+					}, 
+				}
+				toolFunction = function(tool)
+					if(not tool:IsA("Accessory")) then return end
+					for i,v in pairs(index) do
+						if(v.name == tool.Name) then
+							for i,v in pairs(tool:GetDescendants()) do
+								if(v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation")) then
+									v.Transparency = 1
+								end
+							end
+							local model = v.model:Clone()
+							model.CFrame = tool:WaitForChild("Handle").CFrame * v.offset
+							model.CFrame *= CFrame.Angles(math.rad(0),math.rad(-50),math.rad(0))
+							model.Parent = tool
+							local weld = Instance.new("WeldConstraint",model)
+							weld.Part0 = model
+							weld.Part1 = tool:WaitForChild("Handle")
+							local tool2 = Players.LocalPlayer.Character:WaitForChild(tool.Name)
+							for i,v in pairs(tool2:GetDescendants()) do
+								if(v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation")) then
+									v.Transparency = 1
+								end
+							end
+							local model2 = v.model:Clone()
+							model2.Anchored = false
+							model2.CFrame = tool2:WaitForChild("Handle").CFrame * v.offset
+							model2.CFrame *= CFrame.Angles(math.rad(0),math.rad(-50),math.rad(0))
+							model2.CFrame *= CFrame.new(.5,0,-.8)
+							model2.Parent = tool2
+							local weld2 = Instance.new("WeldConstraint",model)
+							weld2.Part0 = model2
+							weld2.Part1 = tool2:WaitForChild("Handle")
+						end
+					end
+				end
+			end)
+		end,
+		SixthPack = function() 
+			task.spawn(function()
+				local Players = game:GetService("Players")
+				local ReplicatedStorage = game:GetService("ReplicatedStorage")
+				local Workspace = game:GetService("Workspace")
+
+				local objs = game:GetObjects("rbxassetid://13780890894")
+				local import = objs[1]
+				import.Parent = ReplicatedStorage
+				
+				local swordIndex = {
+					{
+						name = "wood_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-100), math.rad(-90)),
+						model = import:WaitForChild("Wood_Sword"),
+					},
+					{
+						name = "stone_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-100), math.rad(-90)),
+						model = import:WaitForChild("Stone_Sword"),
+					},
+					{
+						name = "iron_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-100), math.rad(-90)),
+						model = import:WaitForChild("Iron_Sword"),
+					},
+					{
+						name = "diamond_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-100), math.rad(-90)),
+						model = import:WaitForChild("Diamond_Sword"),
+					},
+					{
+						name = "emerald_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-100), math.rad(-90)),
+						model = import:WaitForChild("Emerald_Sword"),
+					},
+				}
+				
+				local pickaxeIndex = {
+					{
+						name = "wood_pickaxe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-190), math.rad(-95)),
+						model = import:WaitForChild("Wood_Pickaxe"),
+					},
+					{
+						name = "stone_pickaxe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-190), math.rad(-95)),
+						model = import:WaitForChild("Stone_Pickaxe"),
+					},
+					{
+						name = "iron_pickaxe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-190), math.rad(-95)),
+						model = import:WaitForChild("Iron_Pickaxe"),
+					},
+					{
+						name = "diamond_pickaxe",
+						offset = CFrame.Angles(math.rad(0), math.rad(80), math.rad(-95)),
+						model = import:WaitForChild("Diamond_Pickaxe"),
+					},
+				}
+
+				local swordFunction = function(tool)
+					if not tool:IsA("Accessory") then
+						return
+					end
+					
+					for _, v in pairs(swordIndex) do
+						if v.name == tool.Name then
+							for _, v in pairs(tool:GetDescendants()) do
+								if v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation") then
+									v.Transparency = 1
+								end
+							end
+							
+							local model = v.model:Clone()
+							model.CFrame = tool.Handle.CFrame * v.offset
+							model.CFrame *= CFrame.Angles(math.rad(0), math.rad(-50), math.rad(0))
+							model.Parent = tool
+							
+							local weld = Instance.new("WeldConstraint", model)
+							weld.Part0 = model
+							weld.Part1 = tool.Handle
+							
+							local tool2 = Players.LocalPlayer.Character[tool.Name]
+							
+							for _, v in pairs(tool2:GetDescendants()) do
+								if v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation") then
+									v.Transparency = 1
+								end
+							end
+							
+							local model2 = v.model:Clone()
+							model2.Anchored = false
+							model2.CFrame = tool2.Handle.CFrame * v.offset
+							model2.CFrame *= CFrame.Angles(math.rad(0), math.rad(-50), math.rad(0))
+							model2.CFrame *= CFrame.new(0.4, 0, -0.9)
+							model2.Parent = tool2
+							
+							local weld2 = Instance.new("WeldConstraint", model)
+							weld2.Part0 = model2
+							weld2.Part1 = tool2.Handle
+						end
+					end
+				end
+
+				local pickaxeFunction = function(tool)
+					if not tool:IsA("Accessory") then
+						return
+					end
+
+					for _, v in pairs(pickaxeIndex) do
+						if v.name == tool.Name then
+							for _, v in pairs(tool:GetDescendants()) do
+								if v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation") then
+									v.Transparency = 1
+								end
+							end
+							local model = v.model:Clone()
+							model.CFrame = tool.Handle.CFrame * v.offset
+							model.CFrame *= CFrame.Angles(math.rad(0), math.rad(-50), math.rad(0))
+							model.Parent = tool
+							local weld = Instance.new("WeldConstraint", model)
+							weld.Part0 = model
+							weld.Part1 = tool.Handle
+							local tool2 = Players.LocalPlayer.Character[tool.Name]
+							for _, v in pairs(tool2:GetDescendants()) do
+								if v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation") then
+									v.Transparency = 1
+								end
+							end
+							local model2 = v.model:Clone()
+							model2.Anchored = false
+							model2.CFrame = tool2.Handle.CFrame * v.offset
+							model2.CFrame *= CFrame.Angles(math.rad(0), math.rad(-50), math.rad(0))
+							model2.CFrame *= CFrame.new(-0.2, 0, -0.08)
+							model2.Parent = tool2
+							local weld2 = Instance.new("WeldConstraint", model)
+							weld2.Part0 = model2
+							weld2.Part1 = tool2.Handle
+						end
+					end
+				end
+
+				toolFunction = function(tool)
+					task.spawn(function() swordFunction(tool) end)
+					task.spawn(function() pickaxeFunction(tool) end)
+				end
+			end)
+		end,
+		FifthPack = function() 
+			task.spawn(function()
+				local Players = game:GetService("Players")
+				local ReplicatedStorage = game:GetService("ReplicatedStorage")
+				local Workspace = game:GetService("Workspace")
+				
+				local objs = game:GetObjects("rbxassetid://13802020264")
+				local import = objs[1]
+				
+				import.Parent = game:GetService("ReplicatedStorage")
+				
+				index = {
+					{
+						name = "wood_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Wood_Sword"),
+					},
+					
+					{
+						name = "stone_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Stone_Sword"),
+					},
+					
+					{
+						name = "iron_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Iron_Sword"),
+					},
+					
+					{
+						name = "diamond_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Diamond_Sword"),
+					},
+					
+					{
+						name = "emerald_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Emerald_Sword"),
+					},
+					
+					
+				}
+				
+				toolFunction = function(tool)
+					if(not tool:IsA("Accessory")) then return end
+					for i,v in pairs(index) do
+						if(v.name == tool.Name) then
+							for i,v in pairs(tool:GetDescendants()) do
+								if(v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation")) then
+									v.Transparency = 1
+								end
+							end
+						
+							local model = v.model:Clone()
+							model.CFrame = tool:WaitForChild("Handle").CFrame * v.offset
+							model.CFrame *= CFrame.Angles(math.rad(0),math.rad(-50),math.rad(0))
+							model.Parent = tool
+							
+							local weld = Instance.new("WeldConstraint",model)
+							weld.Part0 = model
+							weld.Part1 = tool:WaitForChild("Handle")
+							
+							local tool2 = Players.LocalPlayer.Character:WaitForChild(tool.Name)
+							
+							for i,v in pairs(tool2:GetDescendants()) do
+								if(v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation")) then
+									v.Transparency = 1
+								end
+							end
+							
+							local model2 = v.model:Clone()
+							model2.Anchored = false
+							model2.CFrame = tool2:WaitForChild("Handle").CFrame * v.offset
+							model2.CFrame *= CFrame.Angles(math.rad(0),math.rad(-50),math.rad(0))
+							model2.CFrame *= CFrame.new(0.8,0,-.9)
+							model2.Parent = tool2
+							
+							local weld2 = Instance.new("WeldConstraint",model)
+							weld2.Part0 = model2
+							weld2.Part1 = tool2:WaitForChild("Handle")			
+						end
+					end
+				end
+			end)
+		end,
+		FourthPack = function() 
+			task.spawn(function()
+				local Players = game:GetService("Players")
+				local ReplicatedStorage = game:GetService("ReplicatedStorage")
+				local Workspace = game:GetService("Workspace")
+				
+				local objs = game:GetObjects("rbxassetid://13801509384")
+				local import = objs[1]
+				
+				import.Parent = game:GetService("ReplicatedStorage")
+				
+				index = {
+				
+					{
+						name = "wood_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Wood_Sword"),
+					},
+					
+					{
+						name = "stone_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Stone_Sword"),
+					},
+					
+					{
+						name = "iron_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Iron_Sword"),
+					},
+					
+					{
+						name = "diamond_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Diamond_Sword"),
+					},
+					
+					{
+						name = "emerald_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Emerald_Sword"),
+					},
+					
+					{
+						name = "rageblade",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-270)),
+						model = import:WaitForChild("Rageblade"),
+					},
+					
+					
+				}
+
+				toolFunction = function(tool)
+					if(not tool:IsA("Accessory")) then return end
+					for i,v in pairs(index) do
+						if(v.name == tool.Name) then	
+							for i,v in pairs(tool:GetDescendants()) do
+								if(v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation")) then	
+									v.Transparency = 1
+								end
+							end
+						
+							local model = v.model:Clone()
+							model.CFrame = tool:WaitForChild("Handle").CFrame * v.offset
+							model.CFrame *= CFrame.Angles(math.rad(0),math.rad(-50),math.rad(0))
+							model.Parent = tool
+							
+							local weld = Instance.new("WeldConstraint",model)
+							weld.Part0 = model
+							weld.Part1 = tool:WaitForChild("Handle")
+							
+							local tool2 = Players.LocalPlayer.Character:WaitForChild(tool.Name)
+							
+							for i,v in pairs(tool2:GetDescendants()) do
+								if(v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation")) then	
+									v.Transparency = 1	
+								end	
+							end
+
+							local model2 = v.model:Clone()
+							model2.Anchored = false
+							model2.CFrame = tool2:WaitForChild("Handle").CFrame * v.offset
+							model2.CFrame *= CFrame.Angles(math.rad(0),math.rad(-50),math.rad(0))
+							model2.CFrame *= CFrame.new(0.4,0,-.9)
+							model2.Parent = tool2
+							
+							local weld2 = Instance.new("WeldConstraint",model)
+							weld2.Part0 = model2
+							weld2.Part1 = tool2:WaitForChild("Handle")					
+						end
+					end
+				end
+			end)
+		end,
+		SecondPack = function() 
+			task.spawn(function()
+				local Players = game:GetService("Players")
+				local ReplicatedStorage = game:GetService("ReplicatedStorage")
+				local Workspace = game:GetService("Workspace")
+				local objs = game:GetObjects("rbxassetid://13801616054")
+				local import = objs[1]
+				import.Parent = game:GetService("ReplicatedStorage")
+				index = {
+					{
+						name = "wood_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(100),math.rad(-90)),
+						model = import:WaitForChild("Wood_Sword"),
+					},
+					
+					{
+						name = "stone_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(100),math.rad(-90)),
+						model = import:WaitForChild("Stone_Sword"),
+					},
+					
+					{
+						name = "iron_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(100),math.rad(-90)),
+						model = import:WaitForChild("Iron_Sword"),
+					},
+					
+					{
+						name = "diamond_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(100),math.rad(-90)),
+						model = import:WaitForChild("Diamond_Sword"),
+					},
+					
+					{
+						name = "emerald_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(100),math.rad(-90)),
+						model = import:WaitForChild("Emerald_Sword"),
+					},
+					
+					{
+						name = "rageblade",
+						offset = CFrame.Angles(math.rad(0),math.rad(100),math.rad(-270)),
+						model = import:WaitForChild("Rageblade"),
+					},
+					
+					
+				}
+
+				toolFunction = function(tool)
+					if(not tool:IsA("Accessory")) then return end
+					for i,v in pairs(index) do
+						if(v.name == tool.Name) then
+							for i,v in pairs(tool:GetDescendants()) do
+								if(v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation")) then
+									v.Transparency = 1
+								end
+							end
+						
+							local model = v.model:Clone()
+							model.CFrame = tool:WaitForChild("Handle").CFrame * v.offset
+							model.CFrame *= CFrame.Angles(math.rad(0),math.rad(-50),math.rad(0))
+							model.Parent = tool
+							
+							local weld = Instance.new("WeldConstraint",model)
+							weld.Part0 = model
+							weld.Part1 = tool:WaitForChild("Handle")
+							
+							local tool2 = Players.LocalPlayer.Character:WaitForChild(tool.Name)
+							
+							for i,v in pairs(tool2:GetDescendants()) do
+								if(v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation")) then
+									v.Transparency = 1
+								end
+							end
+							
+							local model2 = v.model:Clone()
+							model2.Anchored = false
+							model2.CFrame = tool2:WaitForChild("Handle").CFrame * v.offset
+							model2.CFrame *= CFrame.Angles(math.rad(0),math.rad(-50),math.rad(0))
+							model2.CFrame *= CFrame.new(0.8,0,-.9)
+							model2.Parent = tool2
+							
+							local weld2 = Instance.new("WeldConstraint",model)
+							weld2.Part0 = model2
+							weld2.Part1 = tool2:WaitForChild("Handle")
+						end
+					end
+				end
+			end)
+		end,
+		FirstPack = function() 
+			task.spawn(function()
+				local Players = game:GetService("Players")
+				local ReplicatedStorage = game:GetService("ReplicatedStorage")
+				local Workspace = game:GetService("Workspace")
+				local objs = game:GetObjects("rbxassetid://13783192680")
+				local import = objs[1]
+				import.Parent = game:GetService("ReplicatedStorage")
+				index = {
+					{
+						name = "wood_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Wood_Sword"),
+					},
+					
+					{
+						name = "stone_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Stone_Sword"),
+					},
+					
+					{
+						name = "iron_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Iron_Sword"),
+					},
+					
+					{
+						name = "diamond_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Diamond_Sword"),
+					},
+					
+					{
+						name = "emerald_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Emerald_Sword"),
+					},
+					
+					
+				}
+				toolFunction = function(tool)
+					if(not tool:IsA("Accessory")) then return end
+					for i,v in pairs(index) do
+						if(v.name == tool.Name) then
+							for i,v in pairs(tool:GetDescendants()) do
+								if(v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation")) then
+									v.Transparency = 1
+								end
+							end
+							local model = v.model:Clone()
+							model.CFrame = tool:WaitForChild("Handle").CFrame * v.offset
+							model.CFrame *= CFrame.Angles(math.rad(0),math.rad(-50),math.rad(0))
+							model.Parent = tool
+							
+							local weld = Instance.new("WeldConstraint",model)
+							weld.Part0 = model
+							weld.Part1 = tool:WaitForChild("Handle")
+							
+							local tool2 = Players.LocalPlayer.Character:WaitForChild(tool.Name)
+							
+							for i,v in pairs(tool2:GetDescendants()) do
+								if(v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation")) then
+									v.Transparency = 1
+								end
+							end
+							
+							local model2 = v.model:Clone()
+							model2.Anchored = false
+							model2.CFrame = tool2:WaitForChild("Handle").CFrame * v.offset
+							model2.CFrame *= CFrame.Angles(math.rad(0),math.rad(-50),math.rad(0))
+							model2.CFrame *= CFrame.new(0.4,0,-.9)
+							model2.Parent = tool2
+							
+							local weld2 = Instance.new("WeldConstraint",model)
+							weld2.Part0 = model2
+							weld2.Part1 = tool2:WaitForChild("Handle")
+						end
+					end
+				end
+			end)
+		end,
+		CottonCandy = function() 
+			task.spawn(function() 
+				local Players = game:GetService("Players")
+				local ReplicatedStorage = game:GetService("ReplicatedStorage")
+				local Workspace = game:GetService("Workspace")
+				local objs = game:GetObjects("rbxassetid://14161283331")
+				local import = objs[1]
+				import.Parent = ReplicatedStorage
+				local index = {
+					{
+						name = "wood_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-89), math.rad(-90)),
+						model = import:WaitForChild("Wood_Sword"),
+					},	
+					{
+						name = "stone_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-89), math.rad(-90)),
+						model = import:WaitForChild("Stone_Sword"),
+					},
+					{
+						name = "iron_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-89), math.rad(-90)),
+						model = import:WaitForChild("Iron_Sword"),
+					},
+					{
+						name = "diamond_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-89), math.rad(-90)),
+						model = import:WaitForChild("Diamond_Sword"),
+					},
+					{
+						name = "emerald_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-89), math.rad(-90)),
+						model = import:WaitForChild("Emerald_Sword"),
+					},
+					{
+						name = "rageblade",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(90)),
+						model = import:WaitForChild("Rageblade"),
+					}, 
+					{
+						name = "wood_pickaxe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-180), math.rad(-95)),
+						model = import:WaitForChild("Wood_Pickaxe"),
+					},
+					{
+						name = "stone_pickaxe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-180), math.rad(-95)),
+						model = import:WaitForChild("Stone_Pickaxe"),
+					},
+					{
+						name = "iron_pickaxe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-18033), math.rad(-95)),
+						model = import:WaitForChild("Iron_Pickaxe"),
+					},
+					{
+						name = "diamond_pickaxe",
+						offset = CFrame.Angles(math.rad(0), math.rad(80), math.rad(-95)),
+						model = import:WaitForChild("Diamond_Pickaxe"),
+					},	
+					{
+						name = "wood_axe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-10), math.rad(-95)),
+						model = import:WaitForChild("Wood_Axe"),
+					},	
+					{
+						name = "stone_axe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-10), math.rad(-95)),
+						model = import:WaitForChild("Stone_Axe"),
+					},	
+					{
+						name = "iron_axe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-10), math.rad(-95)),
+						model = import:WaitForChild("Iron_Axe"),
+					},	
+					{
+						name = "diamond_axe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-89), math.rad(-95)),
+						model = import:WaitForChild("Diamond_Axe"),
+					},	
+					{
+						name = "fireball",
+						offset = CFrame.Angles(math.rad(0), math.rad(-90), math.rad(90)),
+						model = import:WaitForChild("Fireball"),
+					},	
+					{
+						name = "telepearl",
+						offset = CFrame.Angles(math.rad(0), math.rad(-90), math.rad(90)),
+						model = import:WaitForChild("Telepearl"),
+					},
+					{
+						name = "diamond",
+						offset = CFrame.Angles(math.rad(0), math.rad(-90), math.rad(90)),
+						model = import:WaitForChild("Diamond"),
+					},
+					{
+						name = "iron",
+						offset = CFrame.Angles(math.rad(0), math.rad(-90), math.rad(90)),
+						model = import:WaitForChild("Iron"),
+					},
+					{
+						name = "gold",
+						offset = CFrame.Angles(math.rad(0), math.rad(-90), math.rad(90)),
+						model = import:WaitForChild("Gold"),
+					},
+					{
+						name = "emerald",
+						offset = CFrame.Angles(math.rad(0), math.rad(-90), math.rad(90)),
+						model = import:WaitForChild("Emerald"),
+					},
+					{
+						name = "wood_bow",
+						offset = CFrame.Angles(math.rad(0), math.rad(0), math.rad(90)),
+						model = import:WaitForChild("Bow"),
+					},
+					{
+						name = "wood_crossbow",
+						offset = CFrame.Angles(math.rad(0), math.rad(0), math.rad(90)),
+						model = import:WaitForChild("Bow"),
+					},
+					{
+						name = "tactical_crossbow",
+						offset = CFrame.Angles(math.rad(0), math.rad(180), math.rad(-90)),
+						model = import:WaitForChild("Bow"),
+					},
+				}
+				toolFunction = function(tool)	
+					if not tool:IsA("Accessory") then return end	
+					for _, v in ipairs(index) do	
+						if v.name == tool.Name then		
+							for _, part in ipairs(tool:GetDescendants()) do
+								if part:IsA("BasePart") or part:IsA("MeshPart") or part:IsA("UnionOperation") then				
+									part.Transparency = 1
+								end			
+							end		
+							local model = v.model:Clone()
+							model.CFrame = tool:WaitForChild("Handle").CFrame * v.offset
+							model.CFrame *= CFrame.Angles(math.rad(0), math.rad(-50), math.rad(0))
+							model.Parent = tool			
+							local weld = Instance.new("WeldConstraint", model)
+							weld.Part0 = model
+							weld.Part1 = tool:WaitForChild("Handle")			
+							local tool2 = Players.LocalPlayer.Character:WaitForChild(tool.Name)			
+							for _, part in ipairs(tool2:GetDescendants()) do
+								if part:IsA("BasePart") or part:IsA("MeshPart") or part:IsA("UnionOperation") then				
+									part.Transparency = 1				
+								end			
+							end			
+							local model2 = v.model:Clone()
+							model2.Anchored = false
+							model2.CFrame = tool2:WaitForChild("Handle").CFrame * v.offset
+							model2.CFrame *= CFrame.Angles(math.rad(0), math.rad(-50), math.rad(0))
+							if v.name:match("rageblade") then
+								model2.CFrame *= CFrame.new(0.7, 0, -1)                           
+							elseif v.name:match("sword") or v.name:match("blade") then
+								model2.CFrame *= CFrame.new(.6, 0, -1.1) - Vector3.new(0, 0, -.3)
+							elseif v.name:match("axe") and not v.name:match("pickaxe") and v.name:match("diamond") then
+								model2.CFrame *= CFrame.new(.08, 0, -1.1) - Vector3.new(0, 0, -1.1)
+							elseif v.name:match("axe") and not v.name:match("pickaxe") and not v.name:match("diamond") then
+								model2.CFrame *= CFrame.new(-.2, 0, -2.4) + Vector3.new(0, 0, 2.12)
+							elseif v.name:match("iron") then
+								model2.CFrame *= CFrame.new(0, -.24, 0)
+							elseif v.name:match("gold") then
+								model2.CFrame *= CFrame.new(0, .03, 0)
+							elseif v.name:match("diamond") then
+								model2.CFrame *= CFrame.new(0, .027, 0)
+							elseif v.name:match("emerald") then
+								model2.CFrame *= CFrame.new(0, .001, 0)
+							elseif v.name:match("telepearl") then
+								model2.CFrame *= CFrame.new(.1, 0, .1)
+							elseif v.name:match("fireball") then
+								model2.CFrame *= CFrame.new(.28, .1, 0)
+							elseif v.name:match("bow") and not v.name:match("crossbow") then
+								model2.CFrame *= CFrame.new(-.29, .1, -.2)
+							elseif v.name:match("wood_crossbow") and not v.name:match("tactical_crossbow") then
+								model2.CFrame *= CFrame.new(-.6, 0, 0)
+							elseif v.name:match("tactical_crossbow") and not v.name:match("wood_crossbow") then
+								model2.CFrame *= CFrame.new(-.5, 0, -1.2)
+							else
+								model2.CFrame *= CFrame.new(.2, 0, -.2)
+							end
+							model2.Parent = tool2
+							local weld2 = Instance.new("WeldConstraint", model)
+							weld2.Part0 = model2
+							weld2.Part1 = tool2:WaitForChild("Handle")
+						end
+					end
+				end   
+			end)
+		end,
+		EgirlPack = function() 
+			task.spawn(function() 	
+				local Players = game:GetService("Players")
+				local ReplicatedStorage = game:GetService("ReplicatedStorage")
+				local Workspace = game:GetService("Workspace")
+				local objs = game:GetObjects("rbxassetid://14126814481")
+				local import = objs[1]
+				import.Parent = game:GetService("ReplicatedStorage")
+				index = {
+					{
+						name = "wood_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Wood_Sword"),
+					},
+					{
+						name = "stone_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Stone_Sword"),
+					},
+					{
+						name = "iron_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Iron_Sword"),
+					},
+					{
+						name = "diamond_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Diamond_Sword"),
+					},
+					{
+						name = "emerald_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Emerald_Sword"),
+					},
+					{
+						name = "rageblade",
+						offset = CFrame.Angles(math.rad(0),math.rad(-90),math.rad(90)),
+						model = import:WaitForChild("Rageblade"),
+					}, 
+				}
+				toolFunction = function(tool)
+					if(not tool:IsA("Accessory")) then return end
+					for i,v in pairs(index) do
+						if(v.name == tool.Name) then
+							for i,v in pairs(tool:GetDescendants()) do
+								if(v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation")) then
+									v.Transparency = 1
+								end
+							end
+							local model = v.model:Clone()
+							model.CFrame = tool:WaitForChild("Handle").CFrame * v.offset
+							model.CFrame *= CFrame.Angles(math.rad(0),math.rad(-50),math.rad(0))
+							model.Parent = tool
+							local weld = Instance.new("WeldConstraint",model)
+							weld.Part0 = model
+							weld.Part1 = tool:WaitForChild("Handle")
+							local tool2 = Players.LocalPlayer.Character:WaitForChild(tool.Name)
+							for i,v in pairs(tool2:GetDescendants()) do
+								if(v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation")) then
+									v.Transparency = 1
+								end
+							end
+							local model2 = v.model:Clone()
+							model2.Anchored = false
+							model2.CFrame = tool2:WaitForChild("Handle").CFrame * v.offset
+							model2.CFrame *= CFrame.Angles(math.rad(0),math.rad(-50),math.rad(0))
+							model2.CFrame *= CFrame.new(.6,0,-1)
+							model2.Parent = tool2
+							local weld2 = Instance.new("WeldConstraint",model)
+							weld2.Part0 = model2
+							weld2.Part1 = tool2:WaitForChild("Handle")
+						end
+					end
+				end             
+			end)
+		end,
+		GlizzyPack = function() 
+			task.spawn(function()
+				local Players = game:GetService("Players")
+				local ReplicatedStorage = game:GetService("ReplicatedStorage")
+				local Workspace = game:GetService("Workspace")
+				local objs = game:GetObjects("rbxassetid://13804645310")
+				local import = objs[1]
+				import.Parent = game:GetService("ReplicatedStorage")
+				index = {
+					{
+						name = "wood_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Wood_Sword"),
+					},
+					{
+						name = "stone_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Stone_Sword"),
+					},
+					{
+						name = "iron_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Iron_Sword"),
+					},
+					{
+						name = "diamond_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Diamond_Sword"),
+					},
+					{
+						name = "emerald_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Emerald_Sword"),
+					},
+					{
+						name = "rageblade",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-270)),
+						model = import:WaitForChild("Rageblade"),
+					},
+				}
+				toolFunction = function(tool)
+					if(not tool:IsA("Accessory")) then return end
+					for i,v in pairs(index) do
+						if(v.name == tool.Name) then
+							for i,v in pairs(tool:GetDescendants()) do
+								if(v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation")) then
+									v.Transparency = 1
+								end
+							end
+							local model = v.model:Clone()
+							model.CFrame = tool:WaitForChild("Handle").CFrame * v.offset
+							model.CFrame *= CFrame.Angles(math.rad(0),math.rad(100),math.rad(0))
+							model.Parent = tool
+							local weld = Instance.new("WeldConstraint",model)
+							weld.Part0 = model
+							weld.Part1 = tool:WaitForChild("Handle")
+							local tool2 = Players.LocalPlayer.Character:WaitForChild(tool.Name)
+							for i,v in pairs(tool2:GetDescendants()) do
+								if(v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation")) then
+									v.Transparency = 1
+								end
+							end
+							local model2 = v.model:Clone()
+							model2.Anchored = false
+							model2.CFrame = tool2:WaitForChild("Handle").CFrame * v.offset
+							model2.CFrame *= CFrame.Angles(math.rad(0),math.rad(-105),math.rad(0))
+							model2.CFrame *= CFrame.new(-0.4,0,-0.10)
+							model2.Parent = tool2
+							local weld2 = Instance.new("WeldConstraint",model)
+							weld2.Part0 = model2
+							weld2.Part1 = tool2:WaitForChild("Handle")
+						end
+					end
+				end
+			end)
+        end,
+		PrivatePack = function() 
+			task.spawn(function()
+				local Players = game:GetService("Players")
+				local ReplicatedStorage = game:GetService("ReplicatedStorage")
+				local Workspace = game:GetService("Workspace")
+				local objs = game:GetObjects("rbxassetid://14161283331")
+				local import = objs[1]
+				import.Parent = ReplicatedStorage
+				local index = {
+					{
+						name = "wood_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-89), math.rad(-90)),
+						model = import:WaitForChild("Wood_Sword"),
+					},	
+					{
+						name = "stone_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-89), math.rad(-90)),
+						model = import:WaitForChild("Stone_Sword"),
+					},
+					{
+						name = "iron_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-89), math.rad(-90)),
+						model = import:WaitForChild("Iron_Sword"),
+					},
+					{
+						name = "diamond_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-89), math.rad(-90)),
+						model = import:WaitForChild("Diamond_Sword"),
+					},
+					{
+						name = "emerald_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-89), math.rad(-90)),
+						model = import:WaitForChild("Emerald_Sword"),
+					},
+					{
+						name = "rageblade",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(90)),
+						model = import:WaitForChild("Rageblade"),
+					}, 
+					{
+						name = "wood_pickaxe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-180), math.rad(-95)),
+						model = import:WaitForChild("Wood_Pickaxe"),
+					},
+					{
+						name = "stone_pickaxe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-180), math.rad(-95)),
+						model = import:WaitForChild("Stone_Pickaxe"),
+					},
+					{
+						name = "iron_pickaxe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-18033), math.rad(-95)),
+						model = import:WaitForChild("Iron_Pickaxe"),
+					},
+					{
+						name = "diamond_pickaxe",
+						offset = CFrame.Angles(math.rad(0), math.rad(80), math.rad(-95)),
+						model = import:WaitForChild("Diamond_Pickaxe"),
+					},	
+					{
+						name = "wood_axe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-10), math.rad(-95)),
+						model = import:WaitForChild("Wood_Axe"),
+					},	
+					{
+						name = "stone_axe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-10), math.rad(-95)),
+						model = import:WaitForChild("Stone_Axe"),
+					},	
+					{
+						name = "iron_axe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-10), math.rad(-95)),
+						model = import:WaitForChild("Iron_Axe"),
+					},	
+					{
+						name = "diamond_axe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-89), math.rad(-95)),
+						model = import:WaitForChild("Diamond_Axe"),
+					},	
+					{
+						name = "fireball",
+						offset = CFrame.Angles(math.rad(0), math.rad(-90), math.rad(90)),
+						model = import:WaitForChild("Fireball"),
+					},	
+					{
+						name = "telepearl",
+						offset = CFrame.Angles(math.rad(0), math.rad(-90), math.rad(90)),
+						model = import:WaitForChild("Telepearl"),
+					},
+					{
+						name = "diamond",
+						offset = CFrame.Angles(math.rad(0), math.rad(-90), math.rad(90)),
+						model = import:WaitForChild("Diamond"),
+					},
+					{
+						name = "iron",
+						offset = CFrame.Angles(math.rad(0), math.rad(-90), math.rad(90)),
+						model = import:WaitForChild("Iron"),
+					},
+					{
+						name = "gold",
+						offset = CFrame.Angles(math.rad(0), math.rad(-90), math.rad(90)),
+						model = import:WaitForChild("Gold"),
+					},
+					{
+						name = "emerald",
+						offset = CFrame.Angles(math.rad(0), math.rad(-90), math.rad(90)),
+						model = import:WaitForChild("Emerald"),
+					},
+					{
+						name = "wood_bow",
+						offset = CFrame.Angles(math.rad(0), math.rad(0), math.rad(90)),
+						model = import:WaitForChild("Bow"),
+					},
+					{
+						name = "wood_crossbow",
+						offset = CFrame.Angles(math.rad(0), math.rad(0), math.rad(90)),
+						model = import:WaitForChild("Bow"),
+					},
+					{
+						name = "tactical_crossbow",
+						offset = CFrame.Angles(math.rad(0), math.rad(180), math.rad(-90)),
+						model = import:WaitForChild("Bow"),
+					},
+				}
+				toolFunction = function(tool)	
+					if not tool:IsA("Accessory") then return end	
+					for _, v in ipairs(index) do	
+						if v.name == tool.Name then		
+							for _, part in ipairs(tool:GetDescendants()) do
+								if part:IsA("BasePart") or part:IsA("MeshPart") or part:IsA("UnionOperation") then				
+									part.Transparency = 1
+								end			
+							end		
+							local model = v.model:Clone()
+							model.CFrame = tool:WaitForChild("Handle").CFrame * v.offset
+							model.CFrame *= CFrame.Angles(math.rad(0), math.rad(-50), math.rad(0))
+							model.Parent = tool			
+							local weld = Instance.new("WeldConstraint", model)
+							weld.Part0 = model
+							weld.Part1 = tool:WaitForChild("Handle")			
+							local tool2 = Players.LocalPlayer.Character:WaitForChild(tool.Name)			
+							for _, part in ipairs(tool2:GetDescendants()) do
+								if part:IsA("BasePart") or part:IsA("MeshPart") or part:IsA("UnionOperation") then				
+									part.Transparency = 1				
+								end			
+							end			
+							local model2 = v.model:Clone()
+							model2.Anchored = false
+							model2.CFrame = tool2:WaitForChild("Handle").CFrame * v.offset
+							model2.CFrame *= CFrame.Angles(math.rad(0), math.rad(-50), math.rad(0))
+							if v.name:match("rageblade") then
+								model2.CFrame *= CFrame.new(0.7, 0, -1)                           
+							elseif v.name:match("sword") or v.name:match("blade") then
+								model2.CFrame *= CFrame.new(.6, 0, -1.1) - Vector3.new(0, 0, -.3)
+							elseif v.name:match("axe") and not v.name:match("pickaxe") and v.name:match("diamond") then
+								model2.CFrame *= CFrame.new(.08, 0, -1.1) - Vector3.new(0, 0, -1.1)
+							elseif v.name:match("axe") and not v.name:match("pickaxe") and not v.name:match("diamond") then
+								model2.CFrame *= CFrame.new(-.2, 0, -2.4) + Vector3.new(0, 0, 2.12)
+							elseif v.name:match("iron") then
+								model2.CFrame *= CFrame.new(0, -.24, 0)
+							elseif v.name:match("gold") then
+								model2.CFrame *= CFrame.new(0, .03, 0)
+							elseif v.name:match("diamond") then
+								model2.CFrame *= CFrame.new(0, .027, 0)
+							elseif v.name:match("emerald") then
+								model2.CFrame *= CFrame.new(0, .001, 0)
+							elseif v.name:match("telepearl") then
+								model2.CFrame *= CFrame.new(.1, 0, .1)
+							elseif v.name:match("fireball") then
+								model2.CFrame *= CFrame.new(.28, .1, 0)
+							elseif v.name:match("bow") and not v.name:match("crossbow") then
+								model2.CFrame *= CFrame.new(-.29, .1, -.2)
+							elseif v.name:match("wood_crossbow") and not v.name:match("tactical_crossbow") then
+								model2.CFrame *= CFrame.new(-.6, 0, 0)
+							elseif v.name:match("tactical_crossbow") and not v.name:match("wood_crossbow") then
+								model2.CFrame *= CFrame.new(-.5, 0, -1.2)
+							else
+								model2.CFrame *= CFrame.new(.2, 0, -.2)
+							end
+							model2.Parent = tool2
+							local weld2 = Instance.new("WeldConstraint", model)
+							weld2.Part0 = model2
+							weld2.Part1 = tool2:WaitForChild("Handle")
+						end
+					end
+				end          
+			end)
+        end,
+		DemonSlayerPack = function() 
+			task.spawn(function()
+				local Players = game:GetService("Players")
+				local ReplicatedStorage = game:GetService("ReplicatedStorage")
+				local Workspace = game:GetService("Workspace")
+				local objs = game:GetObjects("rbxassetid://14241215869")
+				local import = objs[1]
+				import.Parent = ReplicatedStorage
+				local index = {
+					{
+						name = "wood_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-89), math.rad(-90)),
+						model = import:WaitForChild("Wood_Sword"),
+					},	
+					{
+						name = "stone_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-89), math.rad(-90)),
+						model = import:WaitForChild("Stone_Sword"),
+					},
+					{
+						name = "iron_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-89), math.rad(-90)),
+						model = import:WaitForChild("Iron_Sword"),
+					},
+					{
+						name = "diamond_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-89), math.rad(-90)),
+						model = import:WaitForChild("Diamond_Sword"),
+					},
+					{
+						name = "emerald_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-89), math.rad(-90)),
+						model = import:WaitForChild("Emerald_Sword"),
+					},
+					{
+						name = "wood_pickaxe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-180), math.rad(-95)),
+						model = import:WaitForChild("Wood_Pickaxe"),
+					},
+					{
+						name = "stone_pickaxe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-180), math.rad(-95)),
+						model = import:WaitForChild("Stone_Pickaxe"),
+					},
+					{
+						name = "iron_pickaxe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-180), math.rad(-95)),
+						model = import:WaitForChild("Iron_Pickaxe"),
+					},
+					{
+						name = "diamond_pickaxe",
+						offset = CFrame.Angles(math.rad(0), math.rad(90), math.rad(-95)),
+						model = import:WaitForChild("Diamond_Pickaxe"),
+					},	
+					{
+						name = "fireball",
+						offset = CFrame.Angles(math.rad(0), math.rad(-90), math.rad(90)),
+						model = import:WaitForChild("Fireball"),
+					},	
+					{
+						name = "telepearl",
+						offset = CFrame.Angles(math.rad(0), math.rad(-90), math.rad(90)),
+						model = import:WaitForChild("Telepearl"),
+					},
+					{
+						name = "diamond",
+						offset = CFrame.Angles(math.rad(0), math.rad(-90), math.rad(-90)),
+						model = import:WaitForChild("Diamond"),
+					},
+					{
+						name = "iron",
+						offset = CFrame.Angles(math.rad(0), math.rad(-90), math.rad(90)),
+						model = import:WaitForChild("Iron"),
+					},
+					{
+						name = "gold",
+						offset = CFrame.Angles(math.rad(0), math.rad(-90), math.rad(90)),
+						model = import:WaitForChild("Gold"),
+					},
+					{
+						name = "emerald",
+						offset = CFrame.Angles(math.rad(0), math.rad(-90), math.rad(-90)),
+						model = import:WaitForChild("Emerald"),
+					},
+					{
+						name = "wood_bow",
+						offset = CFrame.Angles(math.rad(0), math.rad(0), math.rad(90)),
+						model = import:WaitForChild("Bow"),
+					},
+					{
+						name = "wood_crossbow",
+						offset = CFrame.Angles(math.rad(0), math.rad(0), math.rad(90)),
+						model = import:WaitForChild("Bow"),
+					},
+					{
+						name = "tactical_crossbow",
+						offset = CFrame.Angles(math.rad(0), math.rad(180), math.rad(-90)),
+						model = import:WaitForChild("Bow"),
+					},
+					{
+						name = "wood_dao",
+						offset = CFrame.Angles(math.rad(0), math.rad(89), math.rad(-90)),
+						model = import:WaitForChild("Wood_Sword"),
+					},
+					{
+						name = "stone_dao",
+						offset = CFrame.Angles(math.rad(0), math.rad(89), math.rad(-90)),
+						model = import:WaitForChild("Stone_Sword"),
+					},
+					{
+						name = "iron_dao",
+						offset = CFrame.Angles(math.rad(0), math.rad(89), math.rad(-90)),
+						model = import:WaitForChild("Iron_Sword"),
+					},
+					{
+						name = "diamond_dao",
+						offset = CFrame.Angles(math.rad(0), math.rad(89), math.rad(-90)),
+						model = import:WaitForChild("Diamond_Sword"),
+					},
+				}
+				toolFunction = function(tool)	
+					if not tool:IsA("Accessory") then return end	
+					for _, v in ipairs(index) do	
+						if v.name == tool.Name then		
+							for _, part in ipairs(tool:GetDescendants()) do
+								if part:IsA("BasePart") or part:IsA("MeshPart") or part:IsA("UnionOperation") then				
+									part.Transparency = 1
+								end			
+							end		
+							local model = v.model:Clone()
+							model.CFrame = tool:WaitForChild("Handle").CFrame * v.offset
+							model.CFrame *= CFrame.Angles(math.rad(0), math.rad(-50), math.rad(0))
+							model.Parent = tool			
+							local weld = Instance.new("WeldConstraint", model)
+							weld.Part0 = model
+							weld.Part1 = tool:WaitForChild("Handle")			
+							local tool2 = Players.LocalPlayer.Character:WaitForChild(tool.Name)			
+							for _, part in ipairs(tool2:GetDescendants()) do
+								if part:IsA("BasePart") or part:IsA("MeshPart") or part:IsA("UnionOperation") then				
+									part.Transparency = 1				
+								end			
+							end			
+							local model2 = v.model:Clone()
+							model2.Anchored = false
+							model2.CFrame = tool2:WaitForChild("Handle").CFrame * v.offset
+							model2.CFrame *= CFrame.Angles(math.rad(0), math.rad(-50), math.rad(0))
+							if v.name:match("rageblade") then
+								model2.CFrame *= CFrame.new(0.7, 0, -.7)                           
+							elseif v.name:match("sword") or v.name:match("blade") then
+								model2.CFrame *= CFrame.new(.2, 0, -.8)
+							elseif v.name:match("dao") then
+								model2.CFrame *= CFrame.new(.7, 0, -1.3)
+							elseif v.name:match("axe") and not v.name:match("pickaxe") and v.name:match("diamond") then
+								model2.CFrame *= CFrame.new(.08, 0, -1.1) - Vector3.new(0, 0, -1.1)
+							elseif v.name:match("axe") and not v.name:match("pickaxe") and not v.name:match("diamond") then
+								model2.CFrame *= CFrame.new(-.2, 0, -2.4) + Vector3.new(0, 0, 2.12)
+							elseif v.name:match("diamond_pickaxe") then
+								model2.CFrame *= CFrame.new(.2, 0, -.26)
+							elseif v.name:match("iron") and not v.name:match("iron_pickaxe") then
+								model2.CFrame *= CFrame.new(0, -.24, 0)
+							elseif v.name:match("gold") then
+								model2.CFrame *= CFrame.new(0, .03, 0)
+							elseif v.name:match("diamond") or v.name:match("emerald") then
+								model2.CFrame *= CFrame.new(0, -.03, 0)
+							elseif v.name:match("telepearl") then
+								model2.CFrame *= CFrame.new(.1, 0, .1)
+							elseif v.name:match("fireball") then
+								model2.CFrame *= CFrame.new(.28, .1, 0)
+							elseif v.name:match("bow") and not v.name:match("crossbow") then
+								model2.CFrame *= CFrame.new(-.2, .1, -.05)
+							elseif v.name:match("wood_crossbow") and not v.name:match("tactical_crossbow") then
+								model2.CFrame *= CFrame.new(-.5, 0, .05)
+							elseif v.name:match("tactical_crossbow") and not v.name:match("wood_crossbow") then
+								model2.CFrame *= CFrame.new(-.35, 0, -1.2)
+							else
+								model2.CFrame *= CFrame.new(.0, 0, -.06)
+							end
+							model2.Parent = tool2
+							local weld2 = Instance.new("WeldConstraint", model)
+							weld2.Part0 = model2
+							weld2.Part1 = tool2:WaitForChild("Handle")
+						end
+					end
+				end
+			end)
+		end,
+        FirstHighResPack = function() 
+            task.spawn(function()
+				local Players = game:GetService("Players")
+				local ReplicatedStorage = game:GetService("ReplicatedStorage")
+				local Workspace = game:GetService("Workspace")
+				local objs = game:GetObjects("rbxassetid://14224565815")
+				local import = objs[1]
+				import.Parent = ReplicatedStorage
+				local index = {
+					{
+						name = "wood_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-89), math.rad(-90)),
+						model = import:WaitForChild("Wood_Sword"),
+					},
+					{
+						name = "stone_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-89), math.rad(-90)),
+						model = import:WaitForChild("Stone_Sword"),
+					},
+					{
+						name = "iron_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-89), math.rad(-90)),
+						model = import:WaitForChild("Iron_Sword"),
+					},
+					{
+						name = "diamond_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-89), math.rad(-90)),
+						model = import:WaitForChild("Diamond_Sword"),
+					},
+					{
+						name = "emerald_sword",
+						offset = CFrame.Angles(math.rad(0), math.rad(-89), math.rad(-90)),
+						model = import:WaitForChild("Emerald_Sword"),
+					},
+          			{
+                        name = "rageblade",
+                        offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(90)),
+                        model = import:WaitForChild("Rageblade"),
+          			},
+					{
+						name = "wood_pickaxe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-180), math.rad(-95)),
+						model = import:WaitForChild("Wood_Pickaxe"),
+					},
+					{
+						name = "stone_pickaxe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-180), math.rad(-95)),
+						model = import:WaitForChild("Stone_Pickaxe"),
+					},
+					{
+						name = "iron_pickaxe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-180), math.rad(-95)),
+						model = import:WaitForChild("Iron_Pickaxe"),
+					},
+					{
+						name = "diamond_pickaxe",
+						offset = CFrame.Angles(math.rad(0), math.rad(90), math.rad(-95)),
+						model = import:WaitForChild("Diamond_Pickaxe"),
+					},
+					{
+						name = "wood_axe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-10), math.rad(-95)),
+						model = import:WaitForChild("Wood_Axe"),
+					},
+					{
+						name = "stone_axe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-10), math.rad(-95)),
+						model = import:WaitForChild("Stone_Axe"),
+					},
+					{
+						name = "iron_axe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-10), math.rad(-95)),
+						model = import:WaitForChild("Iron_Axe"),
+					},
+					{
+						name = "diamond_axe",
+						offset = CFrame.Angles(math.rad(0), math.rad(-89), math.rad(-95)),
+						model = import:WaitForChild("Diamond_Axe"),
+					},
+					{
+						name = "fireball",
+						offset = CFrame.Angles(math.rad(0), math.rad(-90), math.rad(90)),
+						model = import:WaitForChild("Fireball"),
+					},
+					{
+						name = "telepearl",
+						offset = CFrame.Angles(math.rad(0), math.rad(-90), math.rad(90)),
+						model = import:WaitForChild("Telepearl"),
+					},
+					{
+						name = "diamond",
+						offset = CFrame.Angles(math.rad(0), math.rad(-90), math.rad(-90)),
+						model = import:WaitForChild("Diamond"),
+					},
+					{
+						name = "iron",
+						offset = CFrame.Angles(math.rad(0), math.rad(-90), math.rad(90)),
+						model = import:WaitForChild("Iron"),
+					},
+					{
+						name = "gold",
+						offset = CFrame.Angles(math.rad(0), math.rad(-90), math.rad(90)),
+						model = import:WaitForChild("Gold"),
+					},
+					{
+						name = "emerald",
+						offset = CFrame.Angles(math.rad(0), math.rad(-90), math.rad(-90)),
+						model = import:WaitForChild("Emerald"),
+					},
+					{
+						name = "wood_bow",
+						offset = CFrame.Angles(math.rad(0), math.rad(0), math.rad(90)),
+						model = import:WaitForChild("Bow"),
+					},
+					{
+						name = "wood_crossbow",
+						offset = CFrame.Angles(math.rad(0), math.rad(0), math.rad(90)),
+						model = import:WaitForChild("Bow"),
+					},
+					{
+						name = "tactical_crossbow",
+						offset = CFrame.Angles(math.rad(0), math.rad(180), math.rad(-90)),
+						model = import:WaitForChild("Bow"),
+					},
+				}
+				toolFunction = function(tool)
+					if not tool:IsA("Accessory") then return end
+					for _, v in ipairs(index) do
+						if v.name == tool.Name then
+							for _, part in ipairs(tool:GetDescendants()) do
+								if part:IsA("BasePart") or part:IsA("MeshPart") or part:IsA("UnionOperation") then
+									part.Transparency = 1
+								end
+							end
+							local model = v.model:Clone()
+							model.CFrame = tool:WaitForChild("Handle").CFrame * v.offset
+							model.CFrame *= CFrame.Angles(math.rad(0), math.rad(-50), math.rad(0))
+							model.Parent = tool
+							local weld = Instance.new("WeldConstraint", model)
+							weld.Part0 = model
+							weld.Part1 = tool:WaitForChild("Handle")
+							local tool2 = Players.LocalPlayer.Character:WaitForChild(tool.Name)
+							for _, part in ipairs(tool2:GetDescendants()) do
+								if part:IsA("BasePart") or part:IsA("MeshPart") or part:IsA("UnionOperation") then
+									part.Transparency = 1
+								end
+							end
+							local model2 = v.model:Clone()
+							model2.Anchored = false
+							model2.CFrame = tool2:WaitForChild("Handle").CFrame * v.offset
+							model2.CFrame *= CFrame.Angles(math.rad(0), math.rad(-50), math.rad(0))
+							if v.name:match("rageblade") then
+								model2.CFrame *= CFrame.new(0.7, 0, -1)
+							elseif v.name:match("sword") or v.name:match("blade") then
+								model2.CFrame *= CFrame.new(.6, 0, -1.1) - Vector3.new(0, 0, -.3)
+							elseif v.name:match("axe") and not v.name:match("pickaxe") and v.name:match("diamond") then
+								model2.CFrame *= CFrame.new(.08, 0, -1.1) - Vector3.new(0, 0, -1.1)
+							elseif v.name:match("axe") and not v.name:match("pickaxe") and not v.name:match("diamond") then
+								model2.CFrame *= CFrame.new(-.2, 0, -2.4) + Vector3.new(0, 0, 2.12)
+							elseif v.name:match("diamond_pickaxe") then
+								model2.CFrame *= CFrame.new(.2, 0, -.26)
+							elseif v.name:match("iron") and not v.name:match("iron_pickaxe") then
+								model2.CFrame *= CFrame.new(0, -.24, 0)
+							elseif v.name:match("gold") then
+								model2.CFrame *= CFrame.new(0, .03, 0)
+							elseif v.name:match("diamond") or v.name:match("emerald") then
+								model2.CFrame *= CFrame.new(0, -.03, 0)
+							elseif v.name:match("telepearl") then
+								model2.CFrame *= CFrame.new(.1, 0, .1)
+							elseif v.name:match("fireball") then
+								model2.CFrame *= CFrame.new(.28, .1, 0)
+							elseif v.name:match("bow") and not v.name:match("crossbow") then
+								model2.CFrame *= CFrame.new(-.2, .1, -.05)
+							elseif v.name:match("wood_crossbow") and not v.name:match("tactical_crossbow") then
+								model2.CFrame *= CFrame.new(-.5, 0, .05)
+							elseif v.name:match("tactical_crossbow") and not v.name:match("wood_crossbow") then
+								model2.CFrame *= CFrame.new(-.35, 0, -1.2)
+							else
+								model2.CFrame *= CFrame.new(.2, 0, -.24)
+							end
+							model2.Parent = tool2
+							local weld2 = Instance.new("WeldConstraint", model)
+							weld2.Part0 = model2
+							weld2.Part1 = tool2:WaitForChild("Handle")
+						end
+					end
+				end
+           end)
+		end,
+        RandomPack = function() 
+            task.spawn(function()  
+				local Players = game:GetService("Players")
+				local ReplicatedStorage = game:GetService("ReplicatedStorage")
+				local Workspace = game:GetService("Workspace")
+				local objs = game:GetObjects("rbxassetid://14282106674")
+				local import = objs[1]
+				import.Parent = game:GetService("ReplicatedStorage")
+				index = {
+					{
+						name = "wood_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-89),math.rad(-90)),
+						model = import:WaitForChild("Wood_Sword"),
+					},
+					{
+						name = "stone_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-89),math.rad(-90)),
+						model = import:WaitForChild("Stone_Sword"),
+					},
+					{
+						name = "iron_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-89),math.rad(-90)),
+						model = import:WaitForChild("Iron_Sword"),
+					},
+					{
+						name = "diamond_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-89),math.rad(-90)),
+						model = import:WaitForChild("Diamond_Sword"),
+					},
+					{
+						name = "emerald_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-89),math.rad(-90)),
+						model = import:WaitForChild("Emerald_Sword"),
+					},
+				}
+				toolFunction = function(tool)
+					if(not tool:IsA("Accessory")) then return end
+					for i,v in pairs(index) do
+						if(v.name == tool.Name) then
+							for i,v in pairs(tool:GetDescendants()) do
+								if(v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation")) then
+									v.Transparency = 1
+								end
+							end
+							local model = v.model:Clone()
+							model.CFrame = tool:WaitForChild("Handle").CFrame * v.offset
+							model.CFrame *= CFrame.Angles(math.rad(0),math.rad(-50),math.rad(0))
+							model.Parent = tool
+							local weld = Instance.new("WeldConstraint",model)
+							weld.Part0 = model
+							weld.Part1 = tool:WaitForChild("Handle")
+							local tool2 = Players.LocalPlayer.Character:WaitForChild(tool.Name)
+							for i,v in pairs(tool2:GetDescendants()) do
+								if(v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation")) then
+									v.Transparency = 1
+								end            
+							end            
+							local model2 = v.model:Clone()
+							model2.Anchored = false
+							model2.CFrame = tool2:WaitForChild("Handle").CFrame * v.offset
+							model2.CFrame *= CFrame.Angles(math.rad(0),math.rad(-50),math.rad(0))
+							model2.CFrame *= CFrame.new(0.6,0,-.9)
+							model2.Parent = tool2
+							local weld2 = Instance.new("WeldConstraint",model)
+							weld2.Part0 = model2
+							weld2.Part1 = tool2:WaitForChild("Handle")
+						end
+					end
+				end  
+           end)
+		end,
+		SecondHighResPack = function() 
+            task.spawn(function()
+				local Players = game:GetService("Players")
+				local ReplicatedStorage = game:GetService("ReplicatedStorage")
+				local Workspace = game:GetService("Workspace")
+				local objs = game:GetObjects("rbxassetid://14078540433")
+				local import = objs[1]
+				import.Parent = game:GetService("ReplicatedStorage")
+				index = {
+					{
+						name = "wood_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Wood_Sword"),
+					},
+					{
+						name = "stone_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Stone_Sword"),
+					},
+					{
+						name = "iron_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Iron_Sword"),
+					},
+					{
+						name = "diamond_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Diamond_Sword"),
+					},
+					{
+						name = "emerald_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Emerald_Sword"),
+					},
+					{
+						name = "rageblade",
+						offset = CFrame.Angles(math.rad(0),math.rad(-90),math.rad(90)),
+						model = import:WaitForChild("Rageblade"),
+					}, 
+				}
+				toolFunction = function(tool)
+					if(not tool:IsA("Accessory")) then return end
+					for i,v in pairs(index) do
+						if(v.name == tool.Name) then
+							for i,v in pairs(tool:GetDescendants()) do
+								if(v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation")) then
+									v.Transparency = 1
+								end
+							end
+							local model = v.model:Clone()
+							model.CFrame = tool:WaitForChild("Handle").CFrame * v.offset
+							model.CFrame *= CFrame.Angles(math.rad(0),math.rad(-50),math.rad(0))
+							model.Parent = tool
+							local weld = Instance.new("WeldConstraint",model)
+							weld.Part0 = model
+							weld.Part1 = tool:WaitForChild("Handle")
+							local tool2 = Players.LocalPlayer.Character:WaitForChild(tool.Name)
+							for i,v in pairs(tool2:GetDescendants()) do
+								if(v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation")) then
+									v.Transparency = 1
+								end
+							end
+							local model2 = v.model:Clone()
+							model2.Anchored = false
+							model2.CFrame = tool2:WaitForChild("Handle").CFrame * v.offset
+							model2.CFrame *= CFrame.Angles(math.rad(0),math.rad(-50),math.rad(0))
+							model2.CFrame *= CFrame.new(.5,0,-.8)
+							model2.Parent = tool2
+							local weld2 = Instance.new("WeldConstraint",model)
+							weld2.Part0 = model2
+							weld2.Part1 = tool2:WaitForChild("Handle")
+						end
+					end
+				end
+           end)
+		end
+	}
+
+	if (not TexturePacks.Enabled) then toolFunction = function() end end
+
+	local function refresh()
+		pcall(function() con:Disconnect() end)
+		con = game:GetService("Workspace"):WaitForChild("Camera").Viewmodel.ChildAdded:Connect(toolFunction)
+		for i,v in pairs(game:GetService("Workspace"):WaitForChild("Camera").Viewmodel:GetChildren()) do toolFunction(v) end
+	end
+
+	TexturePacks = vape.Categories.Render:CreateModule({
+		["Name"] = "TexturePacks2",
+		["Function"] = function(callback) 
+			if callback then 
+				packfunctions[packselected["Value"]]()
+				refresh()
+            else 
+				toolFunction = function() end
+				refresh()
+		end
+	end
+	})
+	local list = {}
+	for i,v in pairs(packfunctions) do table.insert(list, tostring(i)) end
+	packselected = TexturePacks:CreateDropdown({
+		["Name"] = "Pack",
+		["Function"] = function() if TexturePacks.Enabled then packfunctions[packselected["Value"]](); refresh() end end,
+		["List"] = list
+	})
 end)
