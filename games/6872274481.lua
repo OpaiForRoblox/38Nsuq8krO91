@@ -78,7 +78,7 @@ local function addBlur(parent)
 	blur.Size = UDim2.new(1, 89, 1, 52)
 	blur.Position = UDim2.fromOffset(-48, -31)
 	blur.BackgroundTransparency = 1
-	blur.Image = getcustomasset('myau/assets/new/blur.png')
+	blur.Image = getcustomasset('opai/assets/new/blur.png')
 	blur.ScaleType = Enum.ScaleType.Slice
 	blur.SliceCenter = Rect.new(52, 31, 261, 502)
 	blur.Parent = parent
@@ -6536,7 +6536,7 @@ run(function()
 		close.Position = UDim2.new(1, -35, 0, 9)
 		close.BackgroundColor3 = Color3.new(1, 1, 1)
 		close.BackgroundTransparency = 1
-		close.Image = getcustomasset('myau/assets/new/close.png')
+		close.Image = getcustomasset('opai/assets/new/close.png')
 		close.ImageColor3 = color.Light(uipallet.Text, 0.2)
 		close.ImageTransparency = 0.5
 		close.AutoButtonColor = false
@@ -6650,7 +6650,7 @@ run(function()
 		searchicon.Size = UDim2.fromOffset(14, 14)
 		searchicon.Position = UDim2.new(1, -26, 0, 8)
 		searchicon.BackgroundTransparency = 1
-		searchicon.Image = getcustomasset('myau/assets/new/search.png')
+		searchicon.Image = getcustomasset('opai/assets/new/search.png')
 		searchicon.ImageColor3 = color.Light(uipallet.Main, 0.37)
 		searchicon.Parent = searchbkg
 		local children = Instance.new('ScrollingFrame')
@@ -6791,7 +6791,7 @@ run(function()
 		textbuttonicon.Position = UDim2.fromScale(0.5, 0.5)
 		textbuttonicon.AnchorPoint = Vector2.new(0.5, 0.5)
 		textbuttonicon.BackgroundTransparency = 1
-		textbuttonicon.Image = getcustomasset('myau/assets/new/add.png')
+		textbuttonicon.Image = getcustomasset('opai/assets/new/add.png')
 		textbuttonicon.ImageColor3 = Color3.fromHSV(0.46, 0.96, 0.52)
 		textbuttonicon.Parent = textbutton
 		local childrenlist = Instance.new('Frame')
@@ -6884,7 +6884,7 @@ run(function()
 			close.Position = UDim2.new(1, -23, 0, 6)
 			close.BackgroundColor3 = Color3.new(1, 1, 1)
 			close.BackgroundTransparency = 1
-			close.Image = getcustomasset('myau/assets/new/closemini.png')
+			close.Image = getcustomasset('opai/assets/new/closemini.png')
 			close.ImageColor3 = color.Light(uipallet.Text, 0.2)
 			close.ImageTransparency = 0.5
 			close.AutoButtonColor = false
@@ -7361,7 +7361,7 @@ run(function()
 						Size = UDim2.new(1, 89, 1, 52),
 						Position = UDim2.fromOffset(-48, -31),
 						BackgroundTransparency = 1,
-						Image = getcustomasset('myau/assets/new/blur.png'),
+						Image = getcustomasset('opai/assets/new/blur.png'),
 						ScaleType = Enum.ScaleType.Slice,
 						SliceCenter = Rect.new(52, 31, 261, 502)
 					}),
@@ -8705,7 +8705,7 @@ run(function()
 	})
 end)
 
--- myau
+-- opai
 
 run(function()
 	local ItemTP
@@ -9378,8 +9378,8 @@ end);
 
 
 
-if not isfile('myau/profiles/nofirst.txt') then
-	writefile('myau/profiles/nofirst.txt', 'true')
+if not isfile('opai/profiles/nofirst.txt') then
+	writefile('opai/profiles/nofirst.txt', 'true')
 end
 
 run(function()
@@ -9473,7 +9473,7 @@ run(function()
 	local DamageIndicatorTextObjects = {}
     local DamageIndicatorMode1
     local DamageMessages = {
-		'Myau!',
+		'opai!',
 		'Pop!',
 		'Hit!',
 		'Smack!',
@@ -9988,8 +9988,8 @@ run(function()
                 if not getgenv().Config then
                     getgenv().Config = {
                         Headless = false,
-                        FakeDisplayName = "myau",
-                        FakeName = "myau",
+                        FakeDisplayName = "opai",
+                        FakeName = "opai",
                         FakeId = 18,
                     }
                 end
