@@ -110,7 +110,6 @@ local getcustomassets = {
 	['opai/assets/new/rendericon.png'] = 'rbxassetid://14368350193',
 	['opai/assets/new/rendertab.png'] = 'rbxassetid://14397373458',
 	['opai/assets/new/search.png'] = 'rbxassetid://14425646684',
-	['opai/assets/new/targetinfoicon.png'] = 'rbxassetid://14368354234',
 	['opai/assets/new/targetnpc1.png'] = 'rbxassetid://14497400332',
 	['opai/assets/new/targetnpc2.png'] = 'rbxassetid://14497402744',
 	['opai/assets/new/targetplayers1.png'] = 'rbxassetid://14497396015',
@@ -6456,7 +6455,7 @@ local targetinfoobj
 local targetinfobcolor
 targetinfoobj = mainapi:CreateOverlay({
 	Name = 'Target Info',
-	Icon = getcustomasset('opai/assets/new/targetinfoicon.png'),
+	Icon = getcustomasset('opai/assets/new/legit.png'),
 	Size = UDim2.fromOffset(14, 14),
 	Position = UDim2.fromOffset(12, 14),
 	CategorySize = 240,
