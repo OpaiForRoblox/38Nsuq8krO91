@@ -5798,6 +5798,11 @@ mainapi:CreateCategory({
 	Icon = getcustomasset('opai/assets/new/miniicon.png'),
 	Size = UDim2.fromOffset(19, 12)
 })
+mainapi:CreateCategory({
+	Name = 'Legit',
+	Icon = getcustomasset('opai/assets/new/legit.png'),
+	Size = UDim2.fromOffset(19, 12)
+})
 mainapi.Categories.Main:CreateDivider('misc')
 
 --[[
