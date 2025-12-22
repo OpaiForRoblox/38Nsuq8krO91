@@ -1,6 +1,4 @@
---This watermark is used to delete the file if its cached, remove it to make the file persist after opai updates.
---This watermark is used to delete the file if its cached, remove it to make the file persist after Opai updates.
---This watermark is used to delete the file if its cached, remove it to make the file persist after Opai updates.
+--This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.
 local mainapi = {
 	Categories = {},
 	GUIColor = {
@@ -54,12 +52,10 @@ local tween = {
 	tweenstwo = {}
 }
 local uipallet = {
-	Main = Color3.fromRGB(20, 20, 20),
-	--Color3.fromRGB(220, 220, 220),
+	Main = Color3.fromRGB(20, 20, 260),
 	Text = Color3.fromRGB(220, 220, 220),
-	--Color3.fromRGB(60, 60, 60),
-	Font = Font.fromEnum(Enum.Font.GothamBold),
-	FontSemiBold = Font.fromEnum(Enum.Font.GothamBold, Enum.FontWeight.SemiBold),
+	Font = Font.fromEnum(Enum.Font.Arial),
+	FontSemiBold = Font.fromEnum(Enum.Font.Arial, Enum.FontWeight.SemiBold),
 	Tween = TweenInfo.new(0.16, Enum.EasingStyle.Linear)
 }
 
@@ -124,7 +120,7 @@ local getcustomassets = {
 	['opai/assets/new/textv4.png'] = 'rbxassetid://14368357095',
 	['opai/assets/new/textopai.png'] = 'rbxassetid://14368358200',
 	['opai/assets/new/utilityicon.png'] = 'rbxassetid://14368359107',
-	['opai/assets/new/Opai.png'] = 'rbxassetid://14373395239',
+	['opai/assets/new/vape.png'] = 'rbxassetid://14373395239',
 	['opai/assets/new/warning.png'] = 'rbxassetid://14368361552',
 	['opai/assets/new/worldicon.png'] = 'rbxassetid://14368362492'
 }
@@ -325,7 +321,7 @@ local function downloadFile(path, func)
 			error(res)
 		end
 		if path:find('.lua') then
-			res = '--This watermark is used to delete the file if its cached, remove it to make the file persist after Opai updates.\n'..res
+			res = '--This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.\n'..res
 		end
 		writefile(path, res)
 	end
@@ -2487,7 +2483,7 @@ function mainapi:CreateGUI()
 	addCorner(window)
 	makeDraggable(window)
 	local logo = Instance.new('ImageLabel')
-	logo.Name = 'OpaiLogo'
+	logo.Name = 'VapeLogo'
 	logo.Size = UDim2.fromOffset(62, 18)
 	logo.Position = UDim2.fromOffset(11, 10)
 	logo.BackgroundTransparency = 1
@@ -2499,7 +2495,7 @@ function mainapi:CreateGUI()
 	logov4.Size = UDim2.fromOffset(28, 16)
 	logov4.Position = UDim2.new(1, 1, 0, 1)
 	logov4.BackgroundTransparency = 1
-	logov4.Image = getcustomasset('opai/assets/new/guiv2.png')
+	logov4.Image = getcustomasset('opai/assets/new/guiv4.png')
 	logov4.Parent = logo
 	local children = Instance.new('Frame')
 	children.Name = 'Children'
@@ -2565,7 +2561,7 @@ function mainapi:CreateGUI()
 	settingsversion.Size = UDim2.new(1, 0, 0, 16)
 	settingsversion.Position = UDim2.new(0, 0, 1, -16)
 	settingsversion.BackgroundTransparency = 1
-	settingsversion.Text = 'Opai '..mainapi.Version..' '..(
+	settingsversion.Text = 'Vape '..mainapi.Version..' '..(
 		isfile('opai/profiles/commit.txt') and readfile('opai/profiles/commit.txt'):sub(1, 6) or ''
 	)..' '
 	settingsversion.TextColor3 = color.Dark(uipallet.Text, 0.43)
@@ -2638,9 +2634,9 @@ function mainapi:CreateGUI()
 		function optionapi:SetBind(tab)
 			mainapi.Keybind = #tab <= 0 and mainapi.Keybind or table.clone(tab)
 			self.Bind = mainapi.Keybind
-			if mainapi.OpaiButton then
-				mainapi.OpaiButton:Destroy()
-				mainapi.OpaiButton = nil
+			if mainapi.VapeButton then
+				mainapi.VapeButton:Destroy()
+				mainapi.VapeButton = nil
 			end
 
 			bind.Visible = true
@@ -5376,7 +5372,7 @@ function mainapi:Load(skipgui, profile)
 		guidata = loadJson('opai/profiles/'..game.GameId..'.gui.txt')
 		if not guidata then
 			guidata = {Categories = {}}
-			self:CreateNotification('Opai', 'Failed to load GUI settings.', 10, 'alert')
+			self:CreateNotification('Vape', 'Failed to load GUI settings.', 10, 'alert')
 			savecheck = false
 		end
 
@@ -5423,7 +5419,7 @@ function mainapi:Load(skipgui, profile)
 		local savedata = loadJson('opai/profiles/'..self.Profile..self.Place..'.txt')
 		if not savedata then
 			savedata = {Categories = {}, Modules = {}, Legit = {}}
-			self:CreateNotification('Opai', 'Failed to load '..self.Profile..' profile.', 10, 'alert')
+			self:CreateNotification('Vape', 'Failed to load '..self.Profile..' profile.', 10, 'alert')
 			savecheck = false
 		end
 
@@ -5504,11 +5500,11 @@ function mainapi:Load(skipgui, profile)
 		image.Size = UDim2.fromOffset(26, 26)
 		image.Position = UDim2.fromOffset(3, 3)
 		image.BackgroundTransparency = 1
-		image.Image = getcustomasset('opai/assets/new/Opai.png')
+		image.Image = getcustomasset('opai/assets/new/vape.png')
 		image.Parent = button
 		local buttoncorner = Instance.new('UICorner')
 		buttoncorner.Parent = button
-		self.OpaiButton = button
+		self.VapeButton = button
 		button.MouseButton1Click:Connect(function()
 			if self.ThreadFix then
 				setthreadidentity(8)
@@ -5645,9 +5641,9 @@ function mainapi:Uninject()
 	mainapi.gui:Destroy()
 	table.clear(mainapi.Libraries)
 	loopClean(mainapi)
-	shared.Opai = nil
-	shared.Opaireload = nil
-	shared.OpaiIndependent = nil
+	shared.vape = nil
+	shared.vapereload = nil
+	shared.VapeIndependent = nil
 end
 
 gui = Instance.new('ScreenGui')
@@ -5802,11 +5798,6 @@ mainapi:CreateCategory({
 	Icon = getcustomasset('opai/assets/new/miniicon.png'),
 	Size = UDim2.fromOffset(19, 12)
 })
-mainapi:CreateCategory({
-	Name = 'Legit',
-	Icon = getcustomasset('opai/assets/new/legit.png'),
-	Size = UDim2.fromOffset(20, 14)
-})
 mainapi.Categories.Main:CreateDivider('misc')
 
 --[[
@@ -5917,33 +5908,33 @@ general:CreateButton({
 		if isfile('opai/profiles/'..mainapi.Profile..mainapi.Place..'.txt') and delfile then
 			delfile('opai/profiles/'..mainapi.Profile..mainapi.Place..'.txt')
 		end
-		shared.Opaireload = true
-		if shared.OpaiDeveloper then
+		shared.vapereload = true
+		if shared.VapeDeveloper then
 			loadstring(readfile('opai/loader.lua'), 'loader')()
 		else
 			loadstring(game:HttpGet('https://raw.githubusercontent.com/OpaiForRoblox/38Nsuq8krO91/'..readfile('opai/profiles/commit.txt')..'/loader.lua', true))()
 		end
 	end,
-	Tooltip = 'This will set your profile to the default settings of Opai'
+	Tooltip = 'This will set your profile to the default settings of Vape'
 })
 general:CreateButton({
 	Name = 'Self destruct',
 	Function = function()
 		mainapi:Uninject()
 	end,
-	Tooltip = 'Removes Opai from the current game'
+	Tooltip = 'Removes vape from the current game'
 })
 general:CreateButton({
 	Name = 'Reinject',
 	Function = function()
-		shared.Opaireload = true
-		if shared.OpaiDeveloper then
+		shared.vapereload = true
+		if shared.VapeDeveloper then
 			loadstring(readfile('opai/loader.lua'), 'loader')()
 		else
 			loadstring(game:HttpGet('https://raw.githubusercontent.com/OpaiForRoblox/38Nsuq8krO91/'..readfile('opai/profiles/commit.txt')..'/loader.lua', true))()
 		end
 	end,
-	Tooltip = 'Reloads Opai for debugging purposes'
+	Tooltip = 'Reloads vape for debugging purposes'
 })
 
 --[[
@@ -6044,15 +6035,15 @@ guipane:CreateDropdown({
 	Function = function(val, mouse)
 		if mouse then
 			writefile('opai/profiles/gui.txt', val)
-			shared.Opaireload = true
-			if shared.OpaiDeveloper then
+			shared.vapereload = true
+			if shared.VapeDeveloper then
 				loadstring(readfile('opai/loader.lua'), 'loader')()
 			else
 				loadstring(game:HttpGet('https://raw.githubusercontent.com/OpaiForRoblox/38Nsuq8krO91/'..readfile('opai/profiles/commit.txt')..'/loader.lua', true))()
 			end
 		end
 	end,
-	Tooltip = 'new - The newest Opai theme to since v4.05\nold - The Opai theme pre v4.05\nrise - Rise 6.0'
+	Tooltip = 'new - The newest vape theme to since v4.05\nold - The vape theme pre v4.05\nrise - Rise 6.0'
 })
 mainapi.RainbowMode = guipane:CreateDropdown({
 	Name = 'Rainbow Mode',
@@ -6194,8 +6185,8 @@ textguicolor = textgui:CreateColorSlider({
 	Darker = true,
 	Visible = false
 })
-local OpaiTextScale = Instance.new('UIScale')
-OpaiTextScale.Parent = textgui.Children
+local VapeTextScale = Instance.new('UIScale')
+VapeTextScale.Parent = textgui.Children
 local textguiscale = textgui:CreateSlider({
 	Name = 'Scale',
 	Min = 0,
@@ -6203,7 +6194,7 @@ local textguiscale = textgui:CreateSlider({
 	Decimal = 10,
 	Default = 1,
 	Function = function(val)
-		OpaiTextScale.Scale = val
+		VapeTextScale.Scale = val
 		mainapi:UpdateTextGUI()
 	end
 })
@@ -6240,7 +6231,7 @@ local textguianimations = textgui:CreateToggle({
 })
 local textguiwatermark = textgui:CreateToggle({
 	Name = 'Watermark',
-	Tooltip = 'Renders a Opai watermark',
+	Tooltip = 'Renders a vape watermark',
 	Function = function()
 		mainapi:UpdateTextGUI()
 	end
@@ -6359,17 +6350,17 @@ textguicolorcustom = textgui:CreateColorSlider({
 	Text GUI Objects
 ]]
 
-local OpaiLabels = {}
-local OpaiLogo = Instance.new('ImageLabel')
-OpaiLogo.Name = 'Logo'
-OpaiLogo.Size = UDim2.fromOffset(80, 21)
-OpaiLogo.Position = UDim2.new(1, -142, 0, 3)
-OpaiLogo.BackgroundTransparency = 1
-OpaiLogo.BorderSizePixel = 0
-OpaiLogo.Visible = false
-OpaiLogo.BackgroundColor3 = Color3.new()
-OpaiLogo.Image = getcustomasset('opai/assets/new/textopai.png')
-OpaiLogo.Parent = textgui.Children
+local VapeLabels = {}
+local VapeLogo = Instance.new('ImageLabel')
+VapeLogo.Name = 'Logo'
+VapeLogo.Size = UDim2.fromOffset(80, 21)
+VapeLogo.Position = UDim2.new(1, -142, 0, 3)
+VapeLogo.BackgroundTransparency = 1
+VapeLogo.BorderSizePixel = 0
+VapeLogo.Visible = false
+VapeLogo.BackgroundColor3 = Color3.new()
+VapeLogo.Image = getcustomasset('opai/assets/new/textopai.png')
+VapeLogo.Parent = textgui.Children
 
 local lastside = textgui.Children.AbsolutePosition.X > (gui.AbsoluteSize.X / 2)
 mainapi:Clean(textgui.Children:GetPropertyChangedSignal('AbsolutePosition'):Connect(function()
@@ -6383,73 +6374,73 @@ mainapi:Clean(textgui.Children:GetPropertyChangedSignal('AbsolutePosition'):Conn
 	end
 end))
 
-local OpaiLogoV4 = Instance.new('ImageLabel')
-OpaiLogoV4.Name = 'Logo2'
-OpaiLogoV4.Size = UDim2.fromOffset(33, 18)
-OpaiLogoV4.Position = UDim2.new(1, 1, 0, 1)
-OpaiLogoV4.BackgroundColor3 = Color3.new()
-OpaiLogoV4.BackgroundTransparency = 1
-OpaiLogoV4.BorderSizePixel = 0
-OpaiLogoV4.Image = getcustomasset('opai/assets/new/textv2.png')
-OpaiLogoV4.Parent = OpaiLogo
-local OpaiLogoShadow = OpaiLogo:Clone()
-OpaiLogoShadow.Position = UDim2.fromOffset(1, 1)
-OpaiLogoShadow.ZIndex = 0
-OpaiLogoShadow.Visible = true
-OpaiLogoShadow.ImageColor3 = Color3.new()
-OpaiLogoShadow.ImageTransparency = 0.65
-OpaiLogoShadow.Parent = OpaiLogo
-OpaiLogoShadow.Logo2.ZIndex = 0
-OpaiLogoShadow.Logo2.ImageColor3 = Color3.new()
-OpaiLogoShadow.Logo2.ImageTransparency = 0.65
-local OpaiLogoGradient = Instance.new('UIGradient')
-OpaiLogoGradient.Rotation = 90
-OpaiLogoGradient.Parent = OpaiLogo
-local OpaiLogoGradient2 = Instance.new('UIGradient')
-OpaiLogoGradient2.Rotation = 90
-OpaiLogoGradient2.Parent = OpaiLogoV4
-local OpaiLabelCustom = Instance.new('TextLabel')
-OpaiLabelCustom.Position = UDim2.fromOffset(5, 2)
-OpaiLabelCustom.BackgroundTransparency = 1
-OpaiLabelCustom.BorderSizePixel = 0
-OpaiLabelCustom.Visible = false
-OpaiLabelCustom.Text = ''
-OpaiLabelCustom.TextSize = 25
-OpaiLabelCustom.FontFace = textguifontcustom.Value
-OpaiLabelCustom.RichText = true
-local OpaiLabelCustomShadow = OpaiLabelCustom:Clone()
-OpaiLabelCustom:GetPropertyChangedSignal('Position'):Connect(function()
-	OpaiLabelCustomShadow.Position = UDim2.new(
-		OpaiLabelCustom.Position.X.Scale,
-		OpaiLabelCustom.Position.X.Offset + 1,
+local VapeLogoV4 = Instance.new('ImageLabel')
+VapeLogoV4.Name = 'Logo2'
+VapeLogoV4.Size = UDim2.fromOffset(33, 18)
+VapeLogoV4.Position = UDim2.new(1, 1, 0, 1)
+VapeLogoV4.BackgroundColor3 = Color3.new()
+VapeLogoV4.BackgroundTransparency = 1
+VapeLogoV4.BorderSizePixel = 0
+VapeLogoV4.Image = getcustomasset('opai/assets/new/textv4.png')
+VapeLogoV4.Parent = VapeLogo
+local VapeLogoShadow = VapeLogo:Clone()
+VapeLogoShadow.Position = UDim2.fromOffset(1, 1)
+VapeLogoShadow.ZIndex = 0
+VapeLogoShadow.Visible = true
+VapeLogoShadow.ImageColor3 = Color3.new()
+VapeLogoShadow.ImageTransparency = 0.65
+VapeLogoShadow.Parent = VapeLogo
+VapeLogoShadow.Logo2.ZIndex = 0
+VapeLogoShadow.Logo2.ImageColor3 = Color3.new()
+VapeLogoShadow.Logo2.ImageTransparency = 0.65
+local VapeLogoGradient = Instance.new('UIGradient')
+VapeLogoGradient.Rotation = 90
+VapeLogoGradient.Parent = VapeLogo
+local VapeLogoGradient2 = Instance.new('UIGradient')
+VapeLogoGradient2.Rotation = 90
+VapeLogoGradient2.Parent = VapeLogoV4
+local VapeLabelCustom = Instance.new('TextLabel')
+VapeLabelCustom.Position = UDim2.fromOffset(5, 2)
+VapeLabelCustom.BackgroundTransparency = 1
+VapeLabelCustom.BorderSizePixel = 0
+VapeLabelCustom.Visible = false
+VapeLabelCustom.Text = ''
+VapeLabelCustom.TextSize = 25
+VapeLabelCustom.FontFace = textguifontcustom.Value
+VapeLabelCustom.RichText = true
+local VapeLabelCustomShadow = VapeLabelCustom:Clone()
+VapeLabelCustom:GetPropertyChangedSignal('Position'):Connect(function()
+	VapeLabelCustomShadow.Position = UDim2.new(
+		VapeLabelCustom.Position.X.Scale,
+		VapeLabelCustom.Position.X.Offset + 1,
 		0,
-		OpaiLabelCustom.Position.Y.Offset + 1
+		VapeLabelCustom.Position.Y.Offset + 1
 	)
 end)
-OpaiLabelCustom:GetPropertyChangedSignal('FontFace'):Connect(function()
-	OpaiLabelCustomShadow.FontFace = OpaiLabelCustom.FontFace
+VapeLabelCustom:GetPropertyChangedSignal('FontFace'):Connect(function()
+	VapeLabelCustomShadow.FontFace = VapeLabelCustom.FontFace
 end)
-OpaiLabelCustom:GetPropertyChangedSignal('Text'):Connect(function()
-	OpaiLabelCustomShadow.Text = removeTags(OpaiLabelCustom.Text)
+VapeLabelCustom:GetPropertyChangedSignal('Text'):Connect(function()
+	VapeLabelCustomShadow.Text = removeTags(VapeLabelCustom.Text)
 end)
-OpaiLabelCustom:GetPropertyChangedSignal('Size'):Connect(function()
-	OpaiLabelCustomShadow.Size = OpaiLabelCustom.Size
+VapeLabelCustom:GetPropertyChangedSignal('Size'):Connect(function()
+	VapeLabelCustomShadow.Size = VapeLabelCustom.Size
 end)
-OpaiLabelCustomShadow.TextColor3 = Color3.new()
-OpaiLabelCustomShadow.TextTransparency = 0.65
-OpaiLabelCustomShadow.Parent = textgui.Children
-OpaiLabelCustom.Parent = textgui.Children
-local OpaiLabelHolder = Instance.new('Frame')
-OpaiLabelHolder.Name = 'Holder'
-OpaiLabelHolder.Size = UDim2.fromScale(1, 1)
-OpaiLabelHolder.Position = UDim2.fromOffset(5, 37)
-OpaiLabelHolder.BackgroundTransparency = 1
-OpaiLabelHolder.Parent = textgui.Children
-local OpaiLabelSorter = Instance.new('UIListLayout')
-OpaiLabelSorter.HorizontalAlignment = Enum.HorizontalAlignment.Right
-OpaiLabelSorter.VerticalAlignment = Enum.VerticalAlignment.Top
-OpaiLabelSorter.SortOrder = Enum.SortOrder.LayoutOrder
-OpaiLabelSorter.Parent = OpaiLabelHolder
+VapeLabelCustomShadow.TextColor3 = Color3.new()
+VapeLabelCustomShadow.TextTransparency = 0.65
+VapeLabelCustomShadow.Parent = textgui.Children
+VapeLabelCustom.Parent = textgui.Children
+local VapeLabelHolder = Instance.new('Frame')
+VapeLabelHolder.Name = 'Holder'
+VapeLabelHolder.Size = UDim2.fromScale(1, 1)
+VapeLabelHolder.Position = UDim2.fromOffset(5, 37)
+VapeLabelHolder.BackgroundTransparency = 1
+VapeLabelHolder.Parent = textgui.Children
+local VapeLabelSorter = Instance.new('UIListLayout')
+VapeLabelSorter.HorizontalAlignment = Enum.HorizontalAlignment.Right
+VapeLabelSorter.VerticalAlignment = Enum.VerticalAlignment.Top
+VapeLabelSorter.SortOrder = Enum.SortOrder.LayoutOrder
+VapeLabelSorter.Parent = VapeLabelHolder
 
 --[[
 	Target Info
@@ -6708,30 +6699,30 @@ function mainapi:UpdateTextGUI(afterload)
 	if not afterload and not mainapi.Loaded then return end
 	if textgui.Button.Enabled then
 		local right = textgui.Children.AbsolutePosition.X > (gui.AbsoluteSize.X / 2)
-		OpaiLogo.Visible = textguiwatermark.Enabled
-		OpaiLogo.Position = right and UDim2.new(1 / OpaiTextScale.Scale, -113, 0, 6) or UDim2.fromOffset(0, 6)
-		OpaiLogoShadow.Visible = textguishadow.Enabled
-		OpaiLabelCustom.Text = textguibox.Value
-		OpaiLabelCustom.FontFace = textguifontcustom.Value
-		OpaiLabelCustom.Visible = OpaiLabelCustom.Text ~= '' and textguitext.Enabled
-		OpaiLabelCustomShadow.Visible = OpaiLabelCustom.Visible and textguishadow.Enabled
-		OpaiLabelSorter.HorizontalAlignment = right and Enum.HorizontalAlignment.Right or Enum.HorizontalAlignment.Left
-		OpaiLabelHolder.Size = UDim2.fromScale(1 / OpaiTextScale.Scale, 1)
-		OpaiLabelHolder.Position = UDim2.fromOffset(right and 3 or 0, 11 + (OpaiLogo.Visible and OpaiLogo.Size.Y.Offset or 0) + (OpaiLabelCustom.Visible and 28 or 0) + (textguibackground.Enabled and 3 or 0))
-		if OpaiLabelCustom.Visible then
-			local size = getfontsize(removeTags(OpaiLabelCustom.Text), OpaiLabelCustom.TextSize, OpaiLabelCustom.FontFace)
-			OpaiLabelCustom.Size = UDim2.fromOffset(size.X, size.Y)
-			OpaiLabelCustom.Position = UDim2.new(right and 1 / OpaiTextScale.Scale or 0, right and -size.X or 0, 0, (OpaiLogo.Visible and 32 or 8))
+		VapeLogo.Visible = textguiwatermark.Enabled
+		VapeLogo.Position = right and UDim2.new(1 / VapeTextScale.Scale, -113, 0, 6) or UDim2.fromOffset(0, 6)
+		VapeLogoShadow.Visible = textguishadow.Enabled
+		VapeLabelCustom.Text = textguibox.Value
+		VapeLabelCustom.FontFace = textguifontcustom.Value
+		VapeLabelCustom.Visible = VapeLabelCustom.Text ~= '' and textguitext.Enabled
+		VapeLabelCustomShadow.Visible = VapeLabelCustom.Visible and textguishadow.Enabled
+		VapeLabelSorter.HorizontalAlignment = right and Enum.HorizontalAlignment.Right or Enum.HorizontalAlignment.Left
+		VapeLabelHolder.Size = UDim2.fromScale(1 / VapeTextScale.Scale, 1)
+		VapeLabelHolder.Position = UDim2.fromOffset(right and 3 or 0, 11 + (VapeLogo.Visible and VapeLogo.Size.Y.Offset or 0) + (VapeLabelCustom.Visible and 28 or 0) + (textguibackground.Enabled and 3 or 0))
+		if VapeLabelCustom.Visible then
+			local size = getfontsize(removeTags(VapeLabelCustom.Text), VapeLabelCustom.TextSize, VapeLabelCustom.FontFace)
+			VapeLabelCustom.Size = UDim2.fromOffset(size.X, size.Y)
+			VapeLabelCustom.Position = UDim2.new(right and 1 / VapeTextScale.Scale or 0, right and -size.X or 0, 0, (VapeLogo.Visible and 32 or 8))
 		end
 
 		local found = {}
-		for _, v in OpaiLabels do
+		for _, v in VapeLabels do
 			if v.Enabled then
 				table.insert(found, v.Object.Name)
 			end
 			v.Object:Destroy()
 		end
-		table.clear(OpaiLabels)
+		table.clear(VapeLabels)
 
 		local info = TweenInfo.new(0.3, Enum.EasingStyle.Exponential)
 		for i, v in mainapi.Modules do
@@ -6743,7 +6734,7 @@ function mainapi:UpdateTextGUI(afterload)
 				holder.Size = UDim2.fromOffset()
 				holder.BackgroundTransparency = 1
 				holder.ClipsDescendants = true
-				holder.Parent = OpaiLabelHolder
+				holder.Parent = VapeLabelHolder
 				local holderbackground
 				local holdercolorline
 				if textguibackground.Enabled then
@@ -6805,7 +6796,7 @@ function mainapi:UpdateTextGUI(afterload)
 				else
 					holder.Size = v.Enabled and holdersize or UDim2.fromOffset()
 				end
-				table.insert(OpaiLabels, {
+				table.insert(VapeLabels, {
 					Object = holder,
 					Text = holdertext,
 					Background = holderbackground,
@@ -6816,16 +6807,16 @@ function mainapi:UpdateTextGUI(afterload)
 		end
 
 		if textguisort.Value == 'Alphabetical' then
-			table.sort(OpaiLabels, function(a, b)
+			table.sort(VapeLabels, function(a, b)
 				return a.Text.Text < b.Text.Text
 			end)
 		else
-			table.sort(OpaiLabels, function(a, b)
+			table.sort(VapeLabels, function(a, b)
 				return a.Text.Size.X.Offset > b.Text.Size.X.Offset
 			end)
 		end
 
-		for i, v in OpaiLabels do
+		for i, v in VapeLabels do
 			if v.Color then
 				v.Color.Parent.Line.Visible = i ~= 1
 			end
@@ -6840,19 +6831,19 @@ function mainapi:UpdateGUI(hue, sat, val, default)
 	if mainapi.Loaded == nil then return end
 	if not default and mainapi.GUIColor.Rainbow then return end
 	if textgui.Button.Enabled then
-		OpaiLogoGradient.Color = ColorSequence.new({
+		VapeLogoGradient.Color = ColorSequence.new({
 			ColorSequenceKeypoint.new(0, Color3.fromHSV(hue, sat, val)),
 			ColorSequenceKeypoint.new(1, textguigradient.Enabled and Color3.fromHSV(mainapi:Color((hue - 0.075) % 1)) or Color3.fromHSV(hue, sat, val))
 		})
-		OpaiLogoGradient2.Color = textguigradient.Enabled and textguigradientv4.Enabled and OpaiLogoGradient.Color or ColorSequence.new({
+		VapeLogoGradient2.Color = textguigradient.Enabled and textguigradientv4.Enabled and VapeLogoGradient.Color or ColorSequence.new({
 			ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
 			ColorSequenceKeypoint.new(1, Color3.new(1, 1, 1))
 		})
-		OpaiLabelCustom.TextColor3 = textguicolorcustomtoggle.Enabled and Color3.fromHSV(textguicolorcustom.Hue, textguicolorcustom.Sat, textguicolorcustom.Value) or OpaiLogoGradient.Color.Keypoints[2].Value
+		VapeLabelCustom.TextColor3 = textguicolorcustomtoggle.Enabled and Color3.fromHSV(textguicolorcustom.Hue, textguicolorcustom.Sat, textguicolorcustom.Value) or VapeLogoGradient.Color.Keypoints[2].Value
 
 		local customcolor = textguicolordrop.Value == 'Custom color' and Color3.fromHSV(textguicolor.Hue, textguicolor.Sat, textguicolor.Value) or nil
-		for i, v in OpaiLabels do
-			v.Text.TextColor3 = customcolor or (mainapi.GUIColor.Rainbow and Color3.fromHSV(mainapi:Color((hue - ((textguigradient and i + 2 or i) * 0.025)) % 1)) or OpaiLogoGradient.Color.Keypoints[2].Value)
+		for i, v in VapeLabels do
+			v.Text.TextColor3 = customcolor or (mainapi.GUIColor.Rainbow and Color3.fromHSV(mainapi:Color((hue - ((textguigradient and i + 2 or i) * 0.025)) % 1)) or VapeLogoGradient.Color.Keypoints[2].Value)
 			if v.Color then
 				v.Color.BackgroundColor3 = v.Text.TextColor3
 			end
@@ -6867,7 +6858,7 @@ function mainapi:UpdateGUI(hue, sat, val, default)
 
 	for i, v in mainapi.Categories do
 		if i == 'Main' then
-			v.Object.OpaiLogo.V4Logo.ImageColor3 = Color3.fromHSV(hue, sat, val)
+			v.Object.VapeLogo.V4Logo.ImageColor3 = Color3.fromHSV(hue, sat, val)
 			for _, button in v.Buttons do
 				if button.Enabled then
 					button.Object.TextColor3 = rainbow and Color3.fromHSV(mainapi:Color((hue - (button.Index * 0.025)) % 1)) or Color3.fromHSV(hue, sat, val)
