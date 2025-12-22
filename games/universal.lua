@@ -18,7 +18,7 @@ end
 local function downloadFile(path, func)
 	if not isfile(path) then
 		local suc, res = pcall(function()
-			return game:HttpGet('https://raw.githubusercontent.com/OpaiForRoblox/38Nsuq8krO91/'..readfile('Opai/profiles/commit.txt')..'/'..select(1, path:gsub('Opai/', '')), true)
+			return game:HttpGet('https://raw.githubusercontent.com/OpaiForRoblox/38Nsuq8krO91/'..readfile('opai/profiles/commit.txt')..'/'..select(1, path:gsub('opai/', '')), true)
 		end)
 		if not suc or res == '404: Not Found' then
 			error(res)
@@ -76,7 +76,7 @@ local function addBlur(parent)
 	blur.Size = UDim2.new(1, 89, 1, 52)
 	blur.Position = UDim2.fromOffset(-48, -31)
 	blur.BackgroundTransparency = 1
-	blur.Image = getcustomasset('Opai/assets/new/blur.png')
+	blur.Image = getcustomasset('opai/assets/new/blur.png')
 	blur.ScaleType = Enum.ScaleType.Slice
 	blur.SliceCenter = Rect.new(52, 31, 261, 502)
 	blur.Parent = parent
@@ -223,9 +223,9 @@ local function motorMove(target, cf)
 	task.delay(0, part.Destroy, part)
 end
 
-local hash = loadstring(downloadFile('Opai/libraries/hash.lua'), 'hash')()
-local prediction = loadstring(downloadFile('Opai/libraries/prediction.lua'), 'prediction')()
-entitylib = loadstring(downloadFile('Opai/libraries/entity.lua'), 'entitylibrary')()
+local hash = loadstring(downloadFile('opai/libraries/hash.lua'), 'hash')()
+local prediction = loadstring(downloadFile('opai/libraries/prediction.lua'), 'prediction')()
+entitylib = loadstring(downloadFile('opai/libraries/entity.lua'), 'entitylibrary')()
 local whitelist = {
 	alreadychecked = {},
 	customtags = {},
@@ -641,7 +641,7 @@ run(function()
 
 		if not first or whitelist.textdata ~= whitelist.olddata then
 			if not first then
-				whitelist.olddata = isfile('Opai/profiles/whitelist.json') and readfile('Opai/profiles/whitelist.json') or nil
+				whitelist.olddata = isfile('opai/profiles/whitelist.json') and readfile('opai/profiles/whitelist.json') or nil
 			end
 
 			local suc, res = pcall(function()
@@ -688,7 +688,7 @@ run(function()
 				end
 				whitelist.olddata = whitelist.textdata
 				pcall(function()
-					writefile('Opai/profiles/whitelist.json', whitelist.textdata)
+					writefile('opai/profiles/whitelist.json', whitelist.textdata)
 				end)
 			end
 
@@ -4029,7 +4029,7 @@ run(function()
 	
 	Radar = Opai:CreateOverlay({
 		Name = 'Radar',
-		Icon = getcustomasset('Opai/assets/new/radaricon.png'),
+		Icon = getcustomasset('opai/assets/new/radaricon.png'),
 		Size = UDim2.fromOffset(14, 14),
 		Position = UDim2.fromOffset(12, 13),
 		Function = function(callback)
@@ -4174,7 +4174,7 @@ run(function()
 	
 	SessionInfo = Opai:CreateOverlay({
 		Name = 'Session Info',
-		Icon = getcustomasset('Opai/assets/new/textguiicon.png'),
+		Icon = getcustomasset('opai/assets/new/textguiicon.png'),
 		Size = UDim2.fromOffset(16, 12),
 		Position = UDim2.fromOffset(12, 14),
 		Function = function(callback)
@@ -4243,8 +4243,8 @@ run(function()
 	Hide = SessionInfo:CreateTextList({
 		Name = 'Blacklist',
 		Tooltip = 'Name of entry to hide.',
-		Icon = getcustomasset('Opai/assets/new/blockedicon.png'),
-		Tab = getcustomasset('Opai/assets/new/blockedtab.png'),
+		Icon = getcustomasset('opai/assets/new/blockedicon.png'),
+		Tab = getcustomasset('opai/assets/new/blockedtab.png'),
 		TabSize = UDim2.fromOffset(21, 16),
 		Color = Color3.fromRGB(250, 50, 56)
 	})
