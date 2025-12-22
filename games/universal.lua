@@ -1,11 +1,11 @@
---This watermark is used to delete the file if its cached, remove it to make the file persist after Opai updates.
---This watermark is used to delete the file if its cached, remove it to make the file persist after Opai updates.
---This watermark is used to delete the file if its cached, remove it to make the file persist after Opai updates.
---This watermark is used to delete the file if its cached, remove it to make the file persist after Opai updates.
+--This watermark is used to delete the file if its cached, remove it to make the file persist after Vape updates.
+--This watermark is used to delete the file if its cached, remove it to make the file persist after Vape updates.
+--This watermark is used to delete the file if its cached, remove it to make the file persist after Vape updates.
+--This watermark is used to delete the file if its cached, remove it to make the file persist after Vape updates.
 local loadstring = function(...)
 	local res, err = loadstring(...)
-	if err and Opai then
-		Opai:CreateNotification('Opai', 'Failed to load : '..err, 30, 'alert')
+	if err and Vape then
+		Vape:CreateNotification('Vape', 'Failed to load : '..err, 30, 'alert')
 	end
 	return res
 end
@@ -60,7 +60,7 @@ local gameCamera = workspace.CurrentCamera or workspace:FindFirstChildWhichIsA('
 local lplr = playersService.LocalPlayer
 local assetfunction = getcustomasset
 
-local Opai = shared.Opai
+local Vape = shared.Vape
 local tween = vapeLibraries.tween
 local targetinfo = vapeLibraries.targetinfo
 local getfontsize = vapeLibraries.getfontsize
@@ -140,7 +140,7 @@ local function getTool()
 end
 
 local function notif(...)
-	return Opai:CreateNotification(...)
+	return Vape:CreateNotification(...)
 end
 
 local function removeTags(str)
@@ -151,12 +151,12 @@ end
 local visited, attempted, tpSwitch = {}, {}, false
 local cacheExpire, cache = tick()
 local function serverHop(pointer, filter)
-	visited = shared.Opaiserverhoplist and shared.Opaiserverhoplist:split('/') or {}
+	visited = shared.Vapeserverhoplist and shared.Vapeserverhoplist:split('/') or {}
 	if not table.find(visited, game.JobId) then
 		table.insert(visited, game.JobId)
 	end
 	if not pointer then
-		notif('Opai', 'Searching for an available server.', 2)
+		notif('Vape', 'Searching for an available server.', 2)
 	end
 
 	local suc, httpdata = pcall(function()
@@ -169,7 +169,7 @@ local function serverHop(pointer, filter)
 				cacheExpire, cache = tick() + 60, httpdata
 				table.insert(attempted, v.id)
 
-				notif('Opai', 'Found! Teleporting.', 5)
+				notif('Vape', 'Found! Teleporting.', 5)
 				teleportService:TeleportToPlaceInstance(game.PlaceId, v.id)
 				return
 			end
@@ -178,17 +178,17 @@ local function serverHop(pointer, filter)
 		if data.nextPageCursor then
 			serverHop(data.nextPageCursor, filter)
 		else
-			notif('Opai', 'Failed to find an available server.', 5, 'warning')
+			notif('Vape', 'Failed to find an available server.', 5, 'warning')
 		end
 	else
-		notif('Opai', 'Failed to grab servers. ('..(data and data.errors[1].message or 'no data')..')', 5, 'warning')
+		notif('Vape', 'Failed to grab servers. ('..(data and data.errors[1].message or 'no data')..')', 5, 'warning')
 	end
 end
 
-Opai:Clean(lplr.OnTeleport:Connect(function()
+Vape:Clean(lplr.OnTeleport:Connect(function()
 	if not tpSwitch then
 		tpSwitch = true
-		queue_on_teleport("shared.Opaiserverhoplist = '"..table.concat(visited, '/').."'\nshared.Opaiserverhopprevious = '"..game.JobId.."'")
+		queue_on_teleport("shared.Vapeserverhoplist = '"..table.concat(visited, '/').."'\nshared.Vapeserverhopprevious = '"..game.JobId.."'")
 	end
 end))
 
@@ -430,14 +430,14 @@ run(function()
 		return tostring(ent.TeamColor) ~= 'White' and ent.TeamColor.Color or nil
 	end
 
-	Opai:Clean(function()
+	Vape:Clean(function()
 		entitylib.kill()
 		entitylib = nil
 	end)
-	Opai:Clean(vapeCategories.Friends.Update.Event:Connect(function() entitylib.refresh() end))
-	Opai:Clean(vapeCategories.Targets.Update.Event:Connect(function() entitylib.refresh() end))
-	Opai:Clean(entitylib.Events.LocalAdded:Connect(updateVelocity))
-	Opai:Clean(workspace:GetPropertyChangedSignal('CurrentCamera'):Connect(function()
+	Vape:Clean(vapeCategories.Friends.Update.Event:Connect(function() entitylib.refresh() end))
+	Vape:Clean(vapeCategories.Targets.Update.Event:Connect(function() entitylib.refresh() end))
+	Vape:Clean(entitylib.Events.LocalAdded:Connect(updateVelocity))
+	Vape:Clean(workspace:GetPropertyChangedSignal('CurrentCamera'):Connect(function()
 		gameCamera = workspace.CurrentCamera or workspace:FindFirstChildWhichIsA('Camera')
 	end))
 end)
@@ -485,7 +485,7 @@ run(function()
 			if self.localprio == 0 then
 				olduninject = vapeUninject
 				vapeUninject = function()
-					notif('Opai', 'No escaping the private members :)', 10)
+					notif('Vape', 'No escaping the private members :)', 10)
 				end
 				if joined then
 					task.wait(10)
@@ -509,9 +509,9 @@ run(function()
 
 		if self.localprio > 0 and not self.said[plr.Name] and msg == 'helloimusinginhaler' and plr ~= lplr then
 			self.said[plr.Name] = true
-			notif('Opai', plr.Name..' is using Opai!', 60)
+			notif('Vape', plr.Name..' is using Vape!', 60)
 			self.customtags[plr.Name] = {{
-				text = 'Opai USER',
+				text = 'Vape USER',
 				color = Color3.new(1, 1, 0)
 			}}
 			local newent = entitylib.getEntity(plr)
@@ -568,7 +568,7 @@ run(function()
 			return oldchat(data, ...)
 		end)
 
-		Opai:Clean(function()
+		Vape:Clean(function()
 			hookfunction(func, oldchat)
 		end)
 	end
@@ -580,7 +580,7 @@ run(function()
 		local exp = coreGui:FindFirstChild('ExperienceChat')
 		if textChatService.ChatVersion == Enum.ChatVersion.TextChatService then
 			if exp and exp:WaitForChild('appLayout', 5) then
-				Opai:Clean(exp:FindFirstChild('RCTScrollContentView', true).ChildAdded:Connect(function(obj)
+				Vape:Clean(exp:FindFirstChild('RCTScrollContentView', true).ChildAdded:Connect(function(obj)
 					local plr = playersService:GetPlayerByUserId(tonumber(obj.Name:split('-')[1]) or 0)
 					obj = obj:FindFirstChild('TextMessage', true)
 					if obj and obj:IsA('TextLabel') then
@@ -617,7 +617,7 @@ run(function()
 		if exp then
 			local bubblechat = exp:WaitForChild('bubbleChat', 5)
 			if bubblechat then
-				Opai:Clean(bubblechat.DescendantAdded:Connect(function(newbubble)
+				Vape:Clean(bubblechat.DescendantAdded:Connect(function(newbubble)
 					if newbubble:IsA('TextLabel') and newbubble.Text:find('helloimusinginhaler') then
 						newbubble.Parent.Parent.Visible = false
 					end
@@ -663,7 +663,7 @@ run(function()
 				whitelist.connection = playersService.PlayerAdded:Connect(function(v)
 					whitelist:playeradded(v, true)
 				end)
-				Opai:Clean(whitelist.connection)
+				Vape:Clean(whitelist.connection)
 			end
 
 			for _, v in playersService:GetPlayers() do
@@ -681,7 +681,7 @@ run(function()
 
 					if table.find(targets, tostring(lplr.UserId)) then
 						local hint = Instance.new('Hint')
-						hint.Text = 'Opai ANNOUNCEMENT: '..whitelist.data.Announcement.text
+						hint.Text = 'Vape ANNOUNCEMENT: '..whitelist.data.Announcement.text
 						hint.Parent = workspace
 						game:GetService('Debris'):AddItem(hint, 20)
 					end
@@ -692,8 +692,8 @@ run(function()
 				end)
 			end
 
-			if whitelist.data.KillOpai then
-				Opai:Uninject()
+			if whitelist.data.KillVape then
+				Vape:Uninject()
 				return true
 			end
 
@@ -861,9 +861,9 @@ run(function()
 				if vapeThreadFix then
 					setthreadidentity(8)
 				end
-				olduninject(Opai)
+				olduninject(Vape)
 			else
-				Opai:Uninject()
+				Vape:Uninject()
 			end
 		end,
 		void = function()
@@ -880,7 +880,7 @@ run(function()
 		until vapeLoaded == nil
 	end)
 
-	Opai:Clean(function()
+	Vape:Clean(function()
 		table.clear(whitelist.commands)
 		table.clear(whitelist.data)
 		table.clear(whitelist)
@@ -4027,7 +4027,7 @@ run(function()
 		end
 	end
 	
-	Radar = Opai:CreateOverlay({
+	Radar = Vape:CreateOverlay({
 		Name = 'Radar',
 		Icon = getcustomasset('opai/assets/new/radaricon.png'),
 		Size = UDim2.fromOffset(14, 14),
@@ -4172,7 +4172,7 @@ run(function()
 	local infolabel
 	local infostroke
 	
-	SessionInfo = Opai:CreateOverlay({
+	SessionInfo = Vape:CreateOverlay({
 		Name = 'Session Info',
 		Icon = getcustomasset('opai/assets/new/textguiicon.png'),
 		Size = UDim2.fromOffset(16, 12),
@@ -4183,12 +4183,12 @@ run(function()
 				SessionInfo:Clean(playersService.LocalPlayer.OnTeleport:Connect(function()
 					if not teleportedServers then
 						teleportedServers = true
-						queue_on_teleport("shared.Opaisessioninfo = '"..httpService:JSONEncode(vapeLibraries.sessioninfo.Objects).."'")
+						queue_on_teleport("shared.Vapesessioninfo = '"..httpService:JSONEncode(vapeLibraries.sessioninfo.Objects).."'")
 					end
 				end))
 	
-				if shared.Opaisessioninfo then
-					for i, v in httpService:JSONDecode(shared.Opaisessioninfo) do
+				if shared.Vapesessioninfo then
+					for i, v in httpService:JSONDecode(shared.Vapesessioninfo) do
 						if vapeLibraries.sessioninfo.Objects[i] and v.Saved then
 							vapeLibraries.sessioninfo.Objects[i].Value = v.Value
 						end
@@ -4308,7 +4308,7 @@ run(function()
 	infoholder.BackgroundColor3 = Color3.new()
 	infoholder.BackgroundTransparency = 0.5
 	infoholder.Parent = SessionInfo.Children
-	Opai:Clean(SessionInfo.Children:GetPropertyChangedSignal('AbsolutePosition'):Connect(function()
+	Vape:Clean(SessionInfo.Children:GetPropertyChangedSignal('AbsolutePosition'):Connect(function()
 		if vapeThreadFix then
 			setthreadidentity(8)
 		end
@@ -4585,9 +4585,9 @@ run(function()
 	ServerHop:CreateButton({
 		Name = 'Rejoin Previous Server',
 		Function = function()
-			notif('ServerHop', shared.Opaiserverhopprevious and 'Rejoining previous server...' or 'Cannot find previous server', 5)
-			if shared.Opaiserverhopprevious then
-				teleportService:TeleportToPlaceInstance(game.PlaceId, shared.Opaiserverhopprevious)
+			notif('ServerHop', shared.Vapeserverhopprevious and 'Rejoining previous server...' or 'Cannot find previous server', 5)
+			if shared.Vapeserverhopprevious then
+				teleportService:TeleportToPlaceInstance(game.PlaceId, shared.Vapeserverhopprevious)
 			end
 		end
 	})
@@ -4635,7 +4635,7 @@ run(function()
 	
 			if Mode.Value == 'Uninject' then
 				task.spawn(function()
-					Opai:Uninject()
+					Vape:Uninject()
 				end)
 				game:GetService('StarterGui'):SetCore('SendNotification', {
 					Title = 'StaffDetector',
@@ -4648,7 +4648,7 @@ run(function()
 				vapeSave = function() end
 				if vapeProfile ~= Profile.Value then
 					vapeProfile = Profile.Value
-					Opai:Load(true, Profile.Value)
+					Vape:Load(true, Profile.Value)
 				end
 			elseif Mode.Value == 'AutoConfig' then
 				vapeSave = function() end
