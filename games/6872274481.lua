@@ -3,6 +3,7 @@
 --This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.
 --This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.
 --This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.
+--This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.
 local run = function(func)
 	func()
 end
@@ -2340,7 +2341,7 @@ run(function()
 								end
 
 								for _, v in anims[AnimationMode.Value] do
-									AnimTween = tweenService:Create(gameCamera.Viewmodel.RightHand.RightWrist, TweenInfo.new(first and (AnimationTween.Enabled and 0.001 or 0.1) or v.Time / AnimationSpeed.Value, Enum.EasingStyle.Linear), {
+									AnimTween = tweenService:Create(gameCamera.Viewmodel.RightHand.RightWrist, TweenInfo.new(first and (AnimationTween.Enabled and 0.08 or 0.3) or v.Time / AnimationSpeed.Value, Enum.EasingStyle.Linear), {
 										C0 = armC0 * v.CFrame
 									})
 									AnimTween:Play()
@@ -2350,7 +2351,7 @@ run(function()
 								end
 							elseif started then
 								started = false
-								AnimTween = tweenService:Create(gameCamera.Viewmodel.RightHand.RightWrist, TweenInfo.new(AnimationTween.Enabled and 0.001 or 0.3, Enum.EasingStyle.Exponential), {
+								AnimTween = tweenService:Create(gameCamera.Viewmodel.RightHand.RightWrist, TweenInfo.new(AnimationTween.Enabled and 0.5 or 0.7, Enum.EasingStyle.Exponential), {
 									C0 = armC0
 								})
 								AnimTween:Play()
@@ -2480,7 +2481,7 @@ run(function()
 				debug.setupvalue(bedwars.ScytheController.playLocalAnimation, 3, bedwars.Knit)
 				Attacking = false
 				if armC0 then
-					AnimTween = tweenService:Create(gameCamera.Viewmodel.RightHand.RightWrist, TweenInfo.new(AnimationTween.Enabled and 0.001 or 0.3, Enum.EasingStyle.Exponential), {
+					AnimTween = tweenService:Create(gameCamera.Viewmodel.RightHand.RightWrist, TweenInfo.new(AnimationTween.Enabled and 0.1 or 0.2, Enum.EasingStyle.Exponential), {
 						C0 = armC0
 					})
 					AnimTween:Play()
@@ -2540,9 +2541,9 @@ run(function()
 	UpdateRate = Killaura:CreateSlider({
 		Name = 'Update rate',
 		Min = 60,
-		Max = 120,
+		Max = 180,
 		Default = 60,
-		Suffix = 'Meow'
+		Suffix = 'hz'
 	})
 	MaxTargets = Killaura:CreateSlider({
 		Name = 'Max targets',
@@ -3017,9 +3018,9 @@ run(function()
 		})
 		Value = LongJump:CreateSlider({
 			Name = 'Speed',
-			Min = 1,
-			Max = 37,
-			Default = 37,
+			Min = 22,
+			Max = 36,
+			Default = 36,
 			Suffix = function(val)
 				return val == 1 and 'stud' or 'studs'
 			end
@@ -3030,8 +3031,8 @@ run(function()
 		Speds = LongJump:CreateSlider({
             Name = 'Walk Speed',
             Min = 1,
-            Max = 23,
-            Default = 23,
+            Max = 21,
+            Default = 21,
             Suffix = function(val)
                 return val == 1 and 'stud' or 'studs'
             end
@@ -3398,44 +3399,99 @@ run(function()
 	local WallCheck
 	local AutoJump
 	local AlwaysJump
+
+	-- animation control
+	local AnimSlow
+	local AnimSpeed
+	local animConnection
+
+	-- pulse control
+	local Pulse
+	local PulseDelay
+	local pulseThread
+
 	local rayCheck = RaycastParams.new()
 	rayCheck.RespectCanCollide = true
 	
 	Speed = vape.Categories.Blatant:CreateModule({
 		Name = 'Speed',
 		Function = function(callback)
-			frictionTable.Speed = callback or nil
+			-- base speed handling (pulse overrides this)
+			if not Pulse or not Pulse.Enabled then
+				frictionTable.Speed = callback or nil
+			end
+
 			updateVelocity()
+
 			pcall(function()
-				debug.setconstant(bedwars.WindWalkerController.updateSpeed, 7, callback and 'constantSpeedMultiplier' or 'moveSpeedMultiplier')
+				debug.setconstant(
+					bedwars.WindWalkerController.updateSpeed,
+					7,
+					callback and 'constantSpeedMultiplier' or 'moveSpeedMultiplier'
+				)
 			end)
+
+			-- stop pulse when speed disables
+			if not callback and pulseThread then
+				task.cancel(pulseThread)
+				pulseThread = nil
+				frictionTable.Speed = nil
+			end
 	
 			if callback then
+				-- start pulse loop if enabled
+				if Pulse and Pulse.Enabled and not pulseThread then
+					pulseThread = task.spawn(function()
+						while Speed.Enabled and Pulse.Enabled do
+							frictionTable.Speed = true
+							task.wait(PulseDelay.Value)
+							frictionTable.Speed = nil
+							task.wait(PulseDelay.Value)
+						end
+						frictionTable.Speed = Speed.Enabled or nil
+					end)
+				end
+
 				Speed:Clean(runService.PreSimulation:Connect(function(dt)
-					bedwars.StatefulEntityKnockbackController.lastImpulseTime = callback and math.huge or time()
-					if entitylib.isAlive and not Fly.Enabled and not InfiniteFly.Enabled and not LongJump.Enabled and isnetworkowner(entitylib.character.RootPart) then
-						local state = entitylib.character.Humanoid:GetState()
+					bedwars.StatefulEntityKnockbackController.lastImpulseTime = math.huge
+
+					if entitylib.isAlive
+						and not Fly.Enabled
+						and not InfiniteFly.Enabled
+						and not LongJump.Enabled
+						and isnetworkowner(entitylib.character.RootPart)
+					then
+						local humanoid = entitylib.character.Humanoid
+						local state = humanoid:GetState()
 						if state == Enum.HumanoidStateType.Climbing then return end
 	
-						local root, velo = entitylib.character.RootPart, getSpeed()
-						local moveDirection = AntiVoidDirection or entitylib.character.Humanoid.MoveDirection
-						local destination = (moveDirection * math.max(Value.Value - velo, 0) * dt)
+						local root = entitylib.character.RootPart
+						local velo = getSpeed()
+						local moveDirection = AntiVoidDirection or humanoid.MoveDirection
+						local destination = moveDirection * math.max(Value.Value - velo, 0) * dt
 	
 						if WallCheck.Enabled then
 							rayCheck.FilterDescendantsInstances = {lplr.Character, gameCamera}
 							rayCheck.CollisionGroup = root.CollisionGroup
 							local ray = workspace:Raycast(root.Position, destination, rayCheck)
 							if ray then
-								destination = ((ray.Position + ray.Normal) - root.Position)
+								destination = (ray.Position + ray.Normal) - root.Position
 							end
 						end
 	
 						root.CFrame += destination
 						if not kit_fix then
-							root.AssemblyLinearVelocity = (moveDirection * velo) + Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
+							root.AssemblyLinearVelocity =
+								(moveDirection * velo)
+								+ Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
 						end
-						if AutoJump.Enabled and (state == Enum.HumanoidStateType.Running or state == Enum.HumanoidStateType.Landed) and moveDirection ~= Vector3.zero and (Attacking or AlwaysJump.Enabled) then
-							entitylib.character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+	
+						if AutoJump.Enabled
+							and (state == Enum.HumanoidStateType.Running or state == Enum.HumanoidStateType.Landed)
+							and moveDirection ~= Vector3.zero
+							and (Attacking or AlwaysJump.Enabled)
+						then
+							humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
 						end
 					end
 				end))
@@ -3446,6 +3502,8 @@ run(function()
 		end,
 		Tooltip = 'Increases your movement with various methods.'
 	})
+
+	-- SPEED SLIDER
 	Value = Speed:CreateSlider({
 		Name = 'Speed',
 		Min = 20,
@@ -3455,22 +3513,114 @@ run(function()
 			return val == 1 and 'stud' or 'studs'
 		end
 	})
+
+	-- WALL CHECK
 	WallCheck = Speed:CreateToggle({
 		Name = 'Wall Check',
 		Default = true
 	})
+
+	-- AUTO JUMP
 	AutoJump = Speed:CreateToggle({
 		Name = 'AutoJump',
 		Function = function(callback)
 			AlwaysJump.Object.Visible = callback
 		end
 	})
+
 	AlwaysJump = Speed:CreateToggle({
 		Name = 'Always Jump',
 		Visible = false,
 		Darker = true
 	})
+
+	-- ⚡ PULSE TOGGLE
+	Pulse = Speed:CreateToggle({
+		Name = 'Pulse',
+		Function = function(enabled)
+			if pulseThread then
+				task.cancel(pulseThread)
+				pulseThread = nil
+			end
+
+			if enabled and Speed.Enabled then
+				pulseThread = task.spawn(function()
+					while Pulse.Enabled and Speed.Enabled do
+						frictionTable.Speed = true
+						task.wait(PulseDelay.Value)
+						frictionTable.Speed = nil
+						task.wait(PulseDelay.Value)
+					end
+					frictionTable.Speed = Speed.Enabled or nil
+				end)
+			else
+				frictionTable.Speed = Speed.Enabled or nil
+			end
+		end
+	})
+
+	-- 🎚️ PULSE DELAY SLIDER
+	PulseDelay = Speed:CreateSlider({
+		Name = 'Pulse Delay',
+		Min = 0.05,
+		Max = 1,
+		Default = 0.2,
+		Decimal = 2,
+		Suffix = function(v)
+			return v .. 's'
+		end
+	})
+
+	-- 🔥 SLOW ANIMATIONS TOGGLE
+	AnimSlow = Speed:CreateToggle({
+		Name = 'Slow Animations',
+		Function = function(callback)
+			if animConnection then
+				animConnection:Disconnect()
+				animConnection = nil
+			end
+
+			if callback then
+				animConnection = runService.RenderStepped:Connect(function()
+					if entitylib.isAlive then
+						local humanoid = entitylib.character.Humanoid
+						local animator = humanoid:FindFirstChildOfClass('Animator')
+						if animator then
+							for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
+								pcall(function()
+									track:AdjustSpeed(AnimSpeed.Value)
+								end)
+							end
+						end
+					end
+				end)
+			else
+				if entitylib.isAlive then
+					local humanoid = entitylib.character.Humanoid
+					local animator = humanoid:FindFirstChildOfClass('Animator')
+					if animator then
+						for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
+							pcall(function()
+								track:AdjustSpeed(1)
+							end)
+						end
+					end
+				end
+			end
+		end
+	})
+
+	-- 🎚️ ANIMATION SPEED SLIDER
+	AnimSpeed = Speed:CreateSlider({
+		Name = 'Animation Speed',
+		Min = 0.05,
+		Max = 1,
+		Default = 0.5,
+		Decimal = 2
+	})
 end)
+
+
 	
 run(function()
 	local BedESP
@@ -3663,7 +3813,284 @@ run(function()
 		Darker = true
 	})
 end)
-	
+
+run(function()
+	local Detector
+
+	-- thresholds
+	local MAX_SPEED = 26
+	local MAX_STRAFE_SPEED = 30
+	local MAX_AIR_TIME = 1.2
+	local MAX_REACH = 20
+	local MAX_UPWARD_VELOCITY = 70
+	local DECAY = 0.95
+
+	local playerData = {}
+
+	local function initPlayer(plr)
+		playerData[plr] = {
+			SpeedVL = 0,
+			FlyVL = 0,
+			ReachVL = 0,
+			AuraVL = 0,
+			ScaffoldVL = 0,
+			StrafeVL = 0,
+			AntiHitVL = 0,
+			SpiderVL = 0,
+
+			AirTime = 0,
+			LastLook = nil,
+			LastY = nil,
+			LastAttack = 0
+		}
+	end
+
+	for _, plr in ipairs(game.Players:GetPlayers()) do
+		if plr ~= lplr then
+			initPlayer(plr)
+		end
+	end
+
+	game.Players.PlayerAdded:Connect(initPlayer)
+	game.Players.PlayerRemoving:Connect(function(plr)
+		playerData[plr] = nil
+	end)
+
+	Detector = vape.Categories.Utility:CreateModule({
+		Name = 'CheatDetector',
+		Tooltip = 'Detects Speed, Fly, Reach, Scaffold, TargetStrafe, AntiHit, Spider',
+		Function = function(callback)
+			if not callback then
+				playerData = {}
+				return
+			end
+
+			Detector:Clean(runService.Heartbeat:Connect(function(dt)
+				for plr, data in pairs(playerData) do
+					if not plr.Character then continue end
+					local hum = plr.Character:FindFirstChildOfClass('Humanoid')
+					local root = plr.Character:FindFirstChild('HumanoidRootPart')
+					if not hum or not root then continue end
+
+					----------------------------------------------------------------
+					-- SPEED
+					local horizSpeed = Vector3.new(root.Velocity.X, 0, root.Velocity.Z).Magnitude
+					if horizSpeed > MAX_SPEED then
+						data.SpeedVL += 1
+					else
+						data.SpeedVL *= DECAY
+					end
+
+					----------------------------------------------------------------
+					-- TARGETSTRAFE (speed while attacking)
+					if tick() - data.LastAttack < 0.35 then
+						if horizSpeed > MAX_STRAFE_SPEED then
+							data.StrafeVL += 1
+						else
+							data.StrafeVL *= DECAY
+						end
+					end
+
+					----------------------------------------------------------------
+					-- FLY
+					if hum.FloorMaterial == Enum.Material.Air then
+						data.AirTime += dt
+						if data.AirTime > MAX_AIR_TIME then
+							data.FlyVL += 1
+						end
+					else
+						data.AirTime = 0
+						data.FlyVL *= DECAY
+					end
+
+					----------------------------------------------------------------
+					-- ANTIHIT / VELOCITY ABUSE
+					if data.LastY then
+						local yDelta = root.Position.Y - data.LastY
+						if yDelta > 6 and root.Velocity.Y > MAX_UPWARD_VELOCITY then
+							data.AntiHitVL += 1
+						else
+							data.AntiHitVL *= DECAY
+						end
+					end
+					data.LastY = root.Position.Y
+
+					----------------------------------------------------------------
+					-- SPIDER (vertical climbing without ladders)
+					if hum.FloorMaterial == Enum.Material.Air
+						and math.abs(root.Velocity.Y) < 2
+						and root.Velocity.Magnitude > 1
+					then
+						data.SpiderVL += 0.5
+					else
+						data.SpiderVL *= DECAY
+					end
+
+					----------------------------------------------------------------
+					-- KILLAURA SNAP HEURISTIC
+					if data.LastLook then
+						local angle = math.deg(math.acos(math.clamp(
+							root.CFrame.LookVector:Dot(data.LastLook),
+							-1, 1
+						)))
+						if angle < 2 then
+							data.AuraVL += 0.5
+						else
+							data.AuraVL *= DECAY
+						end
+					end
+					data.LastLook = root.CFrame.LookVector
+
+					----------------------------------------------------------------
+					-- FLAGGING (notifications)
+					if data.SpeedVL > 6 then
+						vape:CreateNotification('Speed Detected', plr.Name .. ' suspected of Speed', 4)
+						data.SpeedVL = 0
+					end
+
+					if data.StrafeVL > 5 then
+						vape:CreateNotification('TargetStrafe Detected', plr.Name .. ' abnormal speed while attacking', 4)
+						data.StrafeVL = 0
+					end
+
+					if data.FlyVL > 5 then
+						vape:CreateNotification('Fly Detected', plr.Name .. ' suspected of Fly', 4)
+						data.FlyVL = 0
+					end
+
+					if data.AntiHitVL > 4 then
+						vape:CreateNotification('AntiHit Detected', plr.Name .. ' suspicious vertical velocity', 4)
+						data.AntiHitVL = 0
+					end
+
+					if data.SpiderVL > 5 then
+						vape:CreateNotification('Spider Detected', plr.Name .. ' climbing without support', 4)
+						data.SpiderVL = 0
+					end
+
+					if data.AuraVL > 6 then
+						vape:CreateNotification('Killaura Detected', plr.Name .. ' suspicious aim snaps', 4)
+						data.AuraVL = 0
+					end
+				end
+			end))
+		end
+	})
+
+	----------------------------------------------------------------
+	-- REACH + ATTACK TRACKING
+	if bedwars and bedwars.ClientDamageController then
+		local old
+		old = hookfunction(
+			bedwars.ClientDamageController.requestDamage,
+			function(self, victim, ...)
+				local attacker = lplr
+				if victim and victim:FindFirstChild('HumanoidRootPart')
+					and attacker.Character
+					and attacker.Character:FindFirstChild('HumanoidRootPart')
+				then
+					local dist = (attacker.Character.HumanoidRootPart.Position
+						- victim.HumanoidRootPart.Position).Magnitude
+
+					if dist > MAX_REACH then
+						vape:CreateNotification(
+							'Reach Detected',
+							attacker.Name .. ' reach ≈ ' .. math.floor(dist) .. ' studs',
+							4
+						)
+					end
+				end
+
+				-- mark attack time for targetstrafe checks
+				local data = playerData[attacker]
+				if data then
+					data.LastAttack = tick()
+				end
+
+				return old(self, victim, ...)
+			end
+		)
+	end
+end)
+
+run(function()
+    local Players = game:GetService("Players")
+    local RunService = game:GetService("RunService")
+    local LocalPlayer = Players.LocalPlayer
+    local jumpConn
+    local jumpEnabled = false
+    local range = 30 -- distance to trigger jump
+
+    -- Utility to check if a player is a teammate (BedWars team system)
+    local function isEnemy(otherPlayer)
+        if not otherPlayer or not LocalPlayer then return false end
+        local myTeam = LocalPlayer:GetAttribute("Team")
+        local theirTeam = otherPlayer:GetAttribute("Team")
+        return myTeam and theirTeam and myTeam ~= theirTeam
+    end
+
+    local function startJumpLoop(character)
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if not humanoid then
+            character:WaitForChild("Humanoid")
+            humanoid = character:FindFirstChildOfClass("Humanoid")
+        end
+
+        if jumpConn then jumpConn:Disconnect() end
+
+        jumpConn = RunService.RenderStepped:Connect(function()
+            if not jumpEnabled or not humanoid or not humanoid.Parent then return end
+
+            local rootPart = character:FindFirstChild("HumanoidRootPart")
+            if not rootPart then return end
+
+            for _, otherPlayer in pairs(Players:GetPlayers()) do
+                if otherPlayer ~= LocalPlayer and isEnemy(otherPlayer) then
+                    local otherChar = otherPlayer.Character
+                    if otherChar and otherChar:FindFirstChild("HumanoidRootPart") then
+                        local distance = (rootPart.Position - otherChar.HumanoidRootPart.Position).Magnitude
+                        if distance <= range then
+                            if humanoid:GetState() == Enum.HumanoidStateType.Running then
+                                humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+        end)
+    end
+
+    WalkJump = vape.Categories.Blatant:CreateModule({
+        Name = 'AutoJump',
+        Function = function(callback)
+            jumpEnabled = callback
+
+            if callback then
+                local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+                vape:CreateNotification('WalkJump Enabled', 'Jump near enemy activated.', 4)
+                startJumpLoop(character)
+            else
+                if jumpConn then
+                    jumpConn:Disconnect()
+                    jumpConn = nil
+                end
+            end
+        end,
+        Default = false,
+        Tooltip = 'Jump when close to an enemy'
+    })
+
+    LocalPlayer.CharacterAdded:Connect(function(character)
+        character:WaitForChild("Humanoid")
+        task.wait(0.2)
+
+        -- Restart jump loop if module is still enabled
+        if jumpEnabled then
+            startJumpLoop(character)
+        end
+    end)
+end)														
 run(function()
 	local NameTags
 	local Targets
@@ -4362,7 +4789,7 @@ run(function()
 		end
 	})
 end)
-	
+
 run(function()
 	local ShopTierBypass
 	local tiered, nexttier = {}, {}
@@ -5645,7 +6072,7 @@ run(function()
 	local List
 	local NameToId = {}
 	
-	BedBreakEffect = vape.Categories.Legit:CreateModule({
+	BedBreakEffect = vape.Categories.Visuals:CreateModule({
 		Name = 'Bed Break Effect',
 		Function = function(callback)
 			if callback then
@@ -5675,7 +6102,7 @@ run(function()
 end)
 	
 run(function()
-	vape.Categories.Legit:CreateModule({
+	vape.Categories.Visuals:CreateModule({
 		Name = 'Clean Kit',
 		Function = function(callback)
 			if callback then
@@ -5695,7 +6122,7 @@ run(function()
 	local Value
 	local old, old2
 	
-	FOV = vape.Categories.Legit:CreateModule({
+	FOV = vape.Categories.Visuals:CreateModule({
 		Name = 'FOV',
 		Function = function(callback)
 			if callback then
@@ -5729,7 +6156,7 @@ run(function()
 	local Visualizer
 	local effects, util = {}, {}
 	
-	FPSBoost = vape.Categories.Legit:CreateModule({
+	FPSBoost = vape.Categories.Visuals:CreateModule({
 		Name = 'FPS Boost',
 		Function = function(callback)
 			if callback then
@@ -5806,7 +6233,7 @@ run(function()
 	local Color
 	local done = {}
 	
-	HitColor = vape.Categories.Legit:CreateModule({
+	HitColor = vape.Categories.Visuals:CreateModule({
 		Name = 'Hit Color',
 		Function = function(callback)
 			if callback then 
@@ -5840,7 +6267,7 @@ run(function()
 end)
 	
 run(function()
-	vape.Categories.Legit:CreateModule({
+	vape.Categories.Visuals:CreateModule({
 		Name = 'HitFix',
 		Function = function(callback)
 			debug.setconstant(bedwars.SwordController.swingSwordAtMouse, 23, callback and 'raycast' or 'Raycast')
@@ -5898,7 +6325,7 @@ run(function()
 		end
 	end
 	
-	SongBeats = vape.Categories.Legit:CreateModule({
+	SongBeats = vape.Categories.Visuals:CreateModule({
 		Name = 'Song Beats',
 		Function = function(callback)
 			if callback then
@@ -6013,7 +6440,7 @@ run(function()
 		end
 	end
 	
-	UICleanup = vape.Categories.Legit:CreateModule({
+	UICleanup = vape.Categories.Visuals:CreateModule({
 		Name = 'UI Cleanup',
 		Function = function(callback)
 			for i, v in (callback and new or old) do
@@ -6123,134 +6550,7 @@ run(function()
 		Default = true
 	})
 end)
-	
-run(function()
-	local Viewmodel
-	local Depth
-	local Horizontal
-	local Vertical
-	local Scaling
-	local NoBob
-	local Rots = {}
-	local old, oldc1
 
-	local function scaleVM(viewmodel)
-		if not viewmodel then return end
-		
-		local accessory = viewmodel:FindFirstChildOfClass('Accessory')
-	
-		if accessory then
-			local thing = accessory:FindFirstChild('Handle')
-			thing.Size = replicatedStorage.Items:FindFirstChild(accessory.Name):FindFirstChildWhichIsA('BasePart').Size * Scaling.Value
-		end
-	end
-	
-	Viewmodel = vape.Categories.Legit:CreateModule({
-		Name = 'Viewmodel',
-		Function = function(callback)
-			local viewmodel = gameCamera:FindFirstChild('Viewmodel')
-			scaleVM(viewmodel)
-			if callback then
-				old = bedwars.ViewmodelController.playAnimation
-				oldc1 = viewmodel and viewmodel.RightHand.RightWrist.C1 or CFrame.identity
-				if NoBob.Enabled then
-					bedwars.ViewmodelController.playAnimation = function(self, animtype, ...)
-						if bedwars.AnimationType and animtype == bedwars.AnimationType.FP_WALK then return end
-						return old(self, animtype, ...)
-					end
-				end
-	
-				bedwars.InventoryViewmodelController:handleStore(bedwars.Store:getState())
-				if viewmodel then
-					gameCamera.Viewmodel.RightHand.RightWrist.C1 = oldc1 * CFrame.Angles(math.rad(Rots[1].Value), math.rad(Rots[2].Value), math.rad(Rots[3].Value))
-				end
-				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_DEPTH_OFFSET', -Depth.Value)
-				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_HORIZONTAL_OFFSET', Horizontal.Value)
-				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_VERTICAL_OFFSET', Vertical.Value)
-			else
-				bedwars.ViewmodelController.playAnimation = old
-				if viewmodel then
-					viewmodel.RightHand.RightWrist.C1 = oldc1
-				end
-	
-				bedwars.InventoryViewmodelController:handleStore(bedwars.Store:getState())
-				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_DEPTH_OFFSET', 0)
-				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_HORIZONTAL_OFFSET', 0)
-				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_VERTICAL_OFFSET', 0)
-				old = nil
-			end
-		end,
-		Tooltip = 'Changes the viewmodel animations'
-	})
-	Depth = Viewmodel:CreateSlider({
-		Name = 'Depth',
-		Min = 0,
-		Max = 2,
-		Default = 0.8,
-		Decimal = 10,
-		Function = function(val)
-			if Viewmodel.Enabled then
-				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_DEPTH_OFFSET', -val)
-			end
-		end
-	})
-	Horizontal = Viewmodel:CreateSlider({
-		Name = 'Horizontal',
-		Min = 0,
-		Max = 2,
-		Default = 0.8,
-		Decimal = 10,
-		Function = function(val)
-			if Viewmodel.Enabled then
-				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_HORIZONTAL_OFFSET', val)
-			end
-		end
-	})
-	Vertical = Viewmodel:CreateSlider({
-		Name = 'Vertical',
-		Min = -0.2,
-		Max = 2,
-		Default = -0.2,
-		Decimal = 10,
-		Function = function(val)
-			if Viewmodel.Enabled then
-				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_VERTICAL_OFFSET', val)
-			end
-		end
-	})
-	for _, name in {'Rotation X', 'Rotation Y', 'Rotation Z'} do
-		table.insert(Rots, Viewmodel:CreateSlider({
-			Name = name,
-			Min = 0,
-			Max = 360,
-			Function = function(val)
-				if Viewmodel.Enabled then
-					gameCamera.Viewmodel.RightHand.RightWrist.C1 = oldc1 * CFrame.Angles(math.rad(Rots[1].Value), math.rad(Rots[2].Value), math.rad(Rots[3].Value))
-				end
-			end
-		}))
-	end
-	NoBob = Viewmodel:CreateToggle({
-		Name = 'No Bobbing',
-		Default = true,
-		Function = function()
-			if Viewmodel.Enabled then
-				Viewmodel:Toggle()
-				Viewmodel:Toggle()
-			end
-		end
-	})
-	Scaling = Viewmodel:CreateSlider({
-		Name = 'Scale',
-		Min = .1,
-		Max = 1.5,
-		Default = 1,
-		Decimal = 10,
-		Function = function(val)
-			scaleVM(gameCamera:FindFirstChild('Viewmodel'))
-		end
-	})
-end)
 
 -- opai
 
@@ -6260,8 +6560,8 @@ run(function()
 	local size_changer_d = {};
 	local size_changer_h = {};
 	local size_changer_v = {};
-	size_changer = vape.Categories.Legit:CreateModule({
-		Name = 'Viewmodel 2',
+	size_changer = vape.Categories.Visuals:CreateModule({
+		Name = 'Viewmodel',
 		Tooltip = 'Changes the size of the tools.',
 		Function = function(callback) 
 			if callback then
@@ -6382,7 +6682,6 @@ run(function()
         Tooltip = ''
     })
 end)
-
 run(function()
 	local Disabler
 	
@@ -6418,57 +6717,6 @@ run(function()
 			end
         end,
         Tooltip = "Makes it so you can zoom infinitely"
-    })
-end)
-			
-run(function()
-    local InfiniteJump
-    local Velocity
-    InfiniteJump = vape.Categories.Blatant:CreateModule({
-        Name = "InfiniteJump",
-        Function = function(callback)
-            if callback then
-				InfiniteJump:Clean(inputService.InputBegan:Connect(function(input, gameProcessed)
-					if gameProcessed then return end
-					if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == Enum.KeyCode.Space then
-						while inputService:IsKeyDown(Enum.KeyCode.Space) do
-							local PrimaryPart = lplr.Character.PrimaryPart
-							if entitylib.isAlive and PrimaryPart then
-								PrimaryPart.Velocity = vector.create(PrimaryPart.Velocity.X, Velocity.Value, PrimaryPart.Velocity.Z)
-							end
-							wait()
-						end
-					end
-				end))
-
-				if inputService.TouchEnabled then
-					local Jumping = false
-					local JumpButton = lplr.PlayerGui:WaitForChild("TouchGui"):WaitForChild("TouchControlFrame"):WaitForChild("JumpButton")
-					
-					InfiniteJump:Clean(JumpButton.MouseButton1Down:Connect(function()
-						Jumping = true
-					end))
-
-					InfiniteJump:Clean(JumpButton.MouseButton1Up:Connect(function()
-						Jumping = false
-					end))
-
-					InfiniteJump:Clean(runService.RenderStepped:Connect(function()
-						if Jumping and entitylib.isAlive then
-							local PrimaryPart = lplr.Character.PrimaryPart
-							PrimaryPart.Velocity = vector.create(PrimaryPart.Velocity.X, Velocity.Value, PrimaryPart.Velocity.Z)
-						end
-					end))
-				end
-			end
-        end,
-        Tooltip = "Allows infinite jumping"
-    })
-    Velocity = InfiniteJump:CreateSlider({
-        Name = 'Velocity',
-        Min = 50,
-        Max = 300,
-        Default = 50
     })
 end)
 run(function()
@@ -6660,7 +6908,7 @@ run(function()
             end
         end,
         Default = false,
-        Tooltip = "Useless as hell bruh💔"
+        Tooltip = "yurrr"
     })
 end)									
 run(function()
@@ -6669,7 +6917,7 @@ run(function()
     local lplr = players.LocalPlayer
 
     local NoNameTag = vape.Categories.Utility:CreateModule({
-        Name = 'NoNameTag',
+        Name = 'Name Hider',
         Function = function(callback)
             if callback then
                 NoNameTag:Clean(runService.RenderStepped:Connect(function()
@@ -6685,6 +6933,7 @@ run(function()
         Default = false
     })
 end)
+
 run(function() 
 	local TPExploit = {}
 	TPExploit = vape.Categories.Utility:CreateModule({
@@ -6797,13 +7046,14 @@ if not shared.CheatEngineMode then
 		})
 	end)
 end
+
 run(function()
     local ClientCrasher
 	local collectionService = game:GetService("CollectionService")
 	local entitylib = entitylib or entityLibrary
 	local signal
     ClientCrasher = vape.Categories.Blatant:CreateModule({
-        Name = "Client Crasher",
+        Name = "Swap Spammer",
         Function = function(call)
             if call then
                 signal = collectionService:GetInstanceAddedSignal('inventory-entity'):Connect(function(player)
@@ -6832,6 +7082,7 @@ run(function()
         end
     })
 end)
+
 run(function()
     local AntiHit = {}
     local physEngine = game:GetService("RunService")
@@ -7084,171 +7335,11 @@ run(function()
                             shopId = newid
                             buyWool()
                         end
-                        task.wait(0.05) -- fast polling
+                        task.wait(0.001) -- fast polling
                     until not AutoBuyWool.Enabled
                 end)
             end
         end
-    })
-end)
-run(function()
-    local Players = game:GetService("Players")
-    local RunService = game:GetService("RunService")
-    local LocalPlayer = Players.LocalPlayer
-    local jumpConn
-    local jumpEnabled = false
-    local range = 15 -- distance to trigger jump
-
-    -- Utility to check if a player is a teammate (BedWars team system)
-    local function isEnemy(otherPlayer)
-        if not otherPlayer or not LocalPlayer then return false end
-        local myTeam = LocalPlayer:GetAttribute("Team")
-        local theirTeam = otherPlayer:GetAttribute("Team")
-        return myTeam and theirTeam and myTeam ~= theirTeam
-    end
-
-    local function startJumpLoop(character)
-        local humanoid = character:FindFirstChildOfClass("Humanoid")
-        if not humanoid then
-            character:WaitForChild("Humanoid")
-            humanoid = character:FindFirstChildOfClass("Humanoid")
-        end
-
-        if jumpConn then jumpConn:Disconnect() end
-
-        jumpConn = RunService.RenderStepped:Connect(function()
-            if not jumpEnabled or not humanoid or not humanoid.Parent then return end
-
-            local rootPart = character:FindFirstChild("HumanoidRootPart")
-            if not rootPart then return end
-
-            for _, otherPlayer in pairs(Players:GetPlayers()) do
-                if otherPlayer ~= LocalPlayer and isEnemy(otherPlayer) then
-                    local otherChar = otherPlayer.Character
-                    if otherChar and otherChar:FindFirstChild("HumanoidRootPart") then
-                        local distance = (rootPart.Position - otherChar.HumanoidRootPart.Position).Magnitude
-                        if distance <= range then
-                            if humanoid:GetState() == Enum.HumanoidStateType.Running then
-                                humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-                                break
-                            end
-                        end
-                    end
-                end
-            end
-        end)
-    end
-
-    WalkJump = vape.Categories.Blatant:CreateModule({
-        Name = 'AutoJump',
-        Function = function(callback)
-            jumpEnabled = callback
-
-            if callback then
-                local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-                vape:CreateNotification('WalkJump Enabled', 'Jump near enemy activated.', 4)
-                startJumpLoop(character)
-            else
-                if jumpConn then
-                    jumpConn:Disconnect()
-                    jumpConn = nil
-                end
-            end
-        end,
-        Default = false,
-        Tooltip = 'Jump when close to an enemy'
-    })
-
-    LocalPlayer.CharacterAdded:Connect(function(character)
-        character:WaitForChild("Humanoid")
-        task.wait(0.2)
-
-        -- Restart jump loop if module is still enabled
-        if jumpEnabled then
-            startJumpLoop(character)
-        end
-    end)
-end)
-run(function()
-	local Shaders = {Enabled = false}
-
-    local Shaders = vape.Categories.Render:CreateModule({
-        Name = "Shaders",
-        Function = function(callback)
-            if callback then
-                local VaporwaveSky = Lighting:FindFirstChild("VaporwaveSky") or Instance.new("Sky")
-                VaporwaveSky.Name = "VaporwaveSky"
-                VaporwaveSky.SkyboxBk = "rbxassetid://159454299"
-                VaporwaveSky.SkyboxDn = "rbxassetid://159454296"
-                VaporwaveSky.SkyboxFt = "rbxassetid://159454293"
-                VaporwaveSky.SkyboxLf = "rbxassetid://159454286"
-                VaporwaveSky.SkyboxRt = "rbxassetid://159454300"
-                VaporwaveSky.SkyboxUp = "rbxassetid://159454288"
-                VaporwaveSky.StarCount = 200
-                VaporwaveSky.SunAngularSize = 10
-                VaporwaveSky.MoonAngularSize = 9
-                VaporwaveSky.CelestialBodiesShown = true
-                VaporwaveSky.Parent = Lighting
-
-                local Bloom = Lighting:FindFirstChild("VaporwaveBloom") or Instance.new("BloomEffect")
-                Bloom.Name = "VaporwaveBloom"
-                Bloom.Enabled = true
-                Bloom.Intensity = 0.35
-                Bloom.Threshold = 0.2
-                Bloom.Size = 56
-                Bloom.Parent = Lighting
-
-                local Color = Lighting:FindFirstChild("VaporwaveColor") or Instance.new("ColorCorrectionEffect")
-                Color.Name = "VaporwaveColor"
-                Color.Enabled = true
-                Color.Brightness = 0.05
-                Color.Contrast = 0.25
-                Color.Saturation = 0.5
-                Color.TintColor = Color3.fromRGB(220, 160, 255)
-                Color.Parent = Lighting
-
-                local Atmosphere = Lighting:FindFirstChild("VaporwaveAtmosphere") or Instance.new("Atmosphere")
-                Atmosphere.Name = "VaporwaveAtmosphere"
-                Atmosphere.Density = 0.25
-                Atmosphere.Offset = 0.15
-                Atmosphere.Glare = 1.2
-                Atmosphere.Haze = 1
-                Atmosphere.Color = Color3.fromRGB(180, 140, 255)
-                Atmosphere.Decay = Color3.fromRGB(220, 120, 200)
-                Atmosphere.Parent = Lighting
-            else
-                local sky = Lighting:FindFirstChild("VaporwaveSky")
-                if sky then sky:Destroy() end
-                local bloom = Lighting:FindFirstChild("VaporwaveBloom")
-                if bloom then bloom.Enabled = false end
-                local color = Lighting:FindFirstChild("VaporwaveColor")
-                if color then color.Enabled = false end
-                local atmosphere = Lighting:FindFirstChild("VaporwaveAtmosphere")
-                if atmosphere then atmosphere:Destroy() end
-            end
-        end,
-        Tooltip = "Shaders"
-    })
-end)
-
-run(function()
-	local KrystalXploit = {Enabled = false}
-
-    KrystalXploit = vape.Categories.Utility:CreateModule({
-        Name = "KrystalExploit",
-        Function = function(callback)
-            if callback then
-                spawn(function()
-                    while KrystalXploit.Enabled do
-                        MomentumUpdate:FireServer({
-                            momentumValue = 9e99
-                        })
-                        task.wait(0.01)
-                    end
-                end)
-            end
-        end,
-        Tooltip = "Lets you have more speed with krystal"
     })
 end)
 run(function()
@@ -7341,6 +7432,7 @@ run(function()
         Tooltip = "Set your preferred click rate"
     })
 end)
+
 run(function()
     local pack1
 	local packassetids = {
