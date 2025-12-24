@@ -1,3 +1,4 @@
+--This watermark is used to delete the file if its cached, remove it to make the file persist after opai updates.
 --This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.
 --This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.
 --This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.
@@ -245,12 +246,43 @@ vape.Libraries.prediction = prediction
 vape.Libraries.hash = hash
 vape.Libraries.auraanims = {
 	Normal = {
-		{CFrame = CFrame.new(-0.17, -0.14, -0.12) * CFrame.Angles(math.rad(-53), math.rad(50), math.rad(-64)), Time = 0.1},
-		{CFrame = CFrame.new(-0.55, -0.59, -0.1) * CFrame.Angles(math.rad(-161), math.rad(54), math.rad(-6)), Time = 0.08},
-		{CFrame = CFrame.new(-0.62, -0.68, -0.07) * CFrame.Angles(math.rad(-167), math.rad(47), math.rad(-1)), Time = 0.03},
-		{CFrame = CFrame.new(-0.56, -0.86, 0.23) * CFrame.Angles(math.rad(-167), math.rad(49), math.rad(-1)), Time = 0.03}
+		{CFrame = CFrame.new(-0.17, -0.14, -0.12) * CFrame.Angles(math.rad(-53), math.rad(50), math.rad(-64)), Time = 0.13},
+		{CFrame = CFrame.new(-0.55, -0.59, -0.1) * CFrame.Angles(math.rad(-161), math.rad(54), math.rad(-6)), Time = 0.1},
+		{CFrame = CFrame.new(-0.62, -0.68, -0.07) * CFrame.Angles(math.rad(-167), math.rad(47), math.rad(-1)), Time = 0.06},
+		{CFrame = CFrame.new(-0.56, -0.86, 0.23) * CFrame.Angles(math.rad(-167), math.rad(49), math.rad(-1)), Time = 0.06}
 	},
-	opai = {
+	LunarBlockHit = {
+    {CFrame = CFrame.new(-0.15, -0.12, -0.1) * CFrame.Angles(math.rad(-45), math.rad(40), math.rad(-50)), Time = 0.12},
+    {CFrame = CFrame.new(-0.35, -0.32, -0.05) * CFrame.Angles(math.rad(-90), math.rad(60), math.rad(-20)), Time = 0.08},
+    {CFrame = CFrame.new(-0.55, -0.48, 0.05) * CFrame.Angles(math.rad(-120), math.rad(50), math.rad(-10)), Time = 0.06},
+    {CFrame = CFrame.new(-0.42, -0.38, -0.02) * CFrame.Angles(math.rad(-100), math.rad(52), math.rad(-15)), Time = 0.05},
+    {CFrame = CFrame.new(-0.25, -0.2, -0.08) * CFrame.Angles(math.rad(-60), math.rad(45), math.rad(-40)), Time = 0.07}
+	},
+	LunarBlockHit2 = {
+    {CFrame = CFrame.new(-0.4, -0.2, -0.1) * CFrame.Angles(math.rad(-60), math.rad(10), math.rad(-10)), Time = 0.1},
+    {CFrame = CFrame.new(-0.7, -0.4, 0) * CFrame.Angles(math.rad(-120), math.rad(20), math.rad(0)), Time = 0.08},
+    {CFrame = CFrame.new(-0.5, -0.3, -0.05) * CFrame.Angles(math.rad(-90), math.rad(15), math.rad(-5)), Time = 0.06},
+    {CFrame = CFrame.new(-0.3, -0.15, -0.08) * CFrame.Angles(math.rad(-45), math.rad(5), math.rad(-10)), Time = 0.08}
+	},
+	LunarBlockHit3 = {
+    {CFrame = CFrame.new(-0.2, -0.15, -0.1) * CFrame.Angles(math.rad(-50), math.rad(35), math.rad(-45)), Time = 0.08},
+    {CFrame = CFrame.new(-0.45, -0.35, 0) * CFrame.Angles(math.rad(-110), math.rad(55), math.rad(-15)), Time = 0.06},
+    {CFrame = CFrame.new(-0.6, -0.5, 0.05) * CFrame.Angles(math.rad(-150), math.rad(50), math.rad(-5)), Time = 0.05},
+    {CFrame = CFrame.new(-0.4, -0.3, -0.02) * CFrame.Angles(math.rad(-100), math.rad(52), math.rad(-12)), Time = 0.05}
+	},
+	LunarBlockHit4 = {
+    {CFrame = CFrame.new(-0.1, -0.05, -0.05) * CFrame.Angles(math.rad(-30), math.rad(25), math.rad(-20)), Time = 0.15},
+    {CFrame = CFrame.new(-0.3, -0.2, 0) * CFrame.Angles(math.rad(-70), math.rad(35), math.rad(-10)), Time = 0.12},
+    {CFrame = CFrame.new(-0.55, -0.4, 0.05) * CFrame.Angles(math.rad(-120), math.rad(30), math.rad(0)), Time = 0.1},
+    {CFrame = CFrame.new(-0.35, -0.25, -0.03) * CFrame.Angles(math.rad(-80), math.rad(28), math.rad(-5)), Time = 0.1}
+	},
+	Opai = {
+    {CFrame = CFrame.new(-0.2, -0.1, -0.1) * CFrame.Angles(math.rad(-45), math.rad(45), math.rad(-60)), Time = 0.09},
+    {CFrame = CFrame.new(-0.5, -0.35, 0) * CFrame.Angles(math.rad(-130), math.rad(60), math.rad(-20)), Time = 0.07},
+    {CFrame = CFrame.new(-0.65, -0.5, 0.1) * CFrame.Angles(math.rad(-170), math.rad(50), math.rad(-10)), Time = 0.05},
+    {CFrame = CFrame.new(-0.4, -0.25, -0.05) * CFrame.Angles(math.rad(-90), math.rad(45), math.rad(-15)), Time = 0.09}
+	},
+	Exhi = {
 		{CFrame = CFrame.new(0.69, -0.7, 0.6) * CFrame.Angles(math.rad(-30), math.rad(50), math.rad(-90)), Time = 0.1},
 		{CFrame = CFrame.new(0.7, -0.71, 0.59) * CFrame.Angles(math.rad(-84), math.rad(50), math.rad(-38)), Time = 0.2}
 	},
@@ -2516,7 +2548,90 @@ run(function()
 		Visible = false
 	})
 end)
-	
+
+run(function()
+	local HurtCam
+	local Strength
+	local Duration
+
+	local humanoid
+	local lastHealth = 0
+	local tilt = 0
+	local hitTime = 0
+
+	local RENDER_ID = "VapeHurtCam"
+
+	local function hookHumanoid()
+		if not entitylib.isAlive then return end
+		humanoid = entitylib.character.Humanoid
+		lastHealth = humanoid.Health
+
+		humanoid:GetPropertyChangedSignal("Health"):Connect(function()
+			local hp = humanoid.Health
+			if hp < lastHealth then
+				hitTime = tick()
+				tilt = Strength.Value -- fixed direction
+			end
+			lastHealth = hp
+		end)
+	end
+
+	HurtCam = vape.Categories.Render:CreateModule({
+		Name = "HurtCam",
+		Function = function(enabled)
+			if enabled then
+				hookHumanoid()
+
+				HurtCam:Clean(entitylib.Events.CharacterAdded:Connect(function()
+					task.wait(0.1)
+					hookHumanoid()
+				end))
+
+				runService:BindToRenderStep(
+					RENDER_ID,
+					Enum.RenderPriority.Last.Value,
+					function()
+						if not entitylib.isAlive then return end
+
+						local cam = gameCamera.CFrame
+						local elapsed = tick() - hitTime
+						local fade = math.clamp(1 - (elapsed / Duration.Value), 0, 1)
+
+						local angle = math.rad(tilt * fade)
+						gameCamera.CFrame = cam * CFrame.Angles(0, 0, angle)
+					end
+				)
+			else
+				runService:UnbindFromRenderStep(RENDER_ID)
+				tilt = 0
+			end
+		end,
+		Tooltip = "Minecraft 1.8.9 hurtcam tilt"
+	})
+
+	Strength = HurtCam:CreateSlider({
+		Name = "Tilt Strength",
+		Min = 2,
+		Max = 20,
+		Default = 8,
+		Darker = true,
+		Suffix = function(v)
+			return v .. "°"
+		end
+	})
+
+	Duration = HurtCam:CreateSlider({
+		Name = "Duration",
+		Min = 0.05,
+		Max = 0.4,
+		Default = 0.4,
+		Darker = true,
+		Suffix = "s"
+	})
+end)
+
+
+
 run(function()
 	local Mode
 	local Value
@@ -2620,107 +2735,7 @@ run(function()
 	})
 end)
 	
-run(function()
-	local SpinBot
-	local Mode
-	local XToggle
-	local YToggle
-	local ZToggle
-	local Value
-	local AngularVelocity
 	
-	SpinBot = vape.Categories.Blatant:CreateModule({
-		Name = 'SpinBot',
-		Function = function(callback)
-			if callback then
-				SpinBot:Clean(runService.PreSimulation:Connect(function()
-					if entitylib.isAlive then
-						if Mode.Value == 'RotVelocity' then
-							local originalRotVelocity = entitylib.character.RootPart.RotVelocity
-							entitylib.character.Humanoid.AutoRotate = false
-							entitylib.character.RootPart.RotVelocity = Vector3.new(XToggle.Enabled and Value.Value or originalRotVelocity.X, YToggle.Enabled and Value.Value or originalRotVelocity.Y, ZToggle.Enabled and Value.Value or originalRotVelocity.Z)
-						elseif Mode.Value == 'CFrame' then
-							local val = math.rad((tick() * (20 * Value.Value)) % 360)
-							local x, y, z = entitylib.character.RootPart.CFrame:ToOrientation()
-							entitylib.character.RootPart.CFrame = CFrame.new(entitylib.character.RootPart.Position) * CFrame.Angles(XToggle.Enabled and val or x, YToggle.Enabled and val or y, ZToggle.Enabled and val or z)
-						elseif AngularVelocity then
-							AngularVelocity.Parent = entitylib.isAlive and entitylib.character.RootPart
-							AngularVelocity.MaxTorque = Vector3.new(XToggle.Enabled and math.huge or 0, YToggle.Enabled and math.huge or 0, ZToggle.Enabled and math.huge or 0)
-							AngularVelocity.AngularVelocity = Vector3.new(Value.Value, Value.Value, Value.Value)
-						end
-					end
-				end))
-			else
-				if entitylib.isAlive and Mode.Value == 'RotVelocity' then
-					entitylib.character.Humanoid.AutoRotate = true
-				end
-				if AngularVelocity then
-					AngularVelocity.Parent = nil
-				end
-			end
-		end,
-		Tooltip = 'Makes your character spin around in circles (does not work in first person)'
-	})
-	Mode = SpinBot:CreateDropdown({
-		Name = 'Mode',
-		List = {'CFrame', 'RotVelocity', 'BodyMover'},
-		Function = function(val)
-			if AngularVelocity then
-				AngularVelocity:Destroy()
-				AngularVelocity = nil
-			end
-			AngularVelocity = val == 'BodyMover' and Instance.new('BodyAngularVelocity') or nil
-		end
-	})
-	Value = SpinBot:CreateSlider({
-		Name = 'Speed',
-		Min = 1,
-		Max = 100,
-		Default = 40
-	})
-	XToggle = SpinBot:CreateToggle({Name = 'Spin X'})
-	YToggle = SpinBot:CreateToggle({
-		Name = 'Spin Y',
-		Default = true
-	})
-	ZToggle = SpinBot:CreateToggle({Name = 'Spin Z'})
-end)
-	
-run(function()
-	local Swim
-	local terrain = cloneref(workspace:FindFirstChildWhichIsA('Terrain'))
-	local lastpos = Region3.new(Vector3.zero, Vector3.zero)
-	
-	Swim = vape.Categories.Blatant:CreateModule({
-		Name = 'Swim',
-		Function = function(callback)
-			if callback then
-				Swim:Clean(runService.PreSimulation:Connect(function(dt)
-					if entitylib.isAlive then
-						local root = entitylib.character.RootPart
-						local moving = entitylib.character.Humanoid.MoveDirection ~= Vector3.zero
-						local rootvelo = root.Velocity
-						local space = inputService:IsKeyDown(Enum.KeyCode.Space)
-	
-						if terrain then
-							local factor = (moving or space) and Vector3.new(6, 6, 6) or Vector3.new(2, 1, 2)
-							local pos = root.Position - Vector3.new(0, 1, 0)
-							local newpos = Region3.new(pos - factor, pos + factor):ExpandToGrid(4)
-							terrain:ReplaceMaterial(lastpos, 4, Enum.Material.Water, Enum.Material.Air)
-							terrain:FillRegion(newpos, 4, Enum.Material.Water)
-							lastpos = newpos
-						end
-					end
-				end))
-			else
-				if terrain and lastpos then
-					terrain:ReplaceMaterial(lastpos, 4, Enum.Material.Water, Enum.Material.Air)
-				end
-			end
-		end,
-		Tooltip = 'Lets you swim midair'
-	})
-end)
 	
 run(function()
 	local TargetStrafe
@@ -3220,770 +3235,66 @@ run(function()
 		Tooltip = 'Hides teammates & non targetable entities'
 	})
 end)
-	
+
 run(function()
-	local ESP
-	local Targets
-	local Color
-	local Method
-	local BoundingBox
-	local Filled
-	local HealthBar
-	local Name
-	local DisplayName
-	local Background
-	local Teammates
-	local Distance
-	local DistanceLimit
-	local Reference = {}
-	local methodused
-	
-	local function ESPWorldToViewport(pos)
-		local newpos = gameCamera:WorldToViewportPoint(gameCamera.CFrame:pointToWorldSpace(gameCamera.CFrame:PointToObjectSpace(pos)))
-		return Vector2.new(newpos.X, newpos.Y)
-	end
-	
-	local ESPAdded = {
-		Drawing2D = function(ent)
-			if not Targets.Players.Enabled and ent.Player then return end
-			if not Targets.NPCs.Enabled and ent.NPC then return end
-			if Teammates.Enabled and (not ent.Targetable) and (not ent.Friend) then return end
-			if vape.ThreadFix then
-				setthreadidentity(8)
-			end
-			local EntityESP = {}
-			EntityESP.Main = Drawing.new('Square')
-			EntityESP.Main.Transparency = BoundingBox.Enabled and 1 or 0
-			EntityESP.Main.ZIndex = 2
-			EntityESP.Main.Filled = false
-			EntityESP.Main.Thickness = 1
-			EntityESP.Main.Color = entitylib.getEntityColor(ent) or Color3.fromHSV(Color.Hue, Color.Sat, Color.Value)
-	
-			if BoundingBox.Enabled then
-				EntityESP.Border = Drawing.new('Square')
-				EntityESP.Border.Transparency = 0.35
-				EntityESP.Border.ZIndex = 1
-				EntityESP.Border.Thickness = 1
-				EntityESP.Border.Filled = false
-				EntityESP.Border.Color = Color3.new()
-				EntityESP.Border2 = Drawing.new('Square')
-				EntityESP.Border2.Transparency = 0.35
-				EntityESP.Border2.ZIndex = 1
-				EntityESP.Border2.Thickness = 1
-				EntityESP.Border2.Filled = Filled.Enabled
-				EntityESP.Border2.Color = Color3.new()
-			end
-	
-			if HealthBar.Enabled then
-				EntityESP.HealthLine = Drawing.new('Line')
-				EntityESP.HealthLine.Thickness = 1
-				EntityESP.HealthLine.ZIndex = 2
-				EntityESP.HealthLine.Color = Color3.fromHSV(math.clamp(ent.Health / ent.MaxHealth, 0, 1) / 2.5, 0.89, 0.75)
-				EntityESP.HealthBorder = Drawing.new('Line')
-				EntityESP.HealthBorder.Thickness = 3
-				EntityESP.HealthBorder.Transparency = 0.35
-				EntityESP.HealthBorder.ZIndex = 1
-				EntityESP.HealthBorder.Color = Color3.new()
-			end
-			
-			if Name.Enabled then
-				if Background.Enabled then
-					EntityESP.TextBKG = Drawing.new('Square')
-					EntityESP.TextBKG.Transparency = 0.35
-					EntityESP.TextBKG.ZIndex = 0
-					EntityESP.TextBKG.Thickness = 1
-					EntityESP.TextBKG.Filled = true
-					EntityESP.TextBKG.Color = Color3.new()
-				end
-				EntityESP.Drop = Drawing.new('Text')
-				EntityESP.Drop.Color = Color3.new()
-				EntityESP.Drop.Text = ent.Player and whitelist:tag(ent.Player, true)..(DisplayName.Enabled and ent.Player.DisplayName or ent.Player.Name) or ent.Character.Name
-				EntityESP.Drop.ZIndex = 1
-				EntityESP.Drop.Center = true
-				EntityESP.Drop.Size = 20
-				EntityESP.Text = Drawing.new('Text')
-				EntityESP.Text.Text = EntityESP.Drop.Text
-				EntityESP.Text.ZIndex = 2
-				EntityESP.Text.Color = EntityESP.Main.Color
-				EntityESP.Text.Center = true
-				EntityESP.Text.Size = 20
-			end
-			Reference[ent] = EntityESP
-		end,
-		Drawing3D = function(ent)
-			if not Targets.Players.Enabled and ent.Player then return end
-			if not Targets.NPCs.Enabled and ent.NPC then return end
-			if Teammates.Enabled and (not ent.Targetable) and (not ent.Friend) then return end
-			if vape.ThreadFix then
-				setthreadidentity(8)
-			end
-			local EntityESP = {}
-			EntityESP.Line1 = Drawing.new('Line')
-			EntityESP.Line2 = Drawing.new('Line')
-			EntityESP.Line3 = Drawing.new('Line')
-			EntityESP.Line4 = Drawing.new('Line')
-			EntityESP.Line5 = Drawing.new('Line')
-			EntityESP.Line6 = Drawing.new('Line')
-			EntityESP.Line7 = Drawing.new('Line')
-			EntityESP.Line8 = Drawing.new('Line')
-			EntityESP.Line9 = Drawing.new('Line')
-			EntityESP.Line10 = Drawing.new('Line')
-			EntityESP.Line11 = Drawing.new('Line')
-			EntityESP.Line12 = Drawing.new('Line')
-	
-			local color = entitylib.getEntityColor(ent) or Color3.fromHSV(Color.Hue, Color.Sat, Color.Value)
-			for _, v in EntityESP do
-				v.Thickness = 1
-				v.Color = color
-			end
-	
-			Reference[ent] = EntityESP
-		end,
-		DrawingSkeleton = function(ent)
-			if not Targets.Players.Enabled and ent.Player then return end
-			if not Targets.NPCs.Enabled and ent.NPC then return end
-			if Teammates.Enabled and (not ent.Targetable) and (not ent.Friend) then return end
-			if vape.ThreadFix then
-				setthreadidentity(8)
-			end
-			local EntityESP = {}
-			EntityESP.Head = Drawing.new('Line')
-			EntityESP.HeadFacing = Drawing.new('Line')
-			EntityESP.Torso = Drawing.new('Line')
-			EntityESP.UpperTorso = Drawing.new('Line')
-			EntityESP.LowerTorso = Drawing.new('Line')
-			EntityESP.LeftArm = Drawing.new('Line')
-			EntityESP.RightArm = Drawing.new('Line')
-			EntityESP.LeftLeg = Drawing.new('Line')
-			EntityESP.RightLeg = Drawing.new('Line')
-	
-			local color = entitylib.getEntityColor(ent) or Color3.fromHSV(Color.Hue, Color.Sat, Color.Value)
-			for _, v in EntityESP do
-				v.Thickness = 2
-				v.Color = color
-			end
-	
-			Reference[ent] = EntityESP
-		end
-	}
-	
-	local ESPRemoved = {
-		Drawing2D = function(ent)
-			local EntityESP = Reference[ent]
-			if EntityESP then
-				if vape.ThreadFix then
-					setthreadidentity(8)
-				end
-				Reference[ent] = nil
-				for _, v in EntityESP do
-					pcall(function()
-						v.Visible = false
-						v:Remove()
-					end)
-				end
-			end
-		end
-	}
-	ESPRemoved.Drawing3D = ESPRemoved.Drawing2D
-	ESPRemoved.DrawingSkeleton = ESPRemoved.Drawing2D
-	
-	local ESPUpdated = {
-		Drawing2D = function(ent)
-			local EntityESP = Reference[ent]
-			if EntityESP then
-				if vape.ThreadFix then
-					setthreadidentity(8)
-				end
-				
-				if EntityESP.HealthLine then
-					EntityESP.HealthLine.Color = Color3.fromHSV(math.clamp(ent.Health / ent.MaxHealth, 0, 1) / 2.5, 0.89, 0.75)
-				end
-	
-				if EntityESP.Text then
-					EntityESP.Text.Text = ent.Player and whitelist:tag(ent.Player, true)..(DisplayName.Enabled and ent.Player.DisplayName or ent.Player.Name) or ent.Character.Name
-					EntityESP.Drop.Text = EntityESP.Text.Text
-				end
-			end
-		end
-	}
-	
-	local ColorFunc = {
-		Drawing2D = function(hue, sat, val)
-			local color = Color3.fromHSV(hue, sat, val)
-			for i, v in Reference do
-				v.Main.Color = entitylib.getEntityColor(i) or color
-				if v.Text then
-					v.Text.Color = v.Main.Color
-				end
-			end
-		end,
-		Drawing3D = function(hue, sat, val)
-			local color = Color3.fromHSV(hue, sat, val)
-			for i, v in Reference do
-				local playercolor = entitylib.getEntityColor(i) or color
-				for _, v2 in v do
-					v2.Color = playercolor
-				end
-			end
-		end
-	}
-	ColorFunc.DrawingSkeleton = ColorFunc.Drawing3D
-	
-	local ESPLoop = {
-		Drawing2D = function()
-			for ent, EntityESP in Reference do
-				if Distance.Enabled then
-					local distance = entitylib.isAlive and (entitylib.character.RootPart.Position - ent.RootPart.Position).Magnitude or math.huge
-					if distance < DistanceLimit.ValueMin or distance > DistanceLimit.ValueMax then
-						for _, obj in EntityESP do
-							obj.Visible = false
-						end
-						continue
-					end
-				end
-	
-				local rootPos, rootVis = gameCamera:WorldToViewportPoint(ent.RootPart.Position)
-				for _, obj in EntityESP do
-					obj.Visible = rootVis
-				end
-				if not rootVis then continue end
-	
-				local topPos = gameCamera:WorldToViewportPoint((CFrame.lookAlong(ent.RootPart.Position, gameCamera.CFrame.LookVector) * CFrame.new(2, ent.HipHeight, 0)).p)
-				local bottomPos = gameCamera:WorldToViewportPoint((CFrame.lookAlong(ent.RootPart.Position, gameCamera.CFrame.LookVector) * CFrame.new(-2, -ent.HipHeight - 1, 0)).p)
-				local sizex, sizey = topPos.X - bottomPos.X, topPos.Y - bottomPos.Y
-				local posx, posy = (rootPos.X - sizex / 2),  ((rootPos.Y - sizey / 2))
-				EntityESP.Main.Position = Vector2.new(posx, posy) // 1
-				EntityESP.Main.Size = Vector2.new(sizex, sizey) // 1
-				if EntityESP.Border then
-					EntityESP.Border.Position = Vector2.new(posx - 1, posy + 1) // 1
-					EntityESP.Border.Size = Vector2.new(sizex + 2, sizey - 2) // 1
-					EntityESP.Border2.Position = Vector2.new(posx + 1, posy - 1) // 1
-					EntityESP.Border2.Size = Vector2.new(sizex - 2, sizey + 2) // 1
-				end
-	
-				if EntityESP.HealthLine then
-					local healthposy = sizey * math.clamp(ent.Health / ent.MaxHealth, 0, 1)
-					EntityESP.HealthLine.Visible = ent.Health > 0
-					EntityESP.HealthLine.From = Vector2.new(posx - 6, posy + (sizey - (sizey - healthposy))) // 1
-					EntityESP.HealthLine.To = Vector2.new(posx - 6, posy) // 1
-					EntityESP.HealthBorder.From = Vector2.new(posx - 6, posy + 1) // 1
-					EntityESP.HealthBorder.To = Vector2.new(posx - 6, (posy + sizey) - 1) // 1
-				end
-	
-				if EntityESP.Text then
-					EntityESP.Text.Position = Vector2.new(posx + (sizex / 2), posy + (sizey - 28)) // 1
-					EntityESP.Drop.Position = EntityESP.Text.Position + Vector2.new(1, 1)
-					if EntityESP.TextBKG then
-						EntityESP.TextBKG.Size = EntityESP.Text.TextBounds + Vector2.new(8, 4)
-						EntityESP.TextBKG.Position = EntityESP.Text.Position - Vector2.new(4 + (EntityESP.Text.TextBounds.X / 2), 0)
-					end
-				end
-			end
-		end,
-		Drawing3D = function()
-			for ent, EntityESP in Reference do
-				if Distance.Enabled then
-					local distance = entitylib.isAlive and (entitylib.character.RootPart.Position - ent.RootPart.Position).Magnitude or math.huge
-					if distance < DistanceLimit.ValueMin or distance > DistanceLimit.ValueMax then
-						for _, obj in EntityESP do
-							obj.Visible = false
-						end
-						continue
-					end
-				end
-	
-				local _, rootVis = gameCamera:WorldToViewportPoint(ent.RootPart.Position)
-				for _, obj in EntityESP do
-					obj.Visible = rootVis
-				end
-				if not rootVis then continue end
-	
-				local point1 = ESPWorldToViewport(ent.RootPart.Position + Vector3.new(1.5, ent.HipHeight, 1.5))
-				local point2 = ESPWorldToViewport(ent.RootPart.Position + Vector3.new(1.5, -ent.HipHeight, 1.5))
-				local point3 = ESPWorldToViewport(ent.RootPart.Position + Vector3.new(-1.5, ent.HipHeight, 1.5))
-				local point4 = ESPWorldToViewport(ent.RootPart.Position + Vector3.new(-1.5, -ent.HipHeight, 1.5))
-				local point5 = ESPWorldToViewport(ent.RootPart.Position + Vector3.new(1.5, ent.HipHeight, -1.5))
-				local point6 = ESPWorldToViewport(ent.RootPart.Position + Vector3.new(1.5, -ent.HipHeight, -1.5))
-				local point7 = ESPWorldToViewport(ent.RootPart.Position + Vector3.new(-1.5, ent.HipHeight, -1.5))
-				local point8 = ESPWorldToViewport(ent.RootPart.Position + Vector3.new(-1.5, -ent.HipHeight, -1.5))
-				EntityESP.Line1.From = point1
-				EntityESP.Line1.To = point2
-				EntityESP.Line2.From = point3
-				EntityESP.Line2.To = point4
-				EntityESP.Line3.From = point5
-				EntityESP.Line3.To = point6
-				EntityESP.Line4.From = point7
-				EntityESP.Line4.To = point8
-				EntityESP.Line5.From = point1
-				EntityESP.Line5.To = point3
-				EntityESP.Line6.From = point1
-				EntityESP.Line6.To = point5
-				EntityESP.Line7.From = point5
-				EntityESP.Line7.To = point7
-				EntityESP.Line8.From = point7
-				EntityESP.Line8.To = point3
-				EntityESP.Line9.From = point2
-				EntityESP.Line9.To = point4
-				EntityESP.Line10.From = point2
-				EntityESP.Line10.To = point6
-				EntityESP.Line11.From = point6
-				EntityESP.Line11.To = point8
-				EntityESP.Line12.From = point8
-				EntityESP.Line12.To = point4
-			end
-		end,
-		DrawingSkeleton = function()
-			for ent, EntityESP in Reference do
-				if Distance.Enabled then
-					local distance = entitylib.isAlive and (entitylib.character.RootPart.Position - ent.RootPart.Position).Magnitude or math.huge
-					if distance < DistanceLimit.ValueMin or distance > DistanceLimit.ValueMax then
-						for _, obj in EntityESP do
-							obj.Visible = false
-						end
-						continue
-					end
-				end
-	
-				local _, rootVis = gameCamera:WorldToViewportPoint(ent.RootPart.Position)
-				for _, obj in EntityESP do
-					obj.Visible = rootVis
-				end
-				if not rootVis then continue end
-				
-				local rigcheck = ent.Humanoid.RigType == Enum.HumanoidRigType.R6
-				pcall(function()
-					local offset = rigcheck and CFrame.new(0, -0.8, 0) or CFrame.identity
-					local head = ESPWorldToViewport((ent.Head.CFrame).p)
-					local headfront = ESPWorldToViewport((ent.Head.CFrame * CFrame.new(0, 0, -0.5)).p)
-					local toplefttorso = ESPWorldToViewport((ent.Character[(rigcheck and 'Torso' or 'UpperTorso')].CFrame * CFrame.new(-1.5, 0.8, 0)).p)
-					local toprighttorso = ESPWorldToViewport((ent.Character[(rigcheck and 'Torso' or 'UpperTorso')].CFrame * CFrame.new(1.5, 0.8, 0)).p)
-					local toptorso = ESPWorldToViewport((ent.Character[(rigcheck and 'Torso' or 'UpperTorso')].CFrame * CFrame.new(0, 0.8, 0)).p)
-					local bottomtorso = ESPWorldToViewport((ent.Character[(rigcheck and 'Torso' or 'UpperTorso')].CFrame * CFrame.new(0, -0.8, 0)).p)
-					local bottomlefttorso = ESPWorldToViewport((ent.Character[(rigcheck and 'Torso' or 'UpperTorso')].CFrame * CFrame.new(-0.5, -0.8, 0)).p)
-					local bottomrighttorso = ESPWorldToViewport((ent.Character[(rigcheck and 'Torso' or 'UpperTorso')].CFrame * CFrame.new(0.5, -0.8, 0)).p)
-					local leftarm = ESPWorldToViewport((ent.Character[(rigcheck and 'Left Arm' or 'LeftHand')].CFrame * offset).p)
-					local rightarm = ESPWorldToViewport((ent.Character[(rigcheck and 'Right Arm' or 'RightHand')].CFrame * offset).p)
-					local leftleg = ESPWorldToViewport((ent.Character[(rigcheck and 'Left Leg' or 'LeftFoot')].CFrame * offset).p)
-					local rightleg = ESPWorldToViewport((ent.Character[(rigcheck and 'Right Leg' or 'RightFoot')].CFrame * offset).p)
-					EntityESP.Head.From = toptorso
-					EntityESP.Head.To = head
-					EntityESP.HeadFacing.From = head
-					EntityESP.HeadFacing.To = headfront
-					EntityESP.UpperTorso.From = toplefttorso
-					EntityESP.UpperTorso.To = toprighttorso
-					EntityESP.Torso.From = toptorso
-					EntityESP.Torso.To = bottomtorso
-					EntityESP.LowerTorso.From = bottomlefttorso
-					EntityESP.LowerTorso.To = bottomrighttorso
-					EntityESP.LeftArm.From = toplefttorso
-					EntityESP.LeftArm.To = leftarm
-					EntityESP.RightArm.From = toprighttorso
-					EntityESP.RightArm.To = rightarm
-					EntityESP.LeftLeg.From = bottomlefttorso
-					EntityESP.LeftLeg.To = leftleg
-					EntityESP.RightLeg.From = bottomrighttorso
-					EntityESP.RightLeg.To = rightleg
-				end)
-			end
-		end
-	}
-	
-	ESP = vape.Categories.Render:CreateModule({
-		Name = 'ESP',
-		Function = function(callback)
-			if callback then
-				methodused = 'Drawing'..Method.Value
-				if ESPRemoved[methodused] then
-					ESP:Clean(entitylib.Events.EntityRemoved:Connect(ESPRemoved[methodused]))
-				end
-				if ESPAdded[methodused] then
-					for _, v in entitylib.List do
-						if Reference[v] then
-							ESPRemoved[methodused](v)
-						end
-						ESPAdded[methodused](v)
-					end
-					ESP:Clean(entitylib.Events.EntityAdded:Connect(function(ent)
-						if Reference[ent] then
-							ESPRemoved[methodused](ent)
-						end
-						ESPAdded[methodused](ent)
-					end))
-				end
-				if ESPUpdated[methodused] then
-					ESP:Clean(entitylib.Events.EntityUpdated:Connect(ESPUpdated[methodused]))
-					for _, v in entitylib.List do
-						ESPUpdated[methodused](v)
-					end
-				end
-				if ColorFunc[methodused] then
-					ESP:Clean(vape.Categories.Friends.ColorUpdate.Event:Connect(function()
-						ColorFunc[methodused](Color.Hue, Color.Sat, Color.Value)
-					end))
-				end
-				if ESPLoop[methodused] then
-					ESP:Clean(runService.RenderStepped:Connect(ESPLoop[methodused]))
-				end
-			else
-				if ESPRemoved[methodused] then
-					for i in Reference do
-						ESPRemoved[methodused](i)
-					end
-				end
-			end
-		end,
-		Tooltip = 'Extra Sensory Perception\nRenders an ESP on players.'
-	})
-	Targets = ESP:CreateTargets({
-		Players = true,
-		Function = function()
-			if ESP.Enabled then
-				ESP:Toggle()
-				ESP:Toggle()
-			end
-		end
-	})
-	Method = ESP:CreateDropdown({
-		Name = 'Mode',
-		List = {'2D', '3D', 'Skeleton'},
-		Function = function(val)
-			if ESP.Enabled then
-				ESP:Toggle()
-				ESP:Toggle()
-			end
-			BoundingBox.Object.Visible = (val == '2D')
-			Filled.Object.Visible = (val == '2D')
-			HealthBar.Object.Visible = (val == '2D')
-			Name.Object.Visible = (val == '2D')
-			DisplayName.Object.Visible = Name.Object.Visible and Name.Enabled
-			Background.Object.Visible = Name.Object.Visible and Name.Enabled
-		end,
-	})
-	Color = ESP:CreateColorSlider({
-		Name = 'Player Color',
-		Function = function(hue, sat, val)
-			if ESP.Enabled and ColorFunc[methodused] then
-				ColorFunc[methodused](hue, sat, val)
-			end
-		end
-	})
-	BoundingBox = ESP:CreateToggle({
-		Name = 'Bounding Box',
-		Function = function()
-			if ESP.Enabled then
-				ESP:Toggle()
-				ESP:Toggle()
-			end
-		end,
-		Default = true,
-		Darker = true
-	})
-	Filled = ESP:CreateToggle({
-		Name = 'Filled',
-		Function = function()
-			if ESP.Enabled then
-				ESP:Toggle()
-				ESP:Toggle()
-			end
-		end,
-		Darker = true
-	})
-	HealthBar = ESP:CreateToggle({
-		Name = 'Health Bar',
-		Function = function()
-			if ESP.Enabled then
-				ESP:Toggle()
-				ESP:Toggle()
-			end
-		end,
-		Darker = true
-	})
-	Name = ESP:CreateToggle({
-		Name = 'Name',
-		Function = function(callback)
-			if ESP.Enabled then
-				ESP:Toggle()
-				ESP:Toggle()
-			end
-			DisplayName.Object.Visible = callback
-			Background.Object.Visible = callback
-		end,
-		Darker = true
-	})
-	DisplayName = ESP:CreateToggle({
-		Name = 'Use Displayname',
-		Function = function()
-			if ESP.Enabled then
-				ESP:Toggle()
-				ESP:Toggle()
-			end
-		end,
-		Default = true,
-		Darker = true
-	})
-	Background = ESP:CreateToggle({
-		Name = 'Show Background',
-		Function = function()
-			if ESP.Enabled then
-				ESP:Toggle()
-				ESP:Toggle()
-			end
-		end,
-		Darker = true
-	})
-	Teammates = ESP:CreateToggle({
-		Name = 'Priority Only',
-		Function = function()
-			if ESP.Enabled then
-				ESP:Toggle()
-				ESP:Toggle()
-			end
-		end,
-		Default = true,
-		Tooltip = 'Hides teammates & non targetable entities'
-	})
-	Distance = ESP:CreateToggle({
-		Name = 'Distance Check',
-		Function = function(callback)
-			DistanceLimit.Object.Visible = callback
-		end
-	})
-	DistanceLimit = ESP:CreateTwoSlider({
-		Name = 'Player Distance',
-		Min = 0,
-		Max = 256,
-		DefaultMin = 0,
-		DefaultMax = 64,
-		Darker = true,
-		Visible = false
-	})
+    local LiquidCam
+    local SmoothnessSlider
+    local WobbleIntensitySlider
+    local runConnection
+
+    LiquidCam = vape.Categories.Visuals:CreateModule({
+        Name = "LiquidCamera",
+        Tooltip = "Adds smooth and subtle wobble to your camera like LiquidBounce",
+        Function = function(callback)
+            if runConnection then
+                runConnection:Disconnect()
+                runConnection = nil
+            end
+
+            if callback then
+                local cam = workspace.CurrentCamera
+                local lastCFrame = cam.CFrame
+                local t = 0
+
+                runConnection = runService.RenderStepped:Connect(function(dt)
+                    t = t + dt
+
+                    -- smooth lerp for flowy movement
+                    local targetCFrame = cam.CFrame
+                    local alpha = SmoothnessSlider.Value
+                    local smoothCFrame = lastCFrame:Lerp(targetCFrame, alpha)
+
+                    -- subtle wobble
+                    local wobbleX = math.sin(t * 1.5) * WobbleIntensitySlider.Value
+                    local wobbleY = math.cos(t * 1.2) * WobbleIntensitySlider.Value
+                    local wobbleZ = math.sin(t * 0.8) * WobbleIntensitySlider.Value
+
+                    smoothCFrame = smoothCFrame * CFrame.Angles(wobbleX, wobbleY, wobbleZ)
+                    cam.CFrame = smoothCFrame
+                    lastCFrame = smoothCFrame
+                end)
+            end
+        end
+    })
+
+    -- Slider: controls how smooth the camera lerp is
+    SmoothnessSlider = LiquidCam:CreateSlider({
+        Name = "Smoothness",
+        Min = 0.01,
+        Max = 1,
+        Default = 0.15,
+        Decimal = 2
+    })
+
+    -- Slider: controls wobble intensity
+    WobbleIntensitySlider = LiquidCam:CreateSlider({
+        Name = "Wobble Intensity",
+        Min = 0.001,
+        Max = 0.03,
+        Default = 0.008,
+        Decimal = 3
+    })
 end)
-	
-run(function()
-	local GamingChair = {Enabled = false}
-	local Color
-	local wheelpositions = {
-		Vector3.new(-0.8, -0.6, -0.18),
-		Vector3.new(0.1, -0.6, -0.88),
-		Vector3.new(0, -0.6, 0.7)
-	}
-	local chairhighlight
-	local currenttween
-	local movingsound
-	local flyingsound
-	local chairanim
-	local chair
-	
-	GamingChair = vape.Categories.Render:CreateModule({
-		Name = 'GamingChair',
-		Function = function(callback)
-			if callback then
-				if vape.ThreadFix then
-					setthreadidentity(8)
-				end
-				chair = Instance.new('MeshPart')
-				chair.Color = Color3.fromRGB(21, 21, 21)
-				chair.Size = Vector3.new(2.16, 3.6, 2.3) / Vector3.new(12.37, 20.636, 13.071)
-				chair.CanCollide = false
-				chair.Massless = true
-				chair.MeshId = 'rbxassetid://12972961089'
-				chair.Material = Enum.Material.SmoothPlastic
-				chair.Parent = workspace
-				movingsound = Instance.new('Sound')
-				--movingsound.SoundId = downloadVapeAsset('vape/assets/ChairRolling.mp3')
-				movingsound.Volume = 0.4
-				movingsound.Looped = true
-				movingsound.Parent = workspace
-				flyingsound = Instance.new('Sound')
-				--flyingsound.SoundId = downloadVapeAsset('vape/assets/ChairFlying.mp3')
-				flyingsound.Volume = 0.4
-				flyingsound.Looped = true
-				flyingsound.Parent = workspace
-				local chairweld = Instance.new('WeldConstraint')
-				chairweld.Part0 = chair
-				chairweld.Parent = chair
-				if entitylib.isAlive then
-					chair.CFrame = entitylib.character.RootPart.CFrame * CFrame.Angles(0, math.rad(-90), 0)
-					chairweld.Part1 = entitylib.character.RootPart
-				end
-				chairhighlight = Instance.new('Highlight')
-				chairhighlight.FillTransparency = 1
-				chairhighlight.OutlineColor = Color3.fromHSV(Color.Hue, Color.Sat, Color.Value)
-				chairhighlight.DepthMode = Enum.HighlightDepthMode.Occluded
-				chairhighlight.OutlineTransparency = 0.2
-				chairhighlight.Parent = chair
-				local chairarms = Instance.new('MeshPart')
-				chairarms.Color = chair.Color
-				chairarms.Size = Vector3.new(1.39, 1.345, 2.75) / Vector3.new(97.13, 136.216, 234.031)
-				chairarms.CFrame = chair.CFrame * CFrame.new(-0.169, -1.129, -0.013)
-				chairarms.MeshId = 'rbxassetid://12972673898'
-				chairarms.CanCollide = false
-				chairarms.Parent = chair
-				local chairarmsweld = Instance.new('WeldConstraint')
-				chairarmsweld.Part0 = chairarms
-				chairarmsweld.Part1 = chair
-				chairarmsweld.Parent = chair
-				local chairlegs = Instance.new('MeshPart')
-				chairlegs.Color = chair.Color
-				chairlegs.Name = 'Legs'
-				chairlegs.Size = Vector3.new(1.8, 1.2, 1.8) / Vector3.new(10.432, 8.105, 9.488)
-				chairlegs.CFrame = chair.CFrame * CFrame.new(0.047, -2.324, 0)
-				chairlegs.MeshId = 'rbxassetid://13003181606'
-				chairlegs.CanCollide = false
-				chairlegs.Parent = chair
-				local chairfan = Instance.new('MeshPart')
-				chairfan.Color = chair.Color
-				chairfan.Name = 'Fan'
-				chairfan.Size = Vector3.zero
-				chairfan.CFrame = chair.CFrame * CFrame.new(0, -1.873, 0)
-				chairfan.MeshId = 'rbxassetid://13004977292'
-				chairfan.CanCollide = false
-				chairfan.Parent = chair
-				local trails = {}
-				for _, v in wheelpositions do
-					local attachment = Instance.new('Attachment')
-					attachment.Position = v
-					attachment.Parent = chairlegs
-					local attachment2 = Instance.new('Attachment')
-					attachment2.Position = v + Vector3.new(0, 0, 0.18)
-					attachment2.Parent = chairlegs
-					local trail = Instance.new('Trail')
-					trail.Texture = 'http://www.roblox.com/asset/?id=13005168530'
-					trail.TextureMode = Enum.TextureMode.Static
-					trail.Transparency = NumberSequence.new(0.5)
-					trail.Color = ColorSequence.new(Color3.new(0.5, 0.5, 0.5))
-					trail.Attachment0 = attachment
-					trail.Attachment1 = attachment2
-					trail.Lifetime = 20
-					trail.MaxLength = 60
-					trail.MinLength = 0.1
-					trail.Parent = chairlegs
-					table.insert(trails, trail)
-				end
-				GamingChair:Clean(chair)
-				GamingChair:Clean(movingsound)
-				GamingChair:Clean(flyingsound)
-				chairanim = {Stop = function() end}
-				local oldmoving = false
-				local oldflying = false
-				repeat
-					if entitylib.isAlive and entitylib.character.Humanoid.Health > 0 then
-						if not chairanim.IsPlaying then
-							local temp2 = Instance.new('Animation')
-							temp2.AnimationId = entitylib.character.Humanoid.RigType == Enum.HumanoidRigType.R15 and 'http://www.roblox.com/asset/?id=2506281703' or 'http://www.roblox.com/asset/?id=178130996'
-							chairanim = entitylib.character.Humanoid:LoadAnimation(temp2)
-							chairanim.Priority = Enum.AnimationPriority.Movement
-							chairanim.Looped = true
-							chairanim:Play()
-						end
-						chair.CFrame = entitylib.character.RootPart.CFrame * CFrame.Angles(0, math.rad(-90), 0)
-						chairweld.Part1 = entitylib.character.RootPart
-						chairlegs.Velocity = Vector3.zero
-						chairlegs.CFrame = chair.CFrame * CFrame.new(0.047, -2.324, 0)
-						chairfan.Velocity = Vector3.zero
-						chairfan.CFrame = chair.CFrame * CFrame.new(0.047, -1.873, 0) * CFrame.Angles(0, math.rad(tick() * 180 % 360), math.rad(180))
-						local moving = entitylib.character.Humanoid:GetState() == Enum.HumanoidStateType.Running and entitylib.character.Humanoid.MoveDirection ~= Vector3.zero
-						local flying = vape.Modules.Fly and vape.Modules.Fly.Enabled or vape.Modules.LongJump and vape.Modules.LongJump.Enabled or vape.Modules.InfiniteFly and vape.Modules.InfiniteFly.Enabled
-						if movingsound.TimePosition > 1.9 then
-							movingsound.TimePosition = 0.2
-						end
-						movingsound.PlaybackSpeed = (entitylib.character.RootPart.Velocity * Vector3.new(1, 0, 1)).Magnitude / 16
-						for _, v in trails do
-							v.Enabled = not flying and moving
-							v.Color = ColorSequence.new(movingsound.PlaybackSpeed > 1.5 and Color3.new(1, 0.5, 0) or Color3.new())
-						end
-						if moving ~= oldmoving then
-							if movingsound.IsPlaying then
-								if not moving then
-									movingsound:Stop()
-								end
-							else
-								if not flying and moving then
-									movingsound:Play()
-								end
-							end
-							oldmoving = moving
-						end
-						if flying ~= oldflying then
-							if flying then
-								if movingsound.IsPlaying then
-									movingsound:Stop()
-								end
-								if not flyingsound.IsPlaying then
-									flyingsound:Play()
-								end
-								if currenttween then
-									currenttween:Cancel()
-								end
-								tween = tweenService:Create(chairlegs, TweenInfo.new(0.15), {
-									Size = Vector3.zero
-								})
-								tween.Completed:Connect(function(state)
-									if state == Enum.PlaybackState.Completed then
-										chairfan.Transparency = 0
-										chairlegs.Transparency = 1
-										tween = tweenService:Create(chairfan, TweenInfo.new(0.15), {
-											Size = Vector3.new(1.534, 0.328, 1.537) / Vector3.new(791.138, 168.824, 792.027)
-										})
-										tween:Play()
-									end
-								end)
-								tween:Play()
-							else
-								if flyingsound.IsPlaying then
-									flyingsound:Stop()
-								end
-								if not movingsound.IsPlaying and moving then
-									movingsound:Play()
-								end
-								if currenttween then currenttween:Cancel() end
-								tween = tweenService:Create(chairfan, TweenInfo.new(0.15), {
-									Size = Vector3.zero
-								})
-								tween.Completed:Connect(function(state)
-									if state == Enum.PlaybackState.Completed then
-										chairfan.Transparency = 1
-										chairlegs.Transparency = 0
-										tween = tweenService:Create(chairlegs, TweenInfo.new(0.15), {
-											Size = Vector3.new(1.8, 1.2, 1.8) / Vector3.new(10.432, 8.105, 9.488)
-										})
-										tween:Play()
-									end
-								end)
-								tween:Play()
-							end
-							oldflying = flying
-						end
-					else
-						chair.Anchored = true
-						chairlegs.Anchored = true
-						chairfan.Anchored = true
-						repeat task.wait() until entitylib.isAlive and entitylib.character.Humanoid.Health > 0
-						chair.Anchored = false
-						chairlegs.Anchored = false
-						chairfan.Anchored = false
-						chairanim:Stop()
-					end
-					task.wait()
-				until not GamingChair.Enabled
-			else
-				if chairanim then
-					chairanim:Stop()
-				end
-			end
-		end,
-		Tooltip = 'Sit in the best gaming chair known to mankind.'
-	})
-	Color = GamingChair:CreateColorSlider({
-		Name = 'Color',
-		Function = function(h, s, v)
-			if chairhighlight then
-				chairhighlight.OutlineColor = Color3.fromHSV(h, s, v)
-			end
-		end
-	})
-end)
-	
 run(function()
 	local Health
 	
@@ -4423,126 +3734,7 @@ run(function()
 	})
 end)
 	
-run(function()
-	local PlayerModel
-	local Scale
-	local Local
-	local Mesh
-	local Texture
-	local Rots = {}
-	local models = {}
-	
-	local function addMesh(ent)
-		if vape.ThreadFix then 
-			setthreadidentity(8)
-		end
-		local root = ent.RootPart
-		local part = Instance.new('Part')
-		part.Size = Vector3.new(3, 3, 3)
-		part.CFrame = root.CFrame * CFrame.Angles(math.rad(Rots[1].Value), math.rad(Rots[2].Value), math.rad(Rots[3].Value))
-		part.CanCollide = false
-		part.CanQuery = false
-		part.Massless = true
-		part.Parent = workspace
-		local meshd = Instance.new('SpecialMesh')
-		meshd.MeshId = Mesh.Value
-		meshd.TextureId = Texture.Value
-		meshd.Scale = Vector3.one * Scale.Value
-		meshd.Parent = part
-		local weld = Instance.new('WeldConstraint')
-		weld.Part0 = part
-		weld.Part1 = root
-		weld.Parent = part
-		models[root] = part
-	end
-	
-	local function removeMesh(ent)
-		if models[ent.RootPart] then 
-			models[ent.RootPart]:Destroy()
-			models[ent.RootPart] = nil
-		end
-	end
-	
-	PlayerModel = vape.Categories.Render:CreateModule({
-		Name = 'PlayerModel',
-		Function = function(callback)
-			if callback then 
-				if Local.Enabled then 
-					PlayerModel:Clean(entitylib.Events.LocalAdded:Connect(addMesh))
-					PlayerModel:Clean(entitylib.Events.LocalRemoved:Connect(removeMesh))
-					if entitylib.isAlive then 
-						task.spawn(addMesh, entitylib.character)
-					end
-				end
-				PlayerModel:Clean(entitylib.Events.EntityAdded:Connect(addMesh))
-				PlayerModel:Clean(entitylib.Events.EntityRemoved:Connect(removeMesh))
-				for _, ent in entitylib.List do 
-					task.spawn(addMesh, ent)
-				end
-			else
-				for _, part in models do 
-					part:Destroy()
-				end
-				table.clear(models)
-			end
-		end,
-		Tooltip = 'Change the player models to a Mesh'
-	})
-	Scale = PlayerModel:CreateSlider({
-		Name = 'Scale',
-		Min = 0,
-		Max = 2,
-		Default = 1,
-		Decimal = 100,
-		Function = function(val)
-			for _, part in models do 
-				part.Mesh.Scale = Vector3.one * val
-			end
-		end
-	})
-	for _, name in {'Rotation X', 'Rotation Y', 'Rotation Z'} do 
-		table.insert(Rots, PlayerModel:CreateSlider({
-			Name = name,
-			Min = 0,
-			Max = 360,
-			Function = function(val)
-				for root, part in models do 
-					part.WeldConstraint.Enabled = false
-					part.CFrame = root.CFrame * CFrame.Angles(math.rad(Rots[1].Value), math.rad(Rots[2].Value), math.rad(Rots[3].Value))
-					part.WeldConstraint.Enabled = true
-				end
-			end
-		}))
-	end
-	Local = PlayerModel:CreateToggle({
-		Name = 'Local',
-		Function = function()
-			if PlayerModel.Enabled then 
-				PlayerModel:Toggle()
-				PlayerModel:Toggle()
-			end
-		end
-	})
-	Mesh = PlayerModel:CreateTextBox({
-		Name = 'Mesh',
-		Placeholder = 'mesh id',
-		Function = function()
-			for _, part in models do 
-				part.Mesh.MeshId = Mesh.Value
-			end
-		end
-	})
-	Texture = PlayerModel:CreateTextBox({
-		Name = 'Texture',
-		Placeholder = 'texture id',
-		Function = function()
-			for _, part in models do 
-				part.Mesh.TextureId = Texture.Value
-			end
-		end
-	})
-	
-end)
+
 	
 run(function()
 	local Radar
@@ -4715,82 +3907,6 @@ run(function()
 	Clamp = Radar:CreateToggle({
 		Name = 'Clamp Radar',
 		Default = true
-	})
-end)
-	
-run(function()
-	local Search
-	local List
-	local Color
-	local FillTransparency
-	local Reference = {}
-	local Folder = Instance.new('Folder')
-	Folder.Parent = vape.gui
-	
-	local function Add(v)
-		if not table.find(List.ListEnabled, v.Name) then return end
-		if v:IsA('BasePart') or v:IsA('Model') then
-			local box = Instance.new('BoxHandleAdornment')
-			box.AlwaysOnTop = true
-			box.Adornee = v
-			box.Size = v:IsA('Model') and v:GetExtentsSize() or v.Size
-			box.ZIndex = 0
-			box.Transparency = FillTransparency.Value
-			box.Color3 = Color3.fromHSV(Color.Hue, Color.Sat, Color.Value)
-			box.Parent = Folder
-			Reference[v] = box
-		end
-	end
-	
-	Search = vape.Categories.Render:CreateModule({
-		Name = 'Search',
-		Function = function(callback)
-			if callback then
-				Search:Clean(workspace.DescendantAdded:Connect(Add))
-				Search:Clean(workspace.DescendantRemoving:Connect(function(v)
-					if Reference[v] then
-						Reference[v]:Destroy()
-						Reference[v] = nil
-					end
-				end))
-				
-				for _, v in workspace:GetDescendants() do
-					Add(v)
-				end
-			else
-				Folder:ClearAllChildren()
-				table.clear(Reference)
-			end
-		end,
-		Tooltip = 'Draws box around selected parts\nAdd parts in Search frame'
-	})
-	List = Search:CreateTextList({
-		Name = 'Parts',
-		Function = function()
-			if Search.Enabled then
-				Search:Toggle()
-				Search:Toggle()
-			end
-		end
-	})
-	Color = Search:CreateColorSlider({
-		Name = 'Color',
-		Function = function(hue, sat, val)
-			for _, v in Reference do
-				v.Color3 = Color3.fromHSV(hue, sat, val)
-			end
-		end
-	})
-	FillTransparency = Search:CreateSlider({
-		Name = 'Transparency',
-		Min = 0,
-		Max = 1,
-		Function = function(val)
-			for _, v in Reference do
-				v.Transparency = val
-			end
-		end,
-		Decimal = 10
 	})
 end)
 	
@@ -4991,316 +4107,7 @@ run(function()
 	vape.Libraries.sessioninfo:AddItem('Time Played', os.clock(), function(value)
 		return os.date('!%X', math.floor(os.clock() - value))
 	end)
-end)
-	
-run(function()
-	local Tracers
-	local Targets
-	local Color
-	local Transparency
-	local StartPosition
-	local EndPosition
-	local Teammates
-	local DistanceColor
-	local Distance
-	local DistanceLimit
-	local Behind
-	local Reference = {}
-	
-	local function Added(ent)
-		if not Targets.Players.Enabled and ent.Player then return end
-		if not Targets.NPCs.Enabled and ent.NPC then return end
-		if Teammates.Enabled and (not ent.Targetable) and (not ent.Friend) then return end
-		if vape.ThreadFix then
-			setthreadidentity(8)
-		end
-	
-		local EntityTracer = Drawing.new('Line')
-		EntityTracer.Thickness = 1
-		EntityTracer.Transparency = 1 - Transparency.Value
-		EntityTracer.Color = entitylib.getEntityColor(ent) or Color3.fromHSV(Color.Hue, Color.Sat, Color.Value)
-		Reference[ent] = EntityTracer
-	end
-	
-	local function Removed(ent)
-		local v = Reference[ent]
-		if v then
-			if vape.ThreadFix then
-				setthreadidentity(8)
-			end
-			Reference[ent] = nil
-			pcall(function()
-				v.Visible = false
-				v:Remove()
-			end)
-		end
-	end
-	
-	local function ColorFunc(hue, sat, val)
-		if DistanceColor.Enabled then return end
-		local tracerColor = Color3.fromHSV(hue, sat, val)
-		for ent, EntityTracer in Reference do
-			EntityTracer.Color = entitylib.getEntityColor(ent) or tracerColor
-		end
-	end
-	
-	local function Loop()
-		local screenSize = vape.gui.AbsoluteSize
-		local startVector = StartPosition.Value == 'Mouse' and inputService:GetMouseLocation() or Vector2.new(screenSize.X / 2, (StartPosition.Value == 'Middle' and screenSize.Y / 2 or screenSize.Y))
-	
-		for ent, EntityTracer in Reference do
-			local distance = entitylib.isAlive and (entitylib.character.RootPart.Position - ent.RootPart.Position).Magnitude
-			if Distance.Enabled and distance then
-				if distance < DistanceLimit.ValueMin or distance > DistanceLimit.ValueMax then
-					EntityTracer.Visible = false
-					continue
-				end
-			end
-	
-			local pos = ent[EndPosition.Value == 'Torso' and 'RootPart' or 'Head'].Position
-			local rootPos, rootVis = gameCamera:WorldToViewportPoint(pos)
-			if not rootVis and Behind.Enabled then
-				local tempPos = gameCamera.CFrame:PointToObjectSpace(pos)
-				tempPos = CFrame.Angles(0, 0, (math.atan2(tempPos.Y, tempPos.X) + math.pi)):VectorToWorldSpace((CFrame.Angles(0, math.rad(89.9), 0):VectorToWorldSpace(Vector3.new(0, 0, -1))))
-				rootPos = gameCamera:WorldToViewportPoint(gameCamera.CFrame:pointToWorldSpace(tempPos))
-				rootVis = true
-			end
-	
-			local endVector = Vector2.new(rootPos.X, rootPos.Y)
-			EntityTracer.Visible = rootVis
-			EntityTracer.From = startVector
-			EntityTracer.To = endVector
-			if DistanceColor.Enabled and distance then
-				EntityTracer.Color = Color3.fromHSV(math.min((distance / 128) / 2.8, 0.4), 0.89, 0.75)
-			end
-		end
-	end
-	
-	Tracers = vape.Categories.Render:CreateModule({
-		Name = 'Tracers',
-		Function = function(callback)
-			if callback then
-				Tracers:Clean(entitylib.Events.EntityRemoved:Connect(Removed))
-				for _, v in entitylib.List do
-					if Reference[v] then
-						Removed(v)
-					end
-					Added(v)
-				end
-				Tracers:Clean(entitylib.Events.EntityAdded:Connect(function(ent)
-					if Reference[ent] then
-						Removed(ent)
-					end
-					Added(ent)
-				end))
-				Tracers:Clean(vape.Categories.Friends.ColorUpdate.Event:Connect(function()
-					ColorFunc(Color.Hue, Color.Sat, Color.Value)
-				end))
-				Tracers:Clean(runService.RenderStepped:Connect(Loop))
-			else
-				for i in Reference do
-					Removed(i)
-				end
-			end
-		end,
-		Tooltip = 'Renders tracers on players.'
-	})
-	Targets = Tracers:CreateTargets({
-		Players = true,
-		Function = function()
-			if Tracers.Enabled then
-				Tracers:Toggle()
-				Tracers:Toggle()
-			end
-		end
-	})
-	StartPosition = Tracers:CreateDropdown({
-		Name = 'Start Position',
-		List = {'Middle', 'Bottom', 'Mouse'},
-		Function = function()
-			if Tracers.Enabled then
-				Tracers:Toggle()
-				Tracers:Toggle()
-			end
-		end
-	})
-	EndPosition = Tracers:CreateDropdown({
-		Name = 'End Position',
-		List = {'Head', 'Torso'},
-		Function = function()
-			if Tracers.Enabled then
-				Tracers:Toggle()
-				Tracers:Toggle()
-			end
-		end
-	})
-	Color = Tracers:CreateColorSlider({
-		Name = 'Player Color',
-		Function = function(hue, sat, val)
-			if Tracers.Enabled then
-				ColorFunc(hue, sat, val)
-			end
-		end
-	})
-	Transparency = Tracers:CreateSlider({
-		Name = 'Transparency',
-		Min = 0,
-		Max = 1,
-		Function = function(val)
-			for _, tracer in Reference do
-				tracer.Transparency = 1 - val
-			end
-		end,
-		Decimal = 10
-	})
-	DistanceColor = Tracers:CreateToggle({
-		Name = 'Color by distance',
-		Function = function()
-			if Tracers.Enabled then
-				Tracers:Toggle()
-				Tracers:Toggle()
-			end
-		end
-	})
-	Distance = Tracers:CreateToggle({
-		Name = 'Distance Check',
-		Function = function(callback)
-			DistanceLimit.Object.Visible = callback
-		end
-	})
-	DistanceLimit = Tracers:CreateTwoSlider({
-		Name = 'Player Distance',
-		Min = 0,
-		Max = 256,
-		DefaultMin = 0,
-		DefaultMax = 64,
-		Darker = true,
-		Visible = false
-	})
-	Behind = Tracers:CreateToggle({
-		Name = 'Behind',
-		Default = true
-	})
-	Teammates = Tracers:CreateToggle({
-		Name = 'Priority Only',
-		Function = function()
-			if Tracers.Enabled then
-				Tracers:Toggle()
-				Tracers:Toggle()
-			end
-		end,
-		Default = true,
-		Tooltip = 'Hides teammates & non targetable entities'
-	})
-end)
-	
-run(function()
-	local Waypoints
-	local FontOption
-	local List
-	local Color
-	local Scale
-	local Background
-	WaypointFolder = Instance.new('Folder')
-	WaypointFolder.Parent = vape.gui
-	
-	Waypoints = vape.Categories.Render:CreateModule({
-		Name = 'Waypoints',
-		Function = function(callback)
-			if callback then
-				for _, v in List.ListEnabled do
-					local split = v:split('/')
-					local tagSize = getfontsize(removeTags(split[2]), 14 * Scale.Value, FontOption.Value, Vector2.new(100000, 100000))
-					local billboard = Instance.new('BillboardGui')
-					billboard.Size = UDim2.fromOffset(tagSize.X + 8, tagSize.Y + 7)
-					billboard.StudsOffsetWorldSpace = Vector3.new(unpack(split[1]:split(',')))
-					billboard.AlwaysOnTop = true
-					billboard.Parent = WaypointFolder
-					local tag = Instance.new('TextLabel')
-					tag.BackgroundColor3 = Color3.new()
-					tag.BorderSizePixel = 0
-					tag.Visible = true
-					tag.RichText = true
-					tag.FontFace = FontOption.Value
-					tag.TextSize = 14 * Scale.Value
-					tag.BackgroundTransparency = Background.Value
-					tag.Size = billboard.Size
-					tag.Text = split[2]
-					tag.TextColor3 = Color3.fromHSV(Color.Hue, Color.Sat, Color.Value)
-					tag.Parent = billboard
-				end
-			else
-				WaypointFolder:ClearAllChildren()
-			end
-		end,
-		Tooltip = 'Mark certain spots with a visual indicator'
-	})
-	FontOption = Waypoints:CreateFont({
-		Name = 'Font',
-		Blacklist = 'Arial',
-		Function = function()
-			if Waypoints.Enabled then
-				Waypoints:Toggle()
-				Waypoints:Toggle()
-			end
-		end,
-	})
-	List = Waypoints:CreateTextList({
-		Name = 'Points',
-		Placeholder = 'x, y, z/name',
-		Function = function()
-			if Waypoints.Enabled then
-				Waypoints:Toggle()
-				Waypoints:Toggle()
-			end
-		end
-	})
-	Waypoints:CreateButton({
-		Name = 'Add current position',
-		Function = function()
-			if entitylib.isAlive then
-				local pos = entitylib.character.RootPart.Position // 1
-				List:ChangeValue(pos.X..','..pos.Y..','..pos.Z..'/Waypoint '..(#List.List + 1))
-			end
-		end
-	})
-	Color = Waypoints:CreateColorSlider({
-		Name = 'Color',
-		Function = function(hue, sat, val)
-			for _, v in WaypointFolder:GetChildren() do
-				v.TextLabel.TextColor3 = Color3.fromHSV(hue, sat, val)
-			end
-		end
-	})
-	Scale = Waypoints:CreateSlider({
-		Name = 'Scale',
-		Function = function()
-			if Waypoints.Enabled then
-				Waypoints:Toggle()
-				Waypoints:Toggle()
-			end
-		end,
-		Default = 1,
-		Min = 0.1,
-		Max = 1.5,
-		Decimal = 10
-	})
-	Background = Waypoints:CreateSlider({
-		Name = 'Transparency',
-		Function = function()
-			if Waypoints.Enabled then
-				Waypoints:Toggle()
-				Waypoints:Toggle()
-			end
-		end,
-		Default = 0.5,
-		Min = 0,
-		Max = 1,
-		Decimal = 10
-	})
-	
-end)
-	
+end)	
 run(function()
 	local AnimationPlayer
 	local IDBox
@@ -5440,7 +4247,490 @@ run(function()
 		Tooltip = 'Descending - Prefers full servers\nAscending - Prefers empty servers'
 	})
 end)
-	
+run(function()
+  if replicatedStorage:FindFirstChild 'Themes' then
+    replicatedStorage:FindFirstChild('Themes'):Destroy()
+  end
+
+  local backupTechnology = 'ShadowMap'
+  local backupLighting = {}
+  local BackupFolder
+
+  local themeProps = {
+    ['The Milky Way A'] = {
+      Ambient = Color3.fromRGB(107, 107, 107),
+      OutdoorAmbient = Color3.fromRGB(115, 93, 137),
+      ColorShift_Bottom = Color3.fromRGB(219, 3, 246),
+      ColorShift_Top = Color3.fromRGB(144, 6, 177),
+      EnvironmentDiffuseScale = 0.4,
+      EnvironmentSpecularScale = 0.4,
+      Brightness = 0.05,
+      ExposureCompensation = 0.8,
+      GeographicLatitude = 60,
+      ClockTime = 10,
+      GlobalShadows = true,
+      ShadowSoftness = 0.4,
+    },
+    ['The Milky Way B'] = {
+      Ambient = Color3.fromRGB(58, 58, 58),
+      OutdoorAmbient = Color3.fromRGB(127, 116, 79),
+      ColorShift_Bottom = Color3.fromRGB(219, 3, 246),
+      ColorShift_Top = Color3.fromRGB(144, 6, 177),
+      EnvironmentDiffuseScale = 0.5,
+      EnvironmentSpecularScale = 0.5,
+      Brightness = 0.2,
+      ExposureCompensation = 0.6,
+      GeographicLatitude = 310,
+      ClockTime = 13,
+      GlobalShadows = true,
+      ShadowSoftness = 0.6,
+    },
+    ['The Milky Way C'] = {
+      Ambient = Color3.fromRGB(101, 101, 101),
+      OutdoorAmbient = Color3.fromRGB(131, 77, 122),
+      ColorShift_Bottom = Color3.fromRGB(219, 3, 246),
+      ColorShift_Top = Color3.fromRGB(144, 6, 177),
+      EnvironmentDiffuseScale = 0.5,
+      EnvironmentSpecularScale = 0.5,
+      Brightness = 0.2,
+      ExposureCompensation = 0.7,
+      GeographicLatitude = 0,
+      ClockTime = 15.25,
+      GlobalShadows = true,
+      ShadowSoftness = 0.6,
+    },
+    ['Lunar Vape Old'] = {
+      Ambient = Color3.fromRGB(93, 59, 88),
+      OutdoorAmbient = Color3.fromRGB(128, 94, 100),
+      ColorShift_Bottom = Color3.fromRGB(213, 173, 117),
+      ColorShift_Top = Color3.fromRGB(255, 255, 255),
+      EnvironmentDiffuseScale = 0.5,
+      EnvironmentSpecularScale = 0.5,
+      Brightness = 0.2,
+      ExposureCompensation = 0.8,
+      GeographicLatitude = 325,
+      ClockTime = 11,
+      GlobalShadows = true,
+      ShadowSoftness = 0.2,
+    },
+    ['Lunar Vape New'] = {
+      Ambient = Color3.fromRGB(101, 72, 51),
+      OutdoorAmbient = Color3.fromRGB(175, 132, 119),
+      ColorShift_Bottom = Color3.fromRGB(213, 161, 134),
+      ColorShift_Top = Color3.fromRGB(203, 167, 102),
+      EnvironmentDiffuseScale = 0.3,
+      EnvironmentSpecularScale = 0.3,
+      Brightness = 1,
+      ExposureCompensation = 0.7,
+      GeographicLatitude = 326,
+      ClockTime = 16 + (1 / 3),
+      GlobalShadows = true,
+      ShadowSoftness = 0.1,
+    },
+    ['Antarctic Evening'] = {
+      Ambient = Color3.fromRGB(79, 54, 101),
+      OutdoorAmbient = Color3.fromRGB(162, 118, 175),
+      ColorShift_Bottom = Color3.fromRGB(213, 10, 180),
+      ColorShift_Top = Color3.fromRGB(103, 68, 203),
+      EnvironmentDiffuseScale = 0.4,
+      EnvironmentSpecularScale = 0.4,
+      Brightness = 0.2,
+      ExposureCompensation = 1,
+      GeographicLatitude = 306,
+      ClockTime = 10,
+      GlobalShadows = true,
+      ShadowSoftness = 0.6,
+    },
+  }
+
+  local GameThemes = Instance.new('Folder', replicatedStorage)
+  GameThemes.Name = 'Themes'
+
+  local TheMilkyWaySkyA = Instance.new('Sky', GameThemes)
+  TheMilkyWaySkyA.Name = 'The Milky Way A'
+  TheMilkyWaySkyA.CelestialBodiesShown = false
+  TheMilkyWaySkyA.StarCount = 3000
+  TheMilkyWaySkyA.SkyboxUp = 'rbxassetid://5559302033'
+  TheMilkyWaySkyA.SkyboxLf = 'rbxassetid://5559292825'
+  TheMilkyWaySkyA.SkyboxFt = 'rbxassetid://5559300879'
+  TheMilkyWaySkyA.SkyboxBk = 'rbxassetid://5559289158'
+  TheMilkyWaySkyA.SkyboxDn = 'rbxassetid://5559290893'
+  TheMilkyWaySkyA.SkyboxRt = 'rbxassetid://5559302989'
+  TheMilkyWaySkyA.SunTextureId = 'rbxasset://sky/sun.jpg'
+  TheMilkyWaySkyA.SunAngularSize = 1.44
+  TheMilkyWaySkyA.MoonTextureId = 'rbxasset://sky/moon.jpg'
+  TheMilkyWaySkyA.MoonAngularSize = 0.57
+  local TheMilkyWaySkyADOF = Instance.new('DepthOfFieldEffect', TheMilkyWaySkyA)
+  TheMilkyWaySkyADOF.FarIntensity = 0.12
+  TheMilkyWaySkyADOF.NearIntensity = 0.3
+  TheMilkyWaySkyADOF.FocusDistance = 20
+  TheMilkyWaySkyADOF.InFocusRadius = 17
+  local TheMilkyWaySkyACC = Instance.new('ColorCorrectionEffect', TheMilkyWaySkyA)
+  TheMilkyWaySkyACC.TintColor = Color3.fromRGB(245, 200, 245)
+  TheMilkyWaySkyACC.Brightness = 0
+  TheMilkyWaySkyACC.Contrast = 0.2
+  TheMilkyWaySkyACC.Saturation = -0.1
+  local TheMilkyWaySkyABloom = Instance.new('BloomEffect', TheMilkyWaySkyA)
+  TheMilkyWaySkyABloom.Intensity = 0.4
+  TheMilkyWaySkyABloom.Size = 12
+  TheMilkyWaySkyABloom.Threshold = 0.2
+
+  local TheMilkyWaySkyB = Instance.new('Sky', GameThemes)
+  TheMilkyWaySkyB.Name = 'The Milky Way B'
+  TheMilkyWaySkyB.CelestialBodiesShown = false
+  TheMilkyWaySkyB.StarCount = 3000
+  TheMilkyWaySkyB.SkyboxUp = 'http://www.roblox.com/asset?id=232707707'
+  TheMilkyWaySkyB.SkyboxLf = 'http://www.roblox.com/asset?id=232708001'
+  TheMilkyWaySkyB.SkyboxFt = 'http://www.roblox.com/asset?id=232707879'
+  TheMilkyWaySkyB.SkyboxBk = 'http://www.roblox.com/asset?id=232707959'
+  TheMilkyWaySkyB.SkyboxDn = 'http://www.roblox.com/asset?id=232707790'
+  TheMilkyWaySkyB.SkyboxRt = 'http://www.roblox.com/asset?id=232707983'
+  local TheMilkyWaySkyBCC = Instance.new('ColorCorrectionEffect', TheMilkyWaySkyB)
+  TheMilkyWaySkyBCC.TintColor = Color3.fromRGB(255, 255, 255)
+  TheMilkyWaySkyBCC.Brightness = 0
+  TheMilkyWaySkyBCC.Contrast = 0.3
+  TheMilkyWaySkyBCC.Saturation = 0.2
+  local TheMilkyWaySkyBDOF = Instance.new('DepthOfFieldEffect', TheMilkyWaySkyB)
+  TheMilkyWaySkyBDOF.FarIntensity = 0.12
+  TheMilkyWaySkyBDOF.NearIntensity = 0.3
+  TheMilkyWaySkyBDOF.FocusDistance = 20
+  TheMilkyWaySkyBDOF.InFocusRadius = 17
+  local TheMilkyWaySkyBBloom = Instance.new('BloomEffect', TheMilkyWaySkyB)
+  TheMilkyWaySkyBBloom.Intensity = 0.6
+  TheMilkyWaySkyBBloom.Size = 12
+  TheMilkyWaySkyBBloom.Threshold = 0.2
+  local TheMilkyWaySkyBSunRay = Instance.new('SunRaysEffect', TheMilkyWaySkyB)
+  TheMilkyWaySkyBSunRay.Enabled = true
+  TheMilkyWaySkyBSunRay.Intensity = 0.003
+  TheMilkyWaySkyBSunRay.Spread = 1
+
+  local TheMilkyWaySkyC = Instance.new('Sky', GameThemes)
+  TheMilkyWaySkyC.Name = 'The Milky Way C'
+  TheMilkyWaySkyC.CelestialBodiesShown = false
+  TheMilkyWaySkyC.StarCount = 3000
+  TheMilkyWaySkyC.SkyboxUp = 'rbxassetid://1903391299'
+  TheMilkyWaySkyC.SkyboxLf = 'rbxassetid://1903388369'
+  TheMilkyWaySkyC.SkyboxFt = 'rbxassetid://1903389258'
+  TheMilkyWaySkyC.SkyboxBk = 'rbxassetid://1903390348'
+  TheMilkyWaySkyC.SkyboxDn = 'rbxassetid://1903391981'
+  TheMilkyWaySkyC.SkyboxRt = 'rbxassetid://1903387293'
+  TheMilkyWaySkyC.SunTextureId = 'rbxasset://sky/sun.jpg'
+  TheMilkyWaySkyC.SunAngularSize = 21
+  TheMilkyWaySkyC.MoonTextureId = 'rbxasset://sky/moon.jpg'
+  TheMilkyWaySkyC.MoonAngularSize = 11
+  local TheMilkyWaySkyCDOF = Instance.new('DepthOfFieldEffect', TheMilkyWaySkyC)
+  TheMilkyWaySkyCDOF.FarIntensity = 0.12
+  TheMilkyWaySkyCDOF.NearIntensity = 0.3
+  TheMilkyWaySkyCDOF.FocusDistance = 20
+  TheMilkyWaySkyCDOF.InFocusRadius = 17
+  local TheMilkyWaySkyCBloom = Instance.new('BloomEffect', TheMilkyWaySkyC)
+  TheMilkyWaySkyCBloom.Intensity = 0.6
+  TheMilkyWaySkyCBloom.Size = 12
+  TheMilkyWaySkyCBloom.Threshold = 0.2
+  local TheMilkyWaySkyCSunRay = Instance.new('SunRaysEffect', TheMilkyWaySkyC)
+  TheMilkyWaySkyCSunRay.Enabled = true
+  TheMilkyWaySkyCSunRay.Intensity = 0.003
+  TheMilkyWaySkyCSunRay.Spread = 1
+  local TheMilkyWaySkyCCC = Instance.new('ColorCorrectionEffect', TheMilkyWaySkyC)
+  TheMilkyWaySkyCCC.TintColor = Color3.fromRGB(245, 240, 255)
+  TheMilkyWaySkyCCC.Brightness = -0.04
+  TheMilkyWaySkyCCC.Contrast = 0.2
+  TheMilkyWaySkyCCC.Saturation = 0.2
+
+  local vapeOld = Instance.new('Sky', GameThemes)
+  vapeOld.Name = 'Lunar Vape Old'
+  vapeOld.CelestialBodiesShown = false
+  vapeOld.StarCount = 3000
+  vapeOld.SkyboxUp = 'rbxassetid://2670644331'
+  vapeOld.SkyboxLf = 'rbxassetid://2670643070'
+  vapeOld.SkyboxFt = 'rbxassetid://2670643214'
+  vapeOld.SkyboxBk = 'rbxassetid://2670643994'
+  vapeOld.SkyboxDn = 'rbxassetid://2670643365'
+  vapeOld.SkyboxRt = 'rbxassetid://2670644173'
+  vapeOld.SunTextureId = 'rbxasset://sky/sun.jpg'
+  vapeOld.SunAngularSize = 21
+  vapeOld.MoonTextureId = 'rbxassetid://1075087760'
+  vapeOld.MoonAngularSize = 11
+  local vapeOldCC = Instance.new('ColorCorrectionEffect', vapeOld)
+  vapeOldCC.Enabled = true
+  vapeOldCC.Brightness = 0.13
+  vapeOldCC.Contrast = 0.4
+  vapeOldCC.Saturation = 0.06
+  vapeOldCC.TintColor = Color3.fromRGB(255, 230, 245)
+  local vapeOldDOF = Instance.new('DepthOfFieldEffect', vapeOld)
+  vapeOldDOF.FarIntensity = 0.12
+  vapeOldDOF.NearIntensity = 0.3
+  vapeOldDOF.FocusDistance = 20
+  vapeOldDOF.InFocusRadius = 17
+  local vapeOldBloom = Instance.new('BloomEffect', vapeOld)
+  vapeOldBloom.Intensity = 0.8
+  vapeOldBloom.Threshold = 0.4
+  vapeOldBloom.Size = 12
+
+  local vapeNew = Instance.new('Sky', GameThemes)
+  vapeNew.Name = 'Lunar Vape New'
+  vapeNew.CelestialBodiesShown = false
+  vapeNew.StarCount = 0
+  vapeNew.SkyboxUp = 'http://www.roblox.com/asset/?id=458016792'
+  vapeNew.SkyboxLf = 'http://www.roblox.com/asset/?id=458016655'
+  vapeNew.SkyboxFt = 'http://www.roblox.com/asset/?id=458016532'
+  vapeNew.SkyboxBk = 'http://www.roblox.com/asset/?id=458016711'
+  vapeNew.SkyboxDn = 'http://www.roblox.com/asset/?id=458016826'
+  vapeNew.SkyboxRt = 'http://www.roblox.com/asset/?id=458016782'
+  vapeNew.SunTextureId = 'rbxasset://sky/sun.jpg'
+  vapeNew.SunAngularSize = 21
+  vapeNew.MoonTextureId = 'rbxasset://sky/moon.jpg'
+  vapeNew.MoonAngularSize = 11
+  local vapeNewBloom = Instance.new('BloomEffect', vapeNew)
+  vapeNewBloom.Enabled = true
+  vapeNewBloom.Threshold = 0.24
+  vapeNewBloom.Size = 8
+  vapeNewBloom.Intensity = 0.5
+  local vapeNewSunRay = Instance.new('SunRaysEffect', vapeNew)
+  vapeNewSunRay.Enabled = true
+  vapeNewSunRay.Intensity = 0.05
+  vapeNewSunRay.Spread = 0.4
+  local vapeNewCC = Instance.new('ColorCorrectionEffect', vapeNew)
+  vapeNewCC.Saturation = 0.14
+  vapeNewCC.Brightness = -0.1
+  vapeNewCC.Contrast = 0.14
+  local vapeNewDOF = Instance.new('DepthOfFieldEffect', vapeNew)
+  vapeNewDOF.FarIntensity = 0.2
+  vapeNewDOF.InFocusRadius = 17
+  vapeNewDOF.FocusDistance = 20
+  vapeNewDOF.NearIntensity = 0.3
+
+  local AntarcticEvening = Instance.new('Sky', GameThemes)
+  AntarcticEvening.Name = 'Antarctic Evening'
+  AntarcticEvening.CelestialBodiesShown = false
+  AntarcticEvening.StarCount = 3000
+  AntarcticEvening.SkyboxUp = 'http://www.roblox.com/asset/?id=5260824661'
+  AntarcticEvening.SkyboxLf = 'http://www.roblox.com/asset/?id=5260800833'
+  AntarcticEvening.SkyboxFt = 'http://www.roblox.com/asset/?id=5260817288'
+  AntarcticEvening.SkyboxBk = 'http://www.roblox.com/asset/?id=5260808177'
+  AntarcticEvening.SkyboxDn = 'http://www.roblox.com/asset/?id=5260653793'
+  AntarcticEvening.SkyboxRt = 'http://www.roblox.com/asset/?id=5260811073'
+  AntarcticEvening.SunTextureId = 'rbxasset://sky/sun.jpg'
+  AntarcticEvening.SunAngularSize = 21
+  AntarcticEvening.MoonTextureId = 'rbxasset://sky/moon.jpg'
+  AntarcticEvening.MoonAngularSize = 11
+  local AntarcticEveningBloom = Instance.new('BloomEffect', AntarcticEvening)
+  AntarcticEveningBloom.Enabled = true
+  AntarcticEveningBloom.Threshold = 0.4
+  AntarcticEveningBloom.Size = 12
+  AntarcticEveningBloom.Intensity = 0.5
+  local AntarcticEveningCC = Instance.new('ColorCorrectionEffect', AntarcticEvening)
+  AntarcticEveningCC.Brightness = -0.03
+  AntarcticEveningCC.Contrast = 0.16
+  AntarcticEveningCC.Saturation = 0.06
+  AntarcticEveningCC.TintColor = Color3.fromRGB(220, 175, 255)
+  local AntarcticEveningDOF = Instance.new('DepthOfFieldEffect', AntarcticEvening)
+  AntarcticEveningDOF.FarIntensity = 0.12
+  AntarcticEveningDOF.InFocusRadius = 17
+  AntarcticEveningDOF.FocusDistance = 20
+  AntarcticEveningDOF.NearIntensity = 0.3
+
+  vape:Clean(GameThemes)
+
+  local timeConnection
+  local ThemesModule = { Enabled = false }
+  local ThemesDropdown = { Value = 'Antarctic Evening' }
+  ThemesModule = vape.Categories.Render:CreateModule {
+    Name = 'Themes',
+    Tooltip = 'Changes the theme',
+    ExtraText = function()
+      return ThemesDropdown.Value
+    end,
+    Function = function(callback)
+      if callback then
+        BackupFolder = Instance.new('Folder', replicatedStorage)
+        BackupFolder.Name = 'Old'
+        for _, v in lightingService:GetChildren() do
+          if v.ClassName ~= 'BlurEffect' then
+            v.Parent = BackupFolder
+          end
+        end
+
+        local newSky = GameThemes[ThemesDropdown.Value]:Clone()
+        newSky.Parent = lightingService
+        for _, v in newSky:GetChildren() do
+          v.Parent = lightingService
+        end
+
+        for k, v in themeProps[ThemesDropdown.Value] do
+          table.insert(backupLighting, { k, lightingService[k] })
+          lightingService[k] = v
+        end
+        timeConnection = lightingService:GetPropertyChangedSignal('ClockTime'):Connect(function()
+          lightingService.ClockTime = themeProps[ThemesDropdown.Value].Time
+        end)
+
+        -- if gethiddenproperty then backupTechnology = gethiddenproperty(lightingService, 'Technology') end
+        -- if sethiddenproperty then sethiddenproperty(lightingService, 'Technology', 'Future') end
+      else
+        if #backupLighting == 0 then
+          return
+        end
+        if timeConnection then
+          timeConnection:Disconnect()
+        end
+        -- if sethiddenproperty then sethiddenproperty(lightingService, 'Technology', backupTechnology) end
+        for _, v in lightingService:GetChildren() do
+          v:Destroy()
+        end
+
+        for _, v in BackupFolder:GetChildren() do
+          v.Parent = lightingService
+        end
+        BackupFolder:Destroy()
+
+        for _, v in backupLighting do
+          lightingService[v[1]] = v[2]
+        end
+        table.clear(backupLighting)
+      end
+      if vape.ThreadFix then
+        setthreadidentity(old or 8)
+      end
+    end,
+  }
+  ThemesDropdown = ThemesModule:CreateDropdown {
+    Name = 'Theme',
+    List = {
+      'The Milky Way A',
+      'The Milky Way B',
+      'The Milky Way C',
+      'Lunar Vape Old',
+      'Lunar Vape New',
+      'Antarctic Evening',
+    },
+    Default = 'Antarctic Evening',
+    Function = function()
+      if not ThemesModule.Enabled then
+        return
+      end
+      ThemesModule:Toggle()
+      ThemesModule:Toggle()
+    end,
+  }
+end)
+run(function()
+  local InfiniteJump = {Enabled = false}
+  local JumpConnections = {}
+  local LastLanded = os.clock()
+  vape:Clean(runService.PostSimulation:Connect(function()
+    if entitylib.character and entitylib.character.Humanoid and entitylib.character.Humanoid.FloorMaterial == Enum.Material.Air then return end
+    LastLanded = os.clock()
+  end))
+  local Debounce = {Enabled = false}
+  local DebounceTick = os.clock()
+  local h = false
+  
+  local jumpFunction
+  jumpFunction = function(wrap)
+    if entitylib.character and entitylib.character.Humanoid and entitylib.character.Humanoid.Health then
+      if os.clock() - LastLanded > 2.3 then return end
+      if Debounce.Enabled and (os.clock() - DebounceTick < 0.1) then
+        DebounceTick = os.clock(); return
+      end
+      DebounceTick = os.clock()
+      entitylib.character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)          
+      if wrap and h then
+        task.wait(0.167)
+        jumpFunction(254)
+      end
+    end
+  end
+
+  InfiniteJump = vape.Categories.Blatant:CreateModule({
+    Name = 'InfiniteJump',
+    Tooltip = 'Allows you to jump mid-air.',
+    Function = function(callback)
+      if callback then
+        table.insert(JumpConnections, inputService.JumpRequest:Connect(jumpFunction))
+        if inputService.TouchEnabled then
+          task.spawn(function()
+            local j = lplr.PlayerGui:WaitForChild("TouchGui"):WaitForChild("TouchControlFrame"):WaitForChild("JumpButton")
+            table.insert(JumpConnections, j.MouseButton1Down:Connect(function() h = true; jumpFunction(true) end))
+            table.insert(JumpConnections, j.MouseButton1Up:Connect(function() h = false end))
+          end)
+        end
+      else
+        if JumpConnection then JumpConnection:Disconnect() end
+      end
+    end
+  })
+  Debounce = InfiniteJump:CreateToggle({
+    Name = 'Debounce',
+    Tooltip = [[Doesn't spam jump when you hold space bar]],
+    Function = function(callback) Debounce.Enabled = callback end
+  })
+end)
+run(function()
+    local Viewmodel
+    local BlockAnimToggle
+    local TweenSpeedSlider
+    local holdingBlock = false
+    local targetC1 = CFrame.identity
+    local oldC1
+
+    Viewmodel = vape.Categories.Combat:CreateModule({
+        Name = "Block",
+        Function = function(callback)
+            if callback then
+                runService.RenderStepped:Connect(function()
+                    local vm = gameCamera:FindFirstChild("Viewmodel")
+                    if not vm then return end
+                    local wrist = vm:FindFirstChild("RightHand") and vm.RightHand:FindFirstChild("RightWrist")
+                    if not wrist then return end
+
+                    if not oldC1 then
+                        oldC1 = wrist.C1
+                    end
+
+                    -- Set target pose if holding right click
+                    if holdingBlock and BlockAnimToggle.Enabled then
+                        targetC1 = oldC1 * CFrame.new(-0.2, -0.3, -0.1) * CFrame.Angles(math.rad(-80), math.rad(30), math.rad(-10))
+                    else
+                        targetC1 = oldC1
+                    end
+
+                    -- Smoothly interpolate to target CFrame
+                    wrist.C1 = wrist.C1:Lerp(targetC1, TweenSpeedSlider.Value)
+                end)
+            end
+        end
+    })
+
+    -- Toggle for Right-Click Block Animation
+    BlockAnimToggle = Viewmodel:CreateToggle({
+        Name = "Hold Block Animation",
+        Default = false
+    })
+
+    -- Tween speed slider
+    TweenSpeedSlider = Viewmodel:CreateSlider({
+        Name = "Block Animation Smoothness",
+        Min = 0.05,
+        Max = 0.5,
+        Default = 0.15,
+        Decimal = 2
+    })
+
+    -- Input handling
+    game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
+        if gameProcessed then return end
+        if input.UserInputType == Enum.UserInputType.MouseButton2 then
+            holdingBlock = true
+        end
+    end)
+
+    game:GetService("UserInputService").InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton2 then
+            holdingBlock = false
+        end
+    end)
+end)
 run(function()
 	local Blink
 	local Type
@@ -6553,7 +5843,7 @@ run(function()
 		end;
 	end;
 
-	Atmosphere = vape.Categories.Legit:CreateModule({
+	Atmosphere = vape.Categories.Visuals:CreateModule({
 		["Name"] = 'Atmosphere',
 		["Function"] = function(callback: boolean): void
 			if callback then
@@ -6723,7 +6013,7 @@ run(function()
 	local FadeOut
 	local trail, point, point2
 	
-	Breadcrumbs = vape.Categories.Legit:CreateModule({
+	Breadcrumbs = vape.Categories.Visuals:CreateModule({
 		Name = 'Breadcrumbs',
 		Function = function(callback)
 			if callback then
@@ -6846,7 +6136,7 @@ run(function()
 		motor.Parent = part
 	end
 	
-	Cape = vape.Categories.Legit:CreateModule({
+	Cape = vape.Categories.Visuals:CreateModule({
 		["Name"] = 'Cape',
 		["Function"] = function(callback: boolean): void
 			if callback then
@@ -6929,7 +6219,7 @@ run(function()
 	local Color
 	local hat
 	
-	ChinaHat = vape.Categories.Legit:CreateModule({
+	ChinaHat = vape.Categories.Visuals:CreateModule({
 		Name = 'China Hat',
 		Function = function(callback)
 			if callback then
@@ -7002,58 +6292,7 @@ run(function()
 		end
 	})
 end)
-	
-run(function()
-	local Clock
-	local TwentyFourHour
-	local label
-	
-	Clock = vape.Categories.Legit:CreateModule({
-		Name = 'Clock',
-		Function = function(callback)
-			if callback then
-				repeat
-					label.Text = DateTime.now():FormatLocalTime('LT', TwentyFourHour.Enabled and 'zh-cn' or 'en-us')
-					task.wait(1)
-				until not Clock.Enabled
-			end
-		end,
-		Size = UDim2.fromOffset(100, 41),
-		Tooltip = 'Shows the current local time'
-	})
-	Clock:CreateFont({
-		Name = 'Font',
-		Blacklist = 'Gotham',
-		Function = function(val)
-			label.FontFace = val
-		end
-	})
-	Clock:CreateColorSlider({
-		Name = 'Color',
-		DefaultValue = 0,
-		DefaultOpacity = 0.5,
-		Function = function(hue, sat, val, opacity)
-			label.BackgroundColor3 = Color3.fromHSV(hue, sat, val)
-			label.BackgroundTransparency = 1 - opacity
-		end
-	})
-	TwentyFourHour = Clock:CreateToggle({
-		Name = '24 Hour Clock'
-	})
-	label = Instance.new('TextLabel')
-	label.Size = UDim2.new(0, 100, 0, 41)
-	label.BackgroundTransparency = 0.5
-	label.TextSize = 15
-	label.Font = Enum.Font.Gotham
-	label.Text = '0:00 PM'
-	label.TextColor3 = Color3.new(1, 1, 1)
-	label.BackgroundColor3 = Color3.new()
-	label.Parent = Clock.Children
-	local corner = Instance.new('UICorner')
-	corner.CornerRadius = UDim.new(0, 4)
-	corner.Parent = label
-end)
-	
+		
 run(function()
 	local Disguise
 	local Mode
@@ -7191,7 +6430,7 @@ run(function()
 		end
 	end
 	
-	Disguise = vape.Categories.Legit:CreateModule({
+	Disguise = vape.Categories.Visuals:CreateModule({
 		Name = 'Disguise',
 		Function = function(callback)
 			if callback then
@@ -7230,7 +6469,7 @@ run(function()
 	local Value
 	local oldfov
 	
-	FOV = vape.Categories.Legit:CreateModule({
+	FOV = vape.Categories.Visuals:CreateModule({
 		Name = 'FOV',
 		Function = function(callback)
 			if callback then
@@ -7250,297 +6489,6 @@ run(function()
 		Min = 30,
 		Max = 120
 	})
-end)
-	
-run(function()
-	--[[
-		Grabbing an accurate count of the current framerate
-		Source: https://devforum.roblox.com/t/get-client-FPS-trough-a-script/282631
-	]]
-	local FPS
-	local label
-	
-	FPS = vape.Categories.Legit:CreateModule({
-		Name = 'FPS',
-		Function = function(callback)
-			if callback then
-				local frames = {}
-				local startClock = os.clock()
-				local updateTick = tick()
-				FPS:Clean(runService.Heartbeat:Connect(function()
-					local updateClock = os.clock()
-					for i = #frames, 1, -1 do
-						frames[i + 1] = frames[i] >= updateClock - 1 and frames[i] or nil
-					end
-					frames[1] = updateClock
-					if updateTick < tick() then
-						updateTick = tick() + 1
-						label.Text = math.floor(os.clock() - startClock >= 1 and #frames or #frames / (os.clock() - startClock))..' FPS'
-					end
-				end))
-			end
-		end,
-		Size = UDim2.fromOffset(100, 41),
-		Tooltip = 'Shows the current framerate'
-	})
-	FPS:CreateFont({
-		Name = 'Font',
-		Blacklist = 'Gotham',
-		Function = function(val)
-			label.FontFace = val
-		end
-	})
-	FPS:CreateColorSlider({
-		Name = 'Color',
-		DefaultValue = 0,
-		DefaultOpacity = 0.5,
-		Function = function(hue, sat, val, opacity)
-			label.BackgroundColor3 = Color3.fromHSV(hue, sat, val)
-			label.BackgroundTransparency = 1 - opacity
-		end
-	})
-	label = Instance.new('TextLabel')
-	label.Size = UDim2.fromScale(1, 1)
-	label.BackgroundTransparency = 0.5
-	label.TextSize = 15
-	label.Font = Enum.Font.Gotham
-	label.Text = 'inf FPS'
-	label.TextColor3 = Color3.new(1, 1, 1)
-	label.BackgroundColor3 = Color3.new()
-	label.Parent = FPS.Children
-	local corner = Instance.new('UICorner')
-	corner.CornerRadius = UDim.new(0, 4)
-	corner.Parent = label
-end)
-	
-run(function()
-	local Keystrokes
-	local Style
-	local Color
-	local keys, holder = {}
-	
-	local function createKeystroke(keybutton, pos, pos2, text)
-		if keys[keybutton] then
-			keys[keybutton].Key:Destroy()
-			keys[keybutton] = nil
-		end
-		local key = Instance.new('Frame')
-		key.Size = keybutton == Enum.KeyCode.Space and UDim2.new(0, 110, 0, 24) or UDim2.new(0, 34, 0, 36)
-		key.BackgroundColor3 = Color3.fromHSV(Color.Hue, Color.Sat, Color.Value)
-		key.BackgroundTransparency = 1 - Color.Opacity
-		key.Position = pos
-		key.Name = keybutton.Name
-		key.Parent = holder
-		local keytext = Instance.new('TextLabel')
-		keytext.BackgroundTransparency = 1
-		keytext.Size = UDim2.fromScale(1, 1)
-		keytext.Font = Enum.Font.Gotham
-		keytext.Text = text or keybutton.Name
-		keytext.TextXAlignment = Enum.TextXAlignment.Left
-		keytext.TextYAlignment = Enum.TextYAlignment.Top
-		keytext.Position = pos2
-		keytext.TextSize = keybutton == Enum.KeyCode.Space and 18 or 15
-		keytext.TextColor3 = Color3.new(1, 1, 1)
-		keytext.Parent = key
-		local corner = Instance.new('UICorner')
-		corner.CornerRadius = UDim.new(0, 4)
-		corner.Parent = key
-		keys[keybutton] = {Key = key}
-	end
-	
-	Keystrokes = vape.Categories.Legit:CreateModule({
-		Name = 'Keystrokes',
-		Function = function(callback)
-			if callback then
-				createKeystroke(Enum.KeyCode.W, UDim2.new(0, 38, 0, 0), UDim2.new(0, 6, 0, 5), Style.Value == 'Arrow' and '↑' or nil)
-				createKeystroke(Enum.KeyCode.S, UDim2.new(0, 38, 0, 42), UDim2.new(0, 8, 0, 5), Style.Value == 'Arrow' and '↓' or nil)
-				createKeystroke(Enum.KeyCode.A, UDim2.new(0, 0, 0, 42), UDim2.new(0, 7, 0, 5), Style.Value == 'Arrow' and '←' or nil)
-				createKeystroke(Enum.KeyCode.D, UDim2.new(0, 76, 0, 42), UDim2.new(0, 8, 0, 5), Style.Value == 'Arrow' and '→' or nil)
-	
-				Keystrokes:Clean(inputService.InputBegan:Connect(function(inputType)
-					local key = keys[inputType.KeyCode]
-					if key then
-						if key.Tween then
-							key.Tween:Cancel()
-						end
-						if key.Tween2 then
-							key.Tween2:Cancel()
-						end
-	
-						key.Pressed = true
-						key.Tween = tweenService:Create(key.Key, TweenInfo.new(0.1), {
-							BackgroundColor3 = Color3.new(1, 1, 1), 
-							BackgroundTransparency = 0
-						})
-						key.Tween2 = tweenService:Create(key.Key.TextLabel, TweenInfo.new(0.1), {
-							TextColor3 = Color3.new()
-						})
-						key.Tween:Play()
-						key.Tween2:Play()
-					end
-				end))
-	
-				Keystrokes:Clean(inputService.InputEnded:Connect(function(inputType)
-					local key = keys[inputType.KeyCode]
-					if key then
-						if key.Tween then
-							key.Tween:Cancel()
-						end
-						if key.Tween2 then
-							key.Tween2:Cancel()
-						end
-	
-						key.Pressed = false
-						key.Tween = tweenService:Create(key.Key, TweenInfo.new(0.1), {
-							BackgroundColor3 = Color3.fromHSV(Color.Hue, Color.Sat, Color.Value), 
-							BackgroundTransparency = 1 - Color.Opacity
-						})
-						key.Tween2 = tweenService:Create(key.Key.TextLabel, TweenInfo.new(0.1), {
-							TextColor3 = Color3.new(1, 1, 1)
-						})
-						key.Tween:Play()
-						key.Tween2:Play()
-					end
-				end))
-			end
-		end,
-		Size = UDim2.fromOffset(110, 176),
-		Tooltip = 'Shows movement keys onscreen'
-	})
-	holder = Instance.new('Frame')
-	holder.Size = UDim2.fromScale(1, 1)
-	holder.BackgroundTransparency = 1
-	holder.Parent = Keystrokes.Children
-	Style = Keystrokes:CreateDropdown({
-		Name = 'Key Style',
-		List = {'Keyboard', 'Arrow'},
-		Function = function()
-			if Keystrokes.Enabled then
-				Keystrokes:Toggle()
-				Keystrokes:Toggle()
-			end
-		end
-	})
-	Color = Keystrokes:CreateColorSlider({
-		Name = 'Color',
-		DefaultValue = 0,
-		DefaultOpacity = 0.5,
-		Function = function(hue, sat, val, opacity)
-			for _, v in keys do
-				if not v.Pressed then
-					v.Key.BackgroundColor3 = Color3.fromHSV(hue, sat, val)
-					v.Key.BackgroundTransparency = 1 - opacity
-				end
-			end
-		end
-	})
-	Keystrokes:CreateToggle({
-		Name = 'Show Spacebar',
-		Function = function(callback)
-			Keystrokes.Children.Size = UDim2.fromOffset(110, callback and 107 or 78)
-			if callback then
-				createKeystroke(Enum.KeyCode.Space, UDim2.new(0, 0, 0, 83), UDim2.new(0, 25, 0, -10), '______')
-			else
-				keys[Enum.KeyCode.Space].Key:Destroy()
-				keys[Enum.KeyCode.Space] = nil
-			end
-		end,
-		Default = true
-	})
-end)
-	
-run(function()
-	local Memory
-	local label
-	
-	Memory = vape.Categories.Legit:CreateModule({
-		Name = 'Memory',
-		Function = function(callback)
-			if callback then
-				repeat
-					label.Text = math.floor(tonumber(game:GetService('Stats'):FindFirstChild('PerformanceStats').Memory:GetValue()))..' MB'
-					task.wait(1)
-				until not Memory.Enabled
-			end
-		end,
-		Size = UDim2.fromOffset(100, 41),
-		Tooltip = 'A label showing the memory currently used by roblox'
-	})
-	Memory:CreateFont({
-		Name = 'Font',
-		Blacklist = 'Gotham',
-		Function = function(val)
-			label.FontFace = val
-		end
-	})
-	Memory:CreateColorSlider({
-		Name = 'Color',
-		DefaultValue = 0,
-		DefaultOpacity = 0.5,
-		Function = function(hue, sat, val, opacity)
-			label.BackgroundColor3 = Color3.fromHSV(hue, sat, val)
-			label.BackgroundTransparency = 1 - opacity
-		end
-	})
-	label = Instance.new('TextLabel')
-	label.Size = UDim2.new(0, 100, 0, 41)
-	label.BackgroundTransparency = 0.5
-	label.TextSize = 15
-	label.Font = Enum.Font.Gotham
-	label.Text = '0 MB'
-	label.TextColor3 = Color3.new(1, 1, 1)
-	label.BackgroundColor3 = Color3.new()
-	label.Parent = Memory.Children
-	local corner = Instance.new('UICorner')
-	corner.CornerRadius = UDim.new(0, 4)
-	corner.Parent = label
-end)
-	
-run(function()
-	local Ping
-	local label
-	
-	Ping = vape.Categories.Legit:CreateModule({
-		Name = 'Ping',
-		Function = function(callback)
-			if callback then
-				repeat
-					label.Text = math.floor(tonumber(game:GetService('Stats'):FindFirstChild('PerformanceStats').Ping:GetValue()))..' ms'
-					task.wait(1)
-				until not Ping.Enabled
-			end
-		end,
-		Size = UDim2.fromOffset(100, 41),
-		Tooltip = 'Shows the current connection speed to the roblox server'
-	})
-	Ping:CreateFont({
-		Name = 'Font',
-		Blacklist = 'Gotham',
-		Function = function(val)
-			label.FontFace = val
-		end
-	})
-	Ping:CreateColorSlider({
-		Name = 'Color',
-		DefaultValue = 0,
-		DefaultOpacity = 0.5,
-		Function = function(hue, sat, val, opacity)
-			label.BackgroundColor3 = Color3.fromHSV(hue, sat, val)
-			label.BackgroundTransparency = 1 - opacity
-		end
-	})
-	label = Instance.new('TextLabel')
-	label.Size = UDim2.new(0, 100, 0, 41)
-	label.BackgroundTransparency = 0.5
-	label.TextSize = 15
-	label.Font = Enum.Font.Gotham
-	label.Text = '0 ms'
-	label.TextColor3 = Color3.new(1, 1, 1)
-	label.BackgroundColor3 = Color3.new()
-	label.Parent = Ping.Children
-	local corner = Instance.new('UICorner')
-	corner.CornerRadius = UDim.new(0, 4)
-	corner.Parent = label
 end)
 	
 run(function()
@@ -7590,7 +6538,7 @@ run(function()
 		end
 	end
 	
-	SongBeats = vape.Categories.Legit:CreateModule({
+	SongBeats = vape.Categories.Visuals:CreateModule({
 		Name = 'Song Beats',
 		Function = function(callback)
 			if callback then
@@ -7660,89 +6608,9 @@ run(function()
 			end
 		end,
 		Min = 1,
-		Max = 100,
+		Max = 200,
 		Default = 100,
 		Suffix = '%'
 	})
 end)
 	
-run(function()
-	local Speedmeter
-	local label
-	
-	Speedmeter = vape.Categories.Legit:CreateModule({
-		Name = 'Speedmeter',
-		Function = function(callback)
-			if callback then
-				repeat
-					local lastpos = entitylib.isAlive and entitylib.character.HumanoidRootPart.Position * Vector3.new(1, 0, 1) or Vector3.zero
-					local dt = task.wait(0.2)
-					local newpos = entitylib.isAlive and entitylib.character.HumanoidRootPart.Position * Vector3.new(1, 0, 1) or Vector3.zero
-					label.Text = math.round(((lastpos - newpos) / dt).Magnitude)..' sps'
-				until not Speedmeter.Enabled
-			end
-		end,
-		Size = UDim2.fromOffset(100, 41),
-		Tooltip = 'A label showing the average velocity in studs'
-	})
-	Speedmeter:CreateFont({
-		Name = 'Font',
-		Blacklist = 'Gotham',
-		Function = function(val)
-			label.FontFace = val
-		end
-	})
-	Speedmeter:CreateColorSlider({
-		Name = 'Color',
-		DefaultValue = 0,
-		DefaultOpacity = 0.5,
-		Function = function(hue, sat, val, opacity)
-			label.BackgroundColor3 = Color3.fromHSV(hue, sat, val)
-			label.BackgroundTransparency = 1 - opacity
-		end
-	})
-	label = Instance.new('TextLabel')
-	label.Size = UDim2.fromScale(1, 1)
-	label.BackgroundTransparency = 0.5
-	label.TextSize = 15
-	label.Font = Enum.Font.Gotham
-	label.Text = '0 sps'
-	label.TextColor3 = Color3.new(1, 1, 1)
-	label.BackgroundColor3 = Color3.new()
-	label.Parent = Speedmeter.Children
-	local corner = Instance.new('UICorner')
-	corner.CornerRadius = UDim.new(0, 4)
-	corner.Parent = label
-end)
-	
-run(function()
-	local TimeChanger
-	local Value
-	local old
-	
-	TimeChanger = vape.Categories.Legit:CreateModule({
-		Name = 'Time Changer',
-		Function = function(callback)
-			if callback then
-				old = lightingService.TimeOfDay
-				lightingService.TimeOfDay = Value.Value..':00:00'
-			else
-				lightingService.TimeOfDay = old
-				old = nil
-			end
-		end,
-		Tooltip = 'Change the time of the current world'
-	})
-	Value = TimeChanger:CreateSlider({
-		Name = 'Time',
-		Min = 0,
-		Max = 24,
-		Default = 12,
-		Function = function(val)
-			if TimeChanger.Enabled then 
-				lightingService.TimeOfDay = val..':00:00'
-			end
-		end
-	})
-	
-end)
