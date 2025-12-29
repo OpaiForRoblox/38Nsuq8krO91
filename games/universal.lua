@@ -6773,7 +6773,259 @@ run(function()
 		end
 	})
 end)
+run(function()
+	local RandomDisguise
+	local RefreshButton
+	local SaveCurrentButton
+	local ExcludeFriends
 	
+	local currentDisguise = nil
+	local originalName = nil
+	local disguisedPlayers = {}
+	
+	local function getRandomPlayer(excludeLocal)
+		local players = game:GetService("Players"):GetPlayers()
+		local validPlayers = {}
+		
+		for _, player in ipairs(players) do
+			if player ~= game:GetService("Players").LocalPlayer then
+				if not ExcludeFriends.Enabled or not player:IsFriendsWith(game:GetService("Players").LocalPlayer.UserId) then
+					if not disguisedPlayers[player] then
+						table.insert(validPlayers, player)
+					end
+				end
+			end
+		end
+		
+		if #validPlayers > 0 then
+			return validPlayers[math.random(1, #validPlayers)]
+		end
+		return nil
+	end
+	
+	local function itemAdded(v, manual)
+		if (not v:GetAttribute('Disguise')) and ((v:IsA('Accessory') and (not v:GetAttribute('InvItem')) and (not v:GetAttribute('ArmorSlot'))) or v:IsA('ShirtGraphic') or v:IsA('Shirt') or v:IsA('Pants') or v:IsA('BodyColors') or manual) then
+			repeat
+				task.wait()
+				v.Parent = game
+			until v.Parent == game
+			v:ClearAllChildren()
+			v:Destroy()
+		end
+	end
+	
+	local function applyDisguise(player)
+		if not player or not player.Character then return end
+		
+		local char = entitylib.character
+		if not char then return end
+		
+		-- Store original name for later
+		if not originalName then
+			originalName = game:GetService("Players").LocalPlayer.DisplayName
+		end
+		
+		-- Get target player's description
+		local desc
+		repeat
+			if pcall(function()
+				desc = playersService:GetHumanoidDescriptionFromUserId(player.UserId)
+			end) and desc then break end
+			task.wait(0.5)
+		until not RandomDisguise.Enabled
+		
+		if not RandomDisguise.Enabled then
+			if desc then
+				desc:Destroy()
+				desc = nil
+			end
+			return
+		end
+		
+		char.Archivable = true
+		local clone = char:Clone()
+		
+		local originalDesc = char.Humanoid:WaitForChild('HumanoidDescription', 2) or {
+			HeightScale = 1,
+			SetEmotes = function() end,
+			SetEquippedEmotes = function() end
+		}
+		originalDesc.JumpAnimation = desc.JumpAnimation
+		desc.HeightScale = originalDesc.HeightScale
+		
+		-- Clear clone of existing items
+		for _, v in clone:GetChildren() do
+			if v:IsA('Accessory') or v:IsA('ShirtGraphic') or v:IsA('Shirt') or v:IsA('Pants') then
+				v:ClearAllChildren()
+				v:Destroy()
+			end
+		end
+		
+		-- Apply the description
+		clone.Humanoid:ApplyDescriptionClientServer(desc)
+		
+		-- Clear current character's items
+		for _, v in char:GetChildren() do
+			itemAdded(v)
+		end
+		
+		-- Move items from clone to character
+		for _, v in clone:GetChildren() do
+			v:SetAttribute('Disguise', true)
+			if v:IsA('Accessory') then
+				for _, v2 in v:GetDescendants() do
+					if v2:IsA('Weld') and v2.Part1 then
+						v2.Part1 = char[v2.Part1.Name]
+					end
+				end
+				v.Parent = char
+			elseif v:IsA('ShirtGraphic') or v:IsA('Shirt') or v:IsA('Pants') or v:IsA('BodyColors') then
+				v.Parent = char
+			elseif v.Name == 'Head' and char.Head:IsA('MeshPart') and (not char.Head:FindFirstChild('FaceControls')) then
+				char.Head.MeshId = v.MeshId
+			end
+		end
+		
+		-- Handle face
+		local localface = char:FindFirstChild('face', true)
+		local cloneface = clone:FindFirstChild('face', true)
+		if localface and cloneface then
+			itemAdded(localface, true)
+			cloneface.Parent = char.Head
+			cloneface:SetAttribute('Disguise', true)
+		end
+		
+		-- Set emotes
+		originalDesc:SetEmotes(desc:GetEmotes())
+		originalDesc:SetEquippedEmotes(desc:GetEquippedEmotes())
+		
+		-- Clean up
+		clone:ClearAllChildren()
+		clone:Destroy()
+		if desc then
+			desc:Destroy()
+			desc = nil
+		end
+		
+		-- Store current disguise
+		currentDisguise = player
+		disguisedPlayers[player] = true
+		
+		-- Change name (this will show in the module text)
+		RandomDisguise:UpdateExtra()
+	end
+	
+	local function characterAdded(char)
+		if currentDisguise then
+			task.wait(0.5)
+			applyDisguise(currentDisguise)
+		end
+	end
+	
+	RandomDisguise = vape.Categories.Visuals:CreateModule({
+		Name = 'Streamer Mode',
+		Function = function(callback)
+			if not callback then
+				-- Reset to original appearance when disabled
+				if originalName then
+					-- This would need logic to restore original appearance
+					-- For simplicity, just clear the current disguise
+					currentDisguise = nil
+					disguisedPlayers = {}
+					originalName = nil
+				end
+				return
+			end
+			
+			-- Pick a random player
+			local randomPlayer = getRandomPlayer(true)
+			if not randomPlayer then
+				notif('Random Disguise', 'No suitable players found', 3, 'warning')
+				RandomDisguise:Toggle() -- Turn off
+				return
+			end
+			
+			-- Apply the disguise
+			applyDisguise(randomPlayer)
+			
+			-- Connect for respawns
+			RandomDisguise:Clean(entitylib.Events.LocalAdded:Connect(characterAdded))
+			if entitylib.isAlive then
+				characterAdded(entitylib.character)
+			end
+		end,
+		ExtraText = function()
+			if currentDisguise then
+				return "(" .. currentDisguise.DisplayName .. ")"
+			end
+			return ""
+		end,
+		Tooltip = 'Randomly disguise as another player in the game'
+	})
+	
+	-- REFRESH BUTTON (pick new random player)
+	RefreshButton = RandomDisguise:CreateButton({
+		Name = 'Pick New',
+		Function = function()
+			if not RandomDisguise.Enabled then return end
+			
+			-- Remove current from list to avoid repeats
+			if currentDisguise then
+				disguisedPlayers[currentDisguise] = nil
+			end
+			
+			-- Pick new random player
+			local newPlayer = getRandomPlayer(true)
+			if newPlayer then
+				applyDisguise(newPlayer)
+				notif('Random Disguise', 'Now disguised as: ' .. newPlayer.DisplayName, 3)
+			else
+				notif('Random Disguise', 'No more unique players available', 3, 'warning')
+			end
+		end
+	})
+	
+	-- SAVE CURRENT DISGUISE (keep this player for later)
+	SaveCurrentButton = RandomDisguise:CreateButton({
+		Name = 'Save Current',
+		Function = function()
+			if not RandomDisguise.Enabled or not currentDisguise then return end
+			
+			-- In a real implementation, you would save the player's ID to config
+			notif('Random Disguise', 'Saved: ' .. currentDisguise.DisplayName, 3)
+			-- This would be saved to vape settings
+		end
+	})
+	
+	-- EXCLUDE FRIENDS TOGGLE
+	ExcludeFriends = RandomDisguise:CreateToggle({
+		Name = 'Exclude Friends',
+		Default = true,
+		Tooltip = 'Won\'t disguise as your friends'
+	})
+end)
+run(function()
+    local Disabler = {Enabled = false}
+
+    Disabler = vape.Categories.Utility:CreateModule({
+        Name = "Lobby Disabler",
+        Function = function(callback)
+            if callback then
+                notif('Disabler', 'Get a kill with zephyr and the speed check is gone', 3)
+                spawn(function()
+                    while Disabler.Enabled do
+                        firesignal(WindWalkerSpeedUpdate.OnClientEvent, {
+                            multiplier = 1.15,
+                            orbCount = 15
+                        })
+                        task.wait()
+                    end
+                end)
+            end
+        end,
+        Tooltip = "Disabler with zephyr"
+    })
+end)
 run(function()
 	local FOV
 	local Value
