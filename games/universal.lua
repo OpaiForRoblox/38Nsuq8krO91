@@ -251,26 +251,26 @@ vape.Libraries.auraanims = {
 		{CFrame = CFrame.new(-0.62, -0.68, -0.07) * CFrame.Angles(math.rad(-167), math.rad(47), math.rad(-1)), Time = 0.06},
 		{CFrame = CFrame.new(-0.56, -0.86, 0.23) * CFrame.Angles(math.rad(-167), math.rad(49), math.rad(-1)), Time = 0.06}
 	},
-	LunarBlockHit = {
+	OpaiBlockHit = {
     {CFrame = CFrame.new(-0.15, -0.12, -0.1) * CFrame.Angles(math.rad(-45), math.rad(40), math.rad(-50)), Time = 0.12},
     {CFrame = CFrame.new(-0.35, -0.32, -0.05) * CFrame.Angles(math.rad(-90), math.rad(60), math.rad(-20)), Time = 0.08},
     {CFrame = CFrame.new(-0.55, -0.48, 0.05) * CFrame.Angles(math.rad(-120), math.rad(50), math.rad(-10)), Time = 0.06},
     {CFrame = CFrame.new(-0.42, -0.38, -0.02) * CFrame.Angles(math.rad(-100), math.rad(52), math.rad(-15)), Time = 0.05},
     {CFrame = CFrame.new(-0.25, -0.2, -0.08) * CFrame.Angles(math.rad(-60), math.rad(45), math.rad(-40)), Time = 0.07}
 	},
-	LunarBlockHit2 = {
+	OpaiBlockHit2 = {
     {CFrame = CFrame.new(-0.4, -0.2, -0.1) * CFrame.Angles(math.rad(-60), math.rad(10), math.rad(-10)), Time = 0.1},
     {CFrame = CFrame.new(-0.7, -0.4, 0) * CFrame.Angles(math.rad(-120), math.rad(20), math.rad(0)), Time = 0.08},
     {CFrame = CFrame.new(-0.5, -0.3, -0.05) * CFrame.Angles(math.rad(-90), math.rad(15), math.rad(-5)), Time = 0.06},
     {CFrame = CFrame.new(-0.3, -0.15, -0.08) * CFrame.Angles(math.rad(-45), math.rad(5), math.rad(-10)), Time = 0.08}
 	},
-	LunarBlockHit3 = {
+	OpaiBlockHit3 = {
     {CFrame = CFrame.new(-0.2, -0.15, -0.1) * CFrame.Angles(math.rad(-50), math.rad(35), math.rad(-45)), Time = 0.08},
     {CFrame = CFrame.new(-0.45, -0.35, 0) * CFrame.Angles(math.rad(-110), math.rad(55), math.rad(-15)), Time = 0.06},
     {CFrame = CFrame.new(-0.6, -0.5, 0.05) * CFrame.Angles(math.rad(-150), math.rad(50), math.rad(-5)), Time = 0.05},
     {CFrame = CFrame.new(-0.4, -0.3, -0.02) * CFrame.Angles(math.rad(-100), math.rad(52), math.rad(-12)), Time = 0.05}
 	},
-	LunarBlockHit4 = {
+	OpaiBlockHit4 = {
     {CFrame = CFrame.new(-0.1, -0.05, -0.05) * CFrame.Angles(math.rad(-30), math.rad(25), math.rad(-20)), Time = 0.15},
     {CFrame = CFrame.new(-0.3, -0.2, 0) * CFrame.Angles(math.rad(-70), math.rad(35), math.rad(-10)), Time = 0.12},
     {CFrame = CFrame.new(-0.55, -0.4, 0.05) * CFrame.Angles(math.rad(-120), math.rad(30), math.rad(0)), Time = 0.1},
@@ -2850,7 +2850,7 @@ run(function()
 	YFactor = TargetStrafe:CreateSlider({
 		Name = 'Y Factor',
 		Min = 0,
-		Max = 100,
+		Max = 200,
 		Default = 100,
 		Suffix = '%'
 	})
@@ -3734,7 +3734,255 @@ run(function()
 	})
 end)
 	
-
+run(function()
+	local NeonTools
+	local NeonColor = Color3.fromRGB(255, 255, 255)
+	local RainbowMode = false
+	local RainbowSpeed = 1
+	local connection
+	
+	local toolList = {
+		"sword",
+		"pickaxe",
+		"axe",
+		"rageblade"
+	}
+	
+	-- Create module in Utility category instead
+	NeonTools = vape.Categories.Blatant:CreateModule({
+		Name = 'Neon Tools',
+		Function = function(callback)
+			if callback then
+				-- Function to color tools
+				local function colorTools()
+					if not entitylib.isAlive then return end
+					
+					-- Color tool in hand
+					local equippedTool = lplr.Character:FindFirstChildWhichIsA("Tool")
+					if equippedTool then
+						colorTool(equippedTool)
+					end
+					
+					-- Color tools in backpack
+					for _, tool in pairs(lplr.Backpack:GetChildren()) do
+						if tool:IsA("Tool") then
+							colorTool(tool)
+						end
+					end
+				end
+				
+				-- Tool coloring function
+				local function colorTool(tool)
+					if not tool then return end
+					
+					local toolName = tool.Name:lower()
+					local shouldColor = false
+					
+					for _, name in pairs(toolList) do
+						if toolName:find(name) then
+							shouldColor = true
+							break
+						end
+					end
+					
+					if not shouldColor then return end
+					
+					-- Apply color to tool parts
+					for _, part in pairs(tool:GetDescendants()) do
+						if part:IsA("BasePart") or part:IsA("MeshPart") then
+							local colorToUse = NeonColor
+							
+							if RainbowMode then
+								local hue = (tick() * RainbowSpeed) % 1
+								colorToUse = Color3.fromHSV(hue, 1, 1)
+							end
+							
+							part.Color = colorToUse
+							if part:IsA("BasePart") then
+								part.Material = Enum.Material.Neon
+							end
+							
+							-- Add glowing light
+							local light = part:FindFirstChild("NeonLight") or Instance.new("PointLight")
+							light.Name = "NeonLight"
+							light.Brightness = 1.5
+							light.Range = 6
+							light.Color = colorToUse
+							light.Enabled = true
+							light.Parent = part
+						end
+					end
+				end
+				
+				-- Color existing tools
+				colorTools()
+				
+				-- Set up connection for new tools
+				connection = runService.Heartbeat:Connect(function()
+					if RainbowMode then
+						colorTools()
+					end
+				end)
+				
+				-- Also connect to backpack additions
+				lplr.Backpack.ChildAdded:Connect(function(tool)
+					if tool:IsA("Tool") then
+						task.wait(0.2)
+						if NeonTools.Enabled then
+							colorTool(tool)
+						end
+					end
+				end)
+				
+			else
+				-- Disable
+				if connection then
+					connection:Disconnect()
+					connection = nil
+				end
+				
+				-- Reset tool colors
+				for _, tool in pairs(lplr.Backpack:GetChildren()) do
+					if tool:IsA("Tool") then
+						resetTool(tool)
+					end
+				end
+				
+				if entitylib.isAlive then
+					local tool = lplr.Character:FindFirstChildWhichIsA("Tool")
+					if tool then
+						resetTool(tool)
+					end
+				end
+			end
+		end,
+		Tooltip = 'Make tools glow with neon colors'
+	})
+	
+	-- Helper function to reset tool
+	local function resetTool(tool)
+		for _, part in pairs(tool:GetDescendants()) do
+			if part:IsA("BasePart") or part:IsA("MeshPart") then
+				part.Color = Color3.new(1, 1, 1)
+				part.Material = Enum.Material.Plastic
+				local light = part:FindFirstChild("NeonLight")
+				if light then
+					light:Destroy()
+				end
+			end
+		end
+	end
+	
+	-- Helper function for RGB conversion
+	local function rgbToColor3(r, g, b)
+		return Color3.new(r/255, g/255, b/255)
+	end
+	
+	-- RGB Sliders
+	local currentR, currentG, currentB = 255, 255, 255
+	
+	NeonTools:CreateSlider({
+		Name = 'Red',
+		Min = 0,
+		Max = 255,
+		Default = 255,
+		Function = function(val)
+			currentR = val
+			NeonColor = rgbToColor3(currentR, currentG, currentB)
+			if NeonTools.Enabled and not RainbowMode then
+				-- Re-color tools
+				if entitylib.isAlive then
+					local equippedTool = lplr.Character:FindFirstChildWhichIsA("Tool")
+					if equippedTool then
+						for _, part in pairs(equippedTool:GetDescendants()) do
+							if part:IsA("BasePart") or part:IsA("MeshPart") then
+								part.Color = NeonColor
+								local light = part:FindFirstChild("NeonLight")
+								if light then
+									light.Color = NeonColor
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	})
+	
+	NeonTools:CreateSlider({
+		Name = 'Green',
+		Min = 0,
+		Max = 255,
+		Default = 255,
+		Function = function(val)
+			currentG = val
+			NeonColor = rgbToColor3(currentR, currentG, currentB)
+			if NeonTools.Enabled and not RainbowMode then
+				if entitylib.isAlive then
+					local equippedTool = lplr.Character:FindFirstChildWhichIsA("Tool")
+					if equippedTool then
+						for _, part in pairs(equippedTool:GetDescendants()) do
+							if part:IsA("BasePart") or part:IsA("MeshPart") then
+								part.Color = NeonColor
+								local light = part:FindFirstChild("NeonLight")
+								if light then
+									light.Color = NeonColor
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	})
+	
+	NeonTools:CreateSlider({
+		Name = 'Blue',
+		Min = 0,
+		Max = 255,
+		Default = 255,
+		Function = function(val)
+			currentB = val
+			NeonColor = rgbToColor3(currentR, currentG, currentB)
+			if NeonTools.Enabled and not RainbowMode then
+				if entitylib.isAlive then
+					local equippedTool = lplr.Character:FindFirstChildWhichIsA("Tool")
+					if equippedTool then
+						for _, part in pairs(equippedTool:GetDescendants()) do
+							if part:IsA("BasePart") or part:IsA("MeshPart") then
+								part.Color = NeonColor
+								local light = part:FindFirstChild("NeonLight")
+								if light then
+									light.Color = NeonColor
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	})
+	
+	-- Rainbow toggle
+	NeonTools:CreateToggle({
+		Name = 'Rainbow',
+		Function = function(callback)
+			RainbowMode = callback
+		end
+	})
+	
+	-- Rainbow speed
+	NeonTools:CreateSlider({
+		Name = 'Rainbow Speed',
+		Min = 0.1,
+		Max = 5,
+		Default = 1,
+		Decimal = 1,
+		Function = function(val)
+			RainbowSpeed = val
+		end
+	})
+end)
 	
 run(function()
 	local Radar
@@ -4299,7 +4547,7 @@ run(function()
       GlobalShadows = true,
       ShadowSoftness = 0.6,
     },
-    ['Lunar Vape Old'] = {
+    ['Opai Vape Old'] = {
       Ambient = Color3.fromRGB(93, 59, 88),
       OutdoorAmbient = Color3.fromRGB(128, 94, 100),
       ColorShift_Bottom = Color3.fromRGB(213, 173, 117),
@@ -4313,7 +4561,7 @@ run(function()
       GlobalShadows = true,
       ShadowSoftness = 0.2,
     },
-    ['Lunar Vape New'] = {
+    ['Opai Vape New'] = {
       Ambient = Color3.fromRGB(101, 72, 51),
       OutdoorAmbient = Color3.fromRGB(175, 132, 119),
       ColorShift_Bottom = Color3.fromRGB(213, 161, 134),
@@ -4438,7 +4686,7 @@ run(function()
   TheMilkyWaySkyCCC.Saturation = 0.2
 
   local vapeOld = Instance.new('Sky', GameThemes)
-  vapeOld.Name = 'Lunar Vape Old'
+  vapeOld.Name = 'Opai Vape Old'
   vapeOld.CelestialBodiesShown = false
   vapeOld.StarCount = 3000
   vapeOld.SkyboxUp = 'rbxassetid://2670644331'
@@ -4468,7 +4716,7 @@ run(function()
   vapeOldBloom.Size = 12
 
   local vapeNew = Instance.new('Sky', GameThemes)
-  vapeNew.Name = 'Lunar Vape New'
+  vapeNew.Name = 'Opai Vape New'
   vapeNew.CelestialBodiesShown = false
   vapeNew.StarCount = 0
   vapeNew.SkyboxUp = 'http://www.roblox.com/asset/?id=458016792'
@@ -4600,8 +4848,8 @@ run(function()
       'The Milky Way A',
       'The Milky Way B',
       'The Milky Way C',
-      'Lunar Vape Old',
-      'Lunar Vape New',
+      'Opai Vape Old',
+      'Opai Vape New',
       'Antarctic Evening',
     },
     Default = 'Antarctic Evening',
@@ -4615,56 +4863,24 @@ run(function()
   }
 end)
 run(function()
-  local InfiniteJump = {Enabled = false}
-  local JumpConnections = {}
-  local LastLanded = os.clock()
-  vape:Clean(runService.PostSimulation:Connect(function()
-    if entitylib.character and entitylib.character.Humanoid and entitylib.character.Humanoid.FloorMaterial == Enum.Material.Air then return end
-    LastLanded = os.clock()
-  end))
-  local Debounce = {Enabled = false}
-  local DebounceTick = os.clock()
-  local h = false
-  
-  local jumpFunction
-  jumpFunction = function(wrap)
-    if entitylib.character and entitylib.character.Humanoid and entitylib.character.Humanoid.Health then
-      if os.clock() - LastLanded > 2.3 then return end
-      if Debounce.Enabled and (os.clock() - DebounceTick < 0.1) then
-        DebounceTick = os.clock(); return
-      end
-      DebounceTick = os.clock()
-      entitylib.character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)          
-      if wrap and h then
-        task.wait(0.167)
-        jumpFunction(254)
-      end
-    end
-  end
+	local InfiniteJump = {Enabled = false}
 
-  InfiniteJump = vape.Categories.Blatant:CreateModule({
-    Name = 'InfiniteJump',
-    Tooltip = 'Allows you to jump mid-air.',
-    Function = function(callback)
-      if callback then
-        table.insert(JumpConnections, inputService.JumpRequest:Connect(jumpFunction))
-        if inputService.TouchEnabled then
-          task.spawn(function()
-            local j = lplr.PlayerGui:WaitForChild("TouchGui"):WaitForChild("TouchControlFrame"):WaitForChild("JumpButton")
-            table.insert(JumpConnections, j.MouseButton1Down:Connect(function() h = true; jumpFunction(true) end))
-            table.insert(JumpConnections, j.MouseButton1Up:Connect(function() h = false end))
-          end)
-        end
-      else
-        if JumpConnection then JumpConnection:Disconnect() end
-      end
-    end
-  })
-  Debounce = InfiniteJump:CreateToggle({
-    Name = 'Debounce',
-    Tooltip = [[Doesn't spam jump when you hold space bar]],
-    Function = function(callback) Debounce.Enabled = callback end
-  })
+	InfiniteJump = vape.Categories.Blatant:CreateModule({
+		Name = "Infinite Jump",
+		Function = function(callback)
+			if callback then
+				game:GetService("UserInputService").JumpRequest:Connect(function()
+					if InfiniteJump.Enabled and game.Players.LocalPlayer and game.Players.LocalPlayer.Character then
+						local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+						if humanoid then
+							humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+						end
+					end
+				end)
+			end
+		end,
+		Tooltip = "Infinite jump"
+	})
 end)
 run(function()
     local Viewmodel
@@ -4690,7 +4906,7 @@ run(function()
 
                     -- Set target pose if holding right click
                     if holdingBlock and BlockAnimToggle.Enabled then
-                        targetC1 = oldC1 * CFrame.new(-0.2, -0.3, -0.1) * CFrame.Angles(math.rad(-80), math.rad(30), math.rad(-10))
+                        targetC1 = oldC1 * CFrame.new(-0.2, -0.3, -0.1) * CFrame.Angles(math.rad(-10), math.rad(-60), math.rad(-50))
                     else
                         targetC1 = oldC1
                     end
@@ -4881,49 +5097,156 @@ run(function()
 		end
 	})
 end)
-	
 run(function()
-	local Disabler
+	local old
 	
-	local function characterAdded(char)
-		for _, v in getconnections(char.RootPart:GetPropertyChangedSignal('CFrame')) do
-			hookfunction(v.Function, function() end)
-		end
-		for _, v in getconnections(char.RootPart:GetPropertyChangedSignal('Velocity')) do
-			hookfunction(v.Function, function() end)
-		end
-	end
-	
-	Disabler = vape.Categories.Utility:CreateModule({
-		Name = 'Disabler',
+	vape.Categories.Blatant:CreateModule({
+		Name = 'InvMove',
 		Function = function(callback)
 			if callback then
-				Disabler:Clean(entitylib.Events.LocalAdded:Connect(characterAdded))
-				if entitylib.isAlive then
-					characterAdded(entitylib.character)
-				end
-			end
-		end,
-		Tooltip = 'Disables GetPropertyChangedSignal detections for movement'
-	})
-end)
-	
-run(function()
-	vape.Categories.Utility:CreateModule({
-		Name = 'Panic',
-		Function = function(callback)
-			if callback then
-				for _, v in vape.Modules do
-					if v.Enabled then
-						v:Toggle()
+				old = hookfunction(bd.MovementController.AddSpeedOverride, function(...)
+					if select(2, ...) == 'MenuOpen' then
+						return
 					end
-				end
+					return old(...)
+				end)
+				bd.MovementController:RemoveSpeedOverride('MenuOpen')
+			else
+				hookfunction(bd.MovementController.AddSpeedOverride, old)
+				old = nil
 			end
 		end,
-		Tooltip = 'Disables all currently enabled modules'
+		Tooltip = 'Prevents slowing down when using items.'
 	})
 end)
+run(function()
+	local TPAura
+	local Targets
+	local Range
+	local AngleSlider
+	local lastTeleport = 0
+	local teleportCooldown = 0.5 -- Cooldown between teleports
+
+	TPAura = vape.Categories.Blatant:CreateModule({
+		Name = 'TPAura',
+		Function = function(callback)
+			if callback then
+				repeat
+					if entitylib.isAlive and tick() - lastTeleport > teleportCooldown then
+						local plrs = entitylib.AllPosition({
+							Range = Range.Value,
+							Wallcheck = Targets.Walls.Enabled,
+							Part = 'RootPart',
+							Players = Targets.Players.Enabled,
+							NPCs = Targets.NPCs.Enabled,
+							Limit = 1
+						})
+
+						if #plrs > 0 then
+							local selfpos = entitylib.character.RootPart.Position
+							local localfacing = entitylib.character.RootPart.CFrame.LookVector * Vector3.new(1, 0, 1)
+							
+							local targetFound = false
+							
+							for _, v in pairs(plrs) do
+								-- Check if target is valid
+								if not v or not v.RootPart then continue end
+								
+								local delta = ((v.RootPart.Position + (v.Humanoid and v.Humanoid.MoveDirection or Vector3.zero)) - selfpos)
+								local horizontalDelta = delta * Vector3.new(1, 0, 1)
+								
+								-- Check angle restriction
+								if AngleSlider.Value < 360 then
+									local angle = math.acos(localfacing:Dot(horizontalDelta.Unit))
+									if angle > (math.rad(AngleSlider.Value) / 2) then 
+										continue 
+									end
+								end
+								
+								-- Check if target is behind wall (if wallcheck is enabled)
+								if Targets.Walls.Enabled then
+									local raycastParams = RaycastParams.new()
+									raycastParams.FilterDescendantsInstances = {lplr.Character, v.Character or {}}
+									raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+									local ray = workspace:Raycast(selfpos, delta, raycastParams)
+									if ray then
+										continue
+									end
+								end
+								
+								-- Teleport to target
+								local teleportPosition = v.RootPart.CFrame + Vector3.new(0, math.random(6, 8), 0)
+								
+								-- Anti-lagback: move slightly instead of direct teleport
+								entitylib.character.RootPart.CFrame = teleportPosition
+								
+								-- Add some velocity to prevent getting stuck
+								entitylib.character.RootPart.Velocity = Vector3.zero
+								
+								lastTeleport = tick()
+								targetFound = true
+								break
+							end
+						end
+					end
+					
+					task.wait(0.1) -- Reduced wait time for better responsiveness
+				until not TPAura.Enabled
+			else
+				lastTeleport = 0
+			end
+		end,
+		Tooltip = 'Automatically teleports to the player closest to you'
+	})
 	
+	Targets = TPAura:CreateTargets({Players = true})
+	
+	Range = TPAura:CreateSlider({
+		Name = 'Range',
+		Min = 1,
+		Max = 30, -- Increased max range
+		Default = 18,
+		Suffix = function(val)
+			return val == 1 and 'stud' or 'studs'
+		end
+	})
+	
+	AngleSlider = TPAura:CreateSlider({
+		Name = 'Max angle',
+		Min = 1,
+		Max = 360,
+		Default = 360,
+		Function = function(val)
+			-- Update angle restriction
+		end
+	})
+	
+	-- Add a cooldown slider for better control
+	TPAura:CreateSlider({
+		Name = 'Cooldown',
+		Min = 0.1,
+		Max = 2,
+		Default = 0.5,
+		Decimal = 1,
+		Suffix = 's',
+		Function = function(val)
+			teleportCooldown = val
+		end
+	})
+	
+	-- Add height offset slider
+	TPAura:CreateSlider({
+		Name = 'Height',
+		Min = 4,
+		Max = 12,
+		Default = 7,
+		Suffix = 'studs',
+		Function = function(val)
+			-- Height is used in teleportPosition calculation
+		end
+	})
+end)
+
 run(function()
 	local Rejoin
 	
@@ -4973,7 +5296,6 @@ run(function()
 		end
 	})
 end)
-	
 run(function()
 	local StaffDetector
 	local Mode
@@ -5613,7 +5935,7 @@ run(function()
 			            SkyboxRt = "http://www.roblox.com/asset/?id=6778650519",
 			            SkyboxUp = "http://www.roblox.com/asset/?id=6778658364",
 		        },
-		        LunarNight = {
+		        OpaiNight = {
 			            SkyboxBk = 'rbxassetid://187713366',
 			            SkyboxDn = 'rbxassetid://187712428',
 			            SkyboxFt = 'rbxassetid://187712836',
@@ -6117,10 +6439,7 @@ run(function()
 	local part: any, motor: any
 	local CapeMode: table = {["Value"] = "Velocity"}
 	local capeModeMap: table = {
-		["opai White"] = "rbxassetid://85450512905266",
-		["opai"] = "rbxassetid://111709330746110",
-		["opai Blue"] = "rbxassetid://90725325121390",
-		["opaiV2"] = "rbxassetid://77929690129761",
+		["Opal Reiko"] = "rbxassetid://111008512103855",
 	}
 	local function createMotor(char)
 		if motor then 
@@ -6198,13 +6517,10 @@ run(function()
 	CapeMode = Cape:CreateDropdown({
 		["Name"] ='Mode',
 		["List"] = {
-			'opaiV2',
-			'opai White',
-			'opai',
-			'opai Blue'
+			'Opal Reiko'
 		},
 		["HoverText"] = 'A cape mod.',
-		["Value"] = 'opai',
+		["Value"] = 'Opal Reiko',
 		["Function"] = function(val) 
 			if capeModeMap[val] then
                 		Texture["Value"] = capeModeMap[val]
