@@ -7,6 +7,7 @@
 --This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.
 --This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.
 --This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.
+--This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.
 local run = function(func)
 	func()
 end
@@ -5086,7 +5087,7 @@ run(function()
 		return bought
 	end
 	
-	AutoBuy = vape.Categories.Inventory:CreateModule({
+	AutoBuy = vape.Categories.World:CreateModule({
 		Name = 'AutoBuy',
 		Function = function(callback)
 			if callback then
@@ -5404,7 +5405,7 @@ run(function()
 		end
 	end
 	
-	AutoConsume = vape.Categories.Inventory:CreateModule({
+	AutoConsume = vape.Categories.Combat:CreateModule({
 		Name = 'AutoConsume',
 		Function = function(callback)
 			if callback then
@@ -5528,7 +5529,7 @@ run(function()
 		end
 	end
 	
-	BedPlates = vape.Categories.Minigames:CreateModule({
+	BedPlates = vape.Categories.Render:CreateModule({
 		Name = 'BedPlates',
 		Function = function(callback)
 			if callback then
@@ -5727,7 +5728,7 @@ run(function()
 		return false
 	end
 	
-	Nuker = vape.Categories.Minigames:CreateModule({
+	Nuker = vape.Categories.Blatant:CreateModule({
 		Name = 'Nuker',
 		Function = function(callback)
 			if callback then
@@ -7034,7 +7035,7 @@ run(function()
         end
     end
 
-    AutoBuyWool = vape.Categories.Inventory:CreateModule({
+    AutoBuyWool = vape.Categories.World:CreateModule({
         Name = 'AutoBuyWool',
         Tooltip = 'Buys White Wool instantly when you have ≥8 iron near shop',
         Function = function(callback)
@@ -7253,5 +7254,77 @@ run(function()
 				TexturePacks:Toggle()
 			end
 		end
+    })
+end)
+run(function()
+    local ZephyrExploit = {Enabled = false}
+    ZephyrExploit = vape.Categories.Utility:CreateModule({
+        Name = "ZephyrExploit",
+        Function = function(callback)
+						 
+			if not store.equippedKit == "wind_walker" then
+				notif("ZephyrExploit", "You are not 'ZEPHYR' kit, you are not allowed to use this module", 5, "warning") 
+				return
+			end	
+			
+            local zephyreffect = lplr.PlayerGui:FindFirstChild("WindWalkerEffect", true)
+            local StackTxt = zephyreffect and zephyreffect:FindFirstChild("EffectStack", true)
+		if not zephyreffect then
+				notif("ZephyrExploit", "You are not 'ZEPHYR' kit, you are not allowed to use this module", 5, "warning")
+return			
+			end
+            if not callback then
+                notif("ZephyrExploit", "Disabled next game", 5, "warning")
+                return
+            end
+			pcall(function()
+				debug.setconstant(bedwars.WindWalkerController.updateSpeed, 7, callback and 'constantSpeedMultiplier' or 'moveSpeedMultiplier')
+			end)
+task.spawn(function()
+while task.wait(1) do
+if  StackTxt.Text == "0" then
+ennabled = false
+		    	bedwars.JumpHeightController:getJumpModifier():addModifier({
+                        airJumps = 0
+                    })
+		Speed:Toggle(false)
+end
+end
+end)
+			if ennabled then return end
+
+            bedwars.WindWalkerController.updateJump = function(StackCount, Listed)
+                if StackTxt then
+                    StackTxt.Text = "5"
+					ennabled = true
+                end
+
+                if Speed then
+                    pcall(function()
+                        Speed:Toggle(true)
+                    end)
+                end
+
+                vape:CreateNotification(
+                    "Opai",
+                    "Anti-Cheat bypasser enabled! keep speed on for this, and can u also use fly!",
+                    10,
+                    "success"
+                )
+
+                StackCount = 5
+                Listed = Listed or {doubleJumpActive = false}
+
+                if StackCount >= 5 and not Listed.doubleJumpActive then
+                    Listed.doubleJumpActive = true
+                    bedwars.JumpHeightController:getJumpModifier():addModifier({
+                        airJumps = 2
+                    })
+                elseif StackCount < 5 and Listed.doubleJumpActive then
+                    Listed.doubleJumpActive = false
+                end
+            end
+        end,
+        Tooltip = "Zephyr AntiCheat bypasser",
     })
 end)
