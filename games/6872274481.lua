@@ -5,6 +5,7 @@
 --This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.
 --This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.
 --This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.
+--This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.
 local run = function(func)
 	func()
 end
@@ -1896,29 +1897,34 @@ run(function()
 	DamageCam = Fly:CreateToggle({Name='Damage Camera', Default=true, Tooltip='Classic balloon pop camera animation'})
 end)
 
+local FlyLandTick = tick()
+local InfiniteFly = {}
+local performanceStats = game:GetService('Stats'):FindFirstChild('PerformanceStats')
 run(function()
-	local Value
-	local VerticalValue
-	local WallCheck
+	local FlySpeed
+	local VerticalSpeed
+	local SafeMode
+
 	local rayCheck = RaycastParams.new()
-	rayCheck.RespectCanCollide = true
-	local overlapCheck = OverlapParams.new()
-	overlapCheck.RespectCanCollide = true
-	local up, down = 0, 0
-	local success, proper = false, true
-	local clone, oldroot, hip, valid
-	
-	local function doClone()
-		if entitylib.isAlive and entitylib.character.Humanoid.Health > 0 then
+	local oldroot
+	local clone
+
+	local hip = 2.6
+
+	local function createClone()
+		if entitylib.isAlive and entitylib.character.Humanoid.Health > 0 and (not oldroot or not oldroot.Parent) then
 			hip = entitylib.character.Humanoid.HipHeight
 			oldroot = entitylib.character.HumanoidRootPart
 			if not lplr.Character.Parent then return false end
 			lplr.Character.Parent = game
 			clone = oldroot:Clone()
 			clone.Parent = lplr.Character
+			--oldroot.CanCollide = false
+			oldroot.Transparency = 0
+			Instance.new('Highlight', oldroot)
 			oldroot.Parent = gameCamera
+			store.rootpart = clone
 			bedwars.QueryUtil:setQueryIgnored(oldroot, true)
-			clone.CFrame = oldroot.CFrame
 			lplr.Character.PrimaryPart = clone
 			lplr.Character.Parent = workspace
 			for _, v in lplr.Character:GetDescendants() do
@@ -1931,87 +1937,50 @@ run(function()
 		end
 		return false
 	end
-	
-	local function revertClone()
+
+	local function destroyClone()
 		if not oldroot or not oldroot.Parent or not entitylib.isAlive then return false end
 		lplr.Character.Parent = game
 		oldroot.Parent = lplr.Character
 		lplr.Character.PrimaryPart = oldroot
 		lplr.Character.Parent = workspace
-		oldroot.CanCollide = true
 		for _, v in lplr.Character:GetDescendants() do
 			if v:IsA('Weld') or v:IsA('Motor6D') then
 				if v.Part0 == clone then v.Part0 = oldroot end
 				if v.Part1 == clone then v.Part1 = oldroot end
 			end
 		end
-		local oldclonepos = clone.Position.Y
+		oldroot.CanCollide = true
 		if clone then
 			clone:Destroy()
 			clone = nil
 		end
-		local origcf = {oldroot.CFrame:GetComponents()}
-		if valid then origcf[2] = oldclonepos end
-		oldroot.CFrame = CFrame.new(unpack(origcf))
+		entitylib.character.Humanoid.HipHeight = hip or 2.6
 		oldroot.Transparency = 1
 		oldroot = nil
-		entitylib.character.Humanoid.HipHeight = hip or 2
+		store.rootpart = nil
+		FlyLandTick = tick() + 0.01
 	end
-	
+
+	local up = 0
+	local down = 0
+	local startTick = tick()
+
 	InfiniteFly = vape.Categories.Blatant:CreateModule({
 		Name = 'InfiniteFly',
+		Tooltip = 'Makes you go zoom.',
 		Function = function(callback)
-			frictionTable.InfiniteFly = callback or nil
-			updateVelocity()
 			if callback then
-				if vape.Modules.Invisibility and vape.Modules.Invisibility.Enabled then
-					vape.Modules.Invisibility:Toggle()
-					notif('InfiniteFly', 'Invisibility cannot be used with InfiniteFly', 3, 'warning')
+				task.wait()
+				startTick = tick()
+				if not entitylib.isAlive or FlyLandTick > tick() or not isnetworkowner(entitylib.character.RootPart) then
+					return InfiniteFly:Toggle()
 				end
-	
-				if not proper then
-					notif('InfiniteFly', 'Broken state detected', 3, 'alert')
-					InfiniteFly:Toggle()
-					return
+				local a, b = pcall(createClone)
+				if not a then
+					return InfiniteFly:Toggle()
 				end
-	
-				success = doClone()
-				if not success then
-					InfiniteFly:Toggle()
-					return
-				end
-	
-				InfiniteFly:Clean(runService.PreSimulation:Connect(function(dt)
-					if entitylib.isAlive then
-						local mass = 1.5 + ((up + down) * VerticalValue.Value)
-						local root = entitylib.character.RootPart
-						local moveDirection = entitylib.character.Humanoid.MoveDirection
-						local velo = getSpeed()
-						local destination = (moveDirection * math.max(Value.Value - velo, 0) * dt)
-						rayCheck.FilterDescendantsInstances = {lplr.Character, gameCamera}
-						if WallCheck.Enabled then
-							local ray = workspace:Raycast(root.Position, destination, rayCheck)
-							if ray then 
-								destination = ((ray.Position + ray.Normal) - root.Position) 
-							end
-						end
-						root.CFrame += destination
-						root.AssemblyLinearVelocity = (moveDirection * velo) + Vector3.new(0, mass, 0)
-	
-						local speedCFrame = {oldroot.CFrame:GetComponents()}
-						if isnetworkowner(oldroot) then
-							speedCFrame[1] = clone.CFrame.X
-							speedCFrame[3] = clone.CFrame.Z
-							if speedCFrame[2] < 2000 then speedCFrame[2] = 100000 end
-							oldroot.CFrame = CFrame.new(unpack(speedCFrame))
-							oldroot.Velocity = Vector3.new(clone.Velocity.X, oldroot.Velocity.Y, clone.Velocity.Z)
-						else
-							speedCFrame[2] = clone.CFrame.Y
-							clone.CFrame = CFrame.new(unpack(speedCFrame))
-						end
-					end
-				end))
-				up, down = 0, 0
+				rayCheck.FilterDescendantsInstances = {lplr.Character, oldroot, clone, gameCamera}
 				InfiniteFly:Clean(inputService.InputBegan:Connect(function(input)
 					if not inputService:GetFocusedTextBox() then
 						if input.KeyCode == Enum.KeyCode.Space or input.KeyCode == Enum.KeyCode.ButtonA then
@@ -2028,93 +1997,92 @@ run(function()
 						down = 0
 					end
 				end))
-				if inputService.TouchEnabled then
-					pcall(function()
-						local jumpButton = lplr.PlayerGui.TouchGui.TouchControlFrame.JumpButton
-						InfiniteFly:Clean(jumpButton:GetPropertyChangedSignal('ImageRectOffset'):Connect(function()
-							up = jumpButton.ImageRectOffset.X == 146 and 1 or 0
-						end))
-					end)
-				end
+
+				local lastY = entitylib.character.RootPart.Position.Y
+				local lastVelo = 0
+				local cancelThread = false
+				InfiniteFly:Clean(runService.PreSimulation:Connect(function(delta)
+					if not entitylib.isAlive or not clone or not clone.Parent or not isnetworkowner(oldroot) or (workspace:GetServerTimeNow() - lplr:GetAttribute('LastTeleported')) < 2 then
+						if not isnetworkowner(oldroot) then
+							notif('InfiniteFly', 'Flag detected, Landing', 1.1, 'alert')
+						end
+						return InfiniteFly:Toggle()
+					end
+					FlyLandTick = tick() + 0.1
+					local mass = 1.3 + ((up + down) * VerticalSpeed.Value)
+					local moveDir = entitylib.character.Humanoid.MoveDirection
+					local velo = getSpeed()
+					local destination = (moveDir * math.max(FlySpeed.Value - velo, 0) * delta)
+					clone.CFrame = clone.CFrame + destination
+					clone.AssemblyLinearVelocity = (moveDir * velo) + Vector3.new(0, mass, 0)
+
+					rayCheck.FilterDescendantsInstances = {lplr.Character, oldroot, clone, gameCamera}
+
+					local raycast = workspace:Blockcast(oldroot.CFrame + Vector3.new(0, 250, 0), Vector3.new(3, 3, 3), Vector3.new(0, -500, 0), rayCheck)
+					local groundcast = workspace:Blockcast(clone.CFrame, Vector3.new(3, 3, 3), Vector3.new(0, -3, 0), rayCheck)
+					local upperRay = not workspace:Blockcast(oldroot.CFrame + (oldroot.CFrame.LookVector * 17), Vector3.new(3, 3, 3), Vector3.new(0, -150, 0), rayCheck) and workspace:Blockcast(oldroot.CFrame + (oldroot.CFrame.LookVector * 17), Vector3.new(3, 3, 3), Vector3.new(0, 150, 0), rayCheck)
+
+					local changeYLevel = 300
+					local yLevel = 0
+
+					if lastVelo - oldroot.AssemblyLinearVelocity.Y > 1200 then
+						oldroot.CFrame = oldroot.CFrame + Vector3.new(0, 200, 0)
+					end
+
+					for i,v in {50, 1000, 2000, 3000, 4000, 5000, 6000, 7000} do
+						if oldroot.AssemblyLinearVelocity.Y < -v then
+							changeYLevel = changeYLevel + 100
+							yLevel = yLevel - 15
+						end
+					end
+
+					lastVelo = oldroot.AssemblyLinearVelocity.Y
+
+					if raycast then
+						oldroot.AssemblyLinearVelocity = Vector3.zero
+						oldroot.CFrame = groundcast and clone.CFrame or CFrame.lookAlong(Vector3.new(clone.Position.X, raycast.Position.Y + hip, clone.Position.Z), clone.CFrame.LookVector)
+					elseif (oldroot.Position.Y < (lastY - (200 + yLevel))) and not cancelThread and (oldroot.AssemblyLinearVelocity.Y < -200 or not upperRay) then
+						if upperRay then
+							oldroot.CFrame = CFrame.lookAlong(Vector3.new(oldroot.CFrame.X, upperRay.Position.Y, oldroot.CFrame.Z), clone.CFrame.LookVector)
+						else
+							oldroot.CFrame = oldroot.CFrame + Vector3.new(0, changeYLevel, 0)
+						end
+						if oldroot.AssemblyLinearVelocity.Y < -800 then
+							oldroot.AssemblyLinearVelocity = oldroot.AssemblyLinearVelocity + Vector3.new(0, 1, 0)
+						end
+					end
+
+					oldroot.CFrame = CFrame.lookAlong(Vector3.new(clone.Position.X, oldroot.Position.Y, clone.Position.Z), clone.CFrame.LookVector)
+				end))
 			else
-				if success and clone and oldroot and proper then
-					proper = false
-					overlapCheck.FilterDescendantsInstances = {lplr.Character, gameCamera}
-					overlapCheck.CollisionGroup = oldroot.CollisionGroup
-					local ray = workspace:Blockcast(CFrame.new(oldroot.Position.X, clone.CFrame.p.Y, oldroot.Position.Z), Vector3.new(3, entitylib.character.HipHeight, 3), Vector3.new(0, -1000, 0), rayCheck)
-					local origcf = {clone.CFrame:GetComponents()}
-					origcf[1] = oldroot.Position.X
-					origcf[2] = ray and ray.Position.Y + entitylib.character.HipHeight or clone.CFrame.p.Y
-					origcf[3] = oldroot.Position.Z
-					oldroot.CanCollide = true
-					oldroot.Transparency = 0
-					oldroot.Velocity = clone.Velocity * Vector3.new(1, 0, 1)
-					oldroot.CFrame = CFrame.new(unpack(origcf))
-	
-					local touched = false
-					local connection = runService.PreSimulation:Connect(function()
-						if oldroot then
-							oldroot.Velocity = Vector3.zero
-							valid = false
-							if touched then return end
-							local cf = {clone.CFrame:GetComponents()}
-							cf[2] = oldroot.CFrame.Y
-							local newcf = CFrame.new(unpack(cf))
-							for _, v in workspace:GetPartBoundsInBox(newcf, oldroot.Size, overlapCheck) do
-								if (v.Position.Y + (v.Size.Y / 2)) > (newcf.p.Y + 0.5) then
-									touched = true
-									return
-								end
-							end
-							if not workspace:Raycast(newcf.Position, Vector3.new(0, -entitylib.character.HipHeight, 0), rayCheck) then return end
-							oldroot.CFrame = newcf
-							oldroot.Velocity = (clone.Velocity * Vector3.new(1, 0, 1))
-							valid = true
-						end
-					end)
-	
-					notif('InfiniteFly', 'Waiting 1.1s to land', 1.1)
-					task.delay(1.1, function()
-						notif('InfiniteFly', 'Landed!', 1)
-						connection:Disconnect()
-						proper = true
-						if oldroot and clone then 
-							revertClone() 
-						end
-					end)
+				notif('InfiniteFly', tostring(tick() - startTick):sub(1, 4).. 's', 4, 'alert')
+				if (SafeMode.Enabled and (tick() - startTick) > 3) or performanceStats.Ping:GetValue() > 180 then
+					oldroot.CFrame = CFrame.new(-9e9, 0, -9e9)
+					clone.CFrame = CFrame.new(-9e9, 0, -9e9)
 				end
+				destroyClone()
 			end
 		end,
-		ExtraText = function() 
-			return 'Heatseeker' 
-		end,
-		Tooltip = 'Makes you go zoom.'
+		ExtraText = function()
+			return 'Heatseeker'
+		end
 	})
-	Value = InfiniteFly:CreateSlider({
+	FlySpeed = InfiniteFly:CreateSlider({
 		Name = 'Speed',
 		Min = 1,
 		Max = 23,
-		Default = 23,
-		Suffix = function(val) 
-			return val == 1 and 'stud' or 'studs' 
-		end
+		Default = 23
 	})
-	VerticalValue = InfiniteFly:CreateSlider({
+	VerticalSpeed = InfiniteFly:CreateSlider({
 		Name = 'Vertical Speed',
 		Min = 1,
 		Max = 150,
-		Default = 50,
-		Suffix = function(val) 
-			return val == 1 and 'stud' or 'studs' 
-		end
+		Default = 70
 	})
-	WallCheck = InfiniteFly:CreateToggle({
-		Name = 'Wall Check',
-		Default = true
+	SafeMode = InfiniteFly:CreateToggle({
+		Name = 'Safe Mode'
 	})
 end)
-
-
 run(function()
 	local Mode
 	local Expand
@@ -2213,6 +2181,272 @@ run(function()
 		Tooltip = 'Lets you sprint with a speed potion.'
 	})
 end)
+run(function()
+		local KeepInventory = {Enabled = false}
+		local KeepInventoryLagback = {Enabled = false}
+
+		local enderchest
+		local function getEnderchest()
+			enderchest = enderchest or replicatedStorageService.Inventories[lplr.Name.."_personal"]
+			return enderchest
+		end
+
+		--local GetItem = bedwars.ClientHandler:GetNamespace("Inventory"):Get("ChestGetItem")
+		--local GiveItem = bedwars.ClientHandler:GetNamespace("Inventory"):Get("ChestGiveItem")
+		--local ResetRemote = bedwars.ClientHandler:Get(bedwars.ResetRemote)
+		local deposited = false
+
+		local function collectEnderchest()
+			if deposited then
+				deposited = false
+				repeat task.wait() until entityLibrary.isAlive
+				lplr.Character:WaitForChild("InventoryFolder", 999999)
+				repeat task.wait() until lplr.Character.InventoryFolder.Value ~= nil
+				local enderchest = getEnderchest()
+				for _, item in next, enderchest:GetChildren() do
+					GetItem:CallServerAsync(enderchest, item)
+				end
+			end
+		end
+
+		local function depositAndWaitForRespawn(yield)
+			if not deposited then
+				deposited = true
+				local inventory = lplr.Character:FindFirstChild("InventoryFolder")
+				if inventory then 
+					inventory = inventory.Value
+					local enderchest = getEnderchest()
+					local count = 0
+					for _, item in next, inventory:GetChildren() do
+						task.spawn(function()
+							GiveItem:CallServer(enderchest, item)
+							count -= 1
+						end)
+						count += 1
+					end
+					if yield then
+						repeat task.wait() until count <= 0
+					end
+					lplr.CharacterAdded:Once(collectEnderchest)
+				end
+			end
+		end
+
+		local resetCallback = Instance.new("BindableEvent")
+		resetCallback.Event:Connect(function()
+			--warningNotification("KeepInventory", "Resetting, storing items", 5)
+			depositAndWaitForRespawn(true)
+			ResetRemote:SendToServer()
+		end)
+
+		KeepInventory = vape.Categories.Utility:CreateModule({
+			Name = "KeepInventory",
+			Function = function(callback)
+				if callback then
+					starterGui:SetCore("ResetButtonCallback", resetCallback)
+					if KeepInventoryLagback.Enabled then
+						task.spawn(function()
+							repeat
+								task.wait(0.1)
+								if entityLibrary.isAlive then
+									if not isnetworkowner(entityLibrary.character.HumanoidRootPart) and bedwarsStore.queueType:find("skywars") == nil then
+										if not deposited then
+											--warningNotification("KeepInventory", "Lagback detected, storing items", 5)
+											task.spawn(function()
+												local suc, res = pcall(function() return lplr.leaderstats.Bed.Value == "✅"  end)
+												repeat task.wait() until not KeepInventory.Enabled or (isnetworkowner(entityLibrary.character.HumanoidRootPart) and suc and res) or (suc and res == nil)
+												if entityLibrary.isAlive then
+													collectEnderchest()
+												end
+											end)
+										end
+										depositAndWaitForRespawn(true)
+									end
+								end
+							until not (KeepInventory and KeepInventoryLagback.Enabled)
+						end)
+					end
+					table.insert(KeepInventory.Connections, vapeEvents.EntityDamageEvent.Event:Connect(function(damageTable)
+						if damageTable.entityInstance == lplr.Character and damageTable.fromEntity and damageTable.damage and bedwarsStore.queueType:find("skywars") == nil then
+							local plr = playersService:GetPlayerFromCharacter(damageTable.fromEntity)
+							local health = lplr.Character:GetAttribute("Health") or 150
+							local stash = (health / damageTable.damage) <= 2
+							if plr then
+								local winning, hits, _hits = calculateHits(plr, false)
+								stash = (_hits - hits) <= 2
+							end
+							if stash then
+								if not deposited then
+									--warningNotification("KeepInventory", "Possible death imminent, storing items", 5)
+									task.delay(2, function()
+										local suc, res = pcall(function() return lplr.leaderstats.Bed.Value == "✅"  end)
+										repeat task.wait() until not KeepInventory.Enabled or (suc and res and (workspace:GetServerTimeNow() - lplr.Character:GetAttribute("LastDamageTakenTime")) > 2) or (suc and res == nil)
+										if entityLibrary.isAlive then
+											collectEnderchest()
+										end
+									end)
+								end
+								depositAndWaitForRespawn(true)
+							end
+						end
+					end))
+				else
+					oldCallback = oldCallback or bedwars.ResetController:createBindable()
+					starterGui:SetCore("ResetButtonCallback", oldCallback)
+				end
+			end
+		})
+		KeepInventoryLagback = KeepInventory:CreateToggle({
+			Name = "Lagback",
+			Function = blankFunction
+		})
+	end)
+run(function()
+	local RunService = game:GetService("RunService") --defined again idc
+	local TweenService = game:GetService("TweenService")
+
+	local AuraEnabled = false
+	local animPlaying = false
+
+	local KillauraAnimations = {
+		MC = {
+			{CFrame = CFrame.new(1.2, -0.9, 0.1) * CFrame.Angles(math.rad(-45), math.rad(100), math.rad(60)), Timer = 0.12},
+			{CFrame = CFrame.new(1.3, -0.85, 0.25) * CFrame.Angles(math.rad(-30), math.rad(80), math.rad(40)), Timer = 0.12},
+			{CFrame = CFrame.new(1.25, -0.88, 0.15) * CFrame.Angles(math.rad(-40), math.rad(90), math.rad(50)), Timer = 0.12},
+		},
+		Smooth = {
+			{CFrame = CFrame.new(1, -0.8, 0.2) * CFrame.Angles(math.rad(-30), math.rad(80), math.rad(50)), Timer = 0.15},
+			{CFrame = CFrame.new(1.1, -0.85, 0.1) * CFrame.Angles(math.rad(-35), math.rad(85), math.rad(55)), Timer = 0.15},
+		},
+		Wide = {
+			{CFrame = CFrame.new(1.5, -1, 0.3) * CFrame.Angles(math.rad(-50), math.rad(120), math.rad(70)), Timer = 0.1},
+			{CFrame = CFrame.new(1.4, -0.95, 0.25) * CFrame.Angles(math.rad(-40), math.rad(110), math.rad(65)), Timer = 0.1},
+		}
+	}
+
+	local AttackRange
+	local FaceTarget
+	local SwingTarget
+	local CustomAnimations
+	local AnimationDropdown
+	local SelectedAnimation = "MC"
+	local Aura
+
+	Aura = vape.Categories.Blatant:CreateModule({
+		Name = "CustomAura",
+		Function = function(call)
+			AuraEnabled = call
+			if call then
+				Aura:Clean(RunService.Stepped:Connect(function()
+					local Nearest = getNearestEntity(AttackRange.Value, Aura.Targets)
+					if Nearest and isAlive(lplr) and isAlive(Nearest.plr) then
+						local Sword = getBestSword()
+						if Sword then
+							if FaceTarget.Enabled then
+								local selfPos = lplr.Character.PrimaryPart.Position
+								local targetPos = Nearest.plr.Character.PrimaryPart.Position
+								lplr.Character.PrimaryPart.CFrame = CFrame.lookAt(selfPos, Vector3.new(targetPos.X, selfPos.Y, targetPos.Z))
+							end
+							if SwingTarget.Enabled and CustomAnimations.Enabled and not animPlaying then
+								animPlaying = true
+								task.spawn(function()
+									while animPlaying and Aura.Enabled do
+										Nearest = getNearestEntity(AttackRange.Value, Aura.Targets)
+										if not Nearest or not isAlive(lplr) or not isAlive(Nearest.plr) then break end
+										for _, v in next, KillauraAnimations[SelectedAnimation] do
+											Nearest = getNearestEntity(AttackRange.Value, Aura.Targets)
+											if not Nearest or not isAlive(lplr) or not isAlive(Nearest.plr) then
+												animPlaying = false
+												break
+											end
+											local wrist = viewmodel and viewmodel:FindFirstChild("RightHand") and viewmodel.RightHand:FindFirstChild("RightWrist")
+											if wrist then
+												local tween = TweenService:Create(
+													wrist,
+													TweenInfo.new(v.Timer, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
+													{C0 = C0 * v.CFrame}
+												)
+												tween:Play()
+											end
+											task.wait(v.Timer)
+										end
+									end
+									local wrist = viewmodel and viewmodel:FindFirstChild("RightHand") and viewmodel.RightHand:FindFirstChild("RightWrist")
+									if wrist then wrist.C0 = C0 end
+									animPlaying = false
+								end)
+							end
+							bedwars.SwordHit:FireServer({
+								weapon = Sword,
+								chargedAttack = {chargeRatio = 0},
+								lastSwingServerTimeDelta = 0.01,
+								entityInstance = Nearest.plr.Character,
+								validate = {
+									raycast = {
+										cameraPosition = {value = lplr.Character.PrimaryPart.Position},
+										rayDirection = {value = (Nearest.plr.Character.PrimaryPart.Position - lplr.Character.PrimaryPart.Position).Unit}
+									},
+									targetPosition = {value = Nearest.plr.Character.PrimaryPart.Position},
+									selfPosition = {value = lplr.Character.PrimaryPart.Position}
+								}
+							})
+						end
+					else
+						if animPlaying then
+							animPlaying = false
+							local wrist = viewmodel and viewmodel:FindFirstChild("RightHand") and viewmodel.RightHand:FindFirstChild("RightWrist")
+							if wrist then wrist.C0 = C0 end
+						end
+					end
+				end))
+			else
+				animPlaying = false
+				local wrist = viewmodel and viewmodel:FindFirstChild("RightHand") and viewmodel.RightHand:FindFirstChild("RightWrist")
+				if wrist then wrist.C0 = C0 end
+			end
+		end
+	})
+
+	Aura:CreateTargets({
+		Players = true,
+		NPCs = false
+	})
+
+	AttackRange = Aura:CreateSlider({
+		Name = "Attack Range",
+		Min = 1,
+		Max = 23,
+		Default = 23,
+		Suffix = function(val) return val == 1 and "stud" or "studs" end
+	})
+
+	FaceTarget = Aura:CreateToggle({
+		Name = "Face Target"
+	})
+
+	SwingTarget = Aura:CreateToggle({
+		Name = "Swing Target"
+	})
+
+	CustomAnimations = Aura:CreateToggle({
+		Name = "Custom Animations",
+		Function = function(state)
+			AnimationDropdown.Object.Visible = state
+		end
+	})
+
+	AnimationDropdown = Aura:CreateDropdown({
+		Name = "Animation Type",
+		List = {"MC", "Smooth", "Wide"},
+		Value = "MC",
+		Function = function(opt)
+			SelectedAnimation = opt
+		end
+	})
+
+	AnimationDropdown.Object.Visible = false
+end)	
+
 run(function()
 	local Timer
 	local Value
@@ -2744,310 +2978,110 @@ run(function()
 end)
 	
 run(function()
-		local Value
-		local CameraDir
-		local start
-		local JumpTick, JumpSpeed, Direction = tick(), 0
-		local JadeHammerPulse = {active = false, nextPulse = 0, speed = 0, boostEnd = 0}
-		local projectileRemote = {InvokeServer = function() end}
-		task.spawn(function()
-			projectileRemote = bedwars.Client:Get(remotes.FireProjectile).instance
-		end)
-		
-		local function launchProjectile(item, pos, proj, speed, dir)
-			if not pos then return end
-		
-			pos = pos - dir * 0.1
-			local shootPosition = (CFrame.lookAlong(pos, Vector3.new(0, -speed, 0)) * CFrame.new(Vector3.new(-bedwars.BowConstantsTable.RelX, -bedwars.BowConstantsTable.RelY, -bedwars.BowConstantsTable.RelZ)))
-			switchItem(item.tool, 0)
-			task.wait(0.1)
-			bedwars.ProjectileController:createLocalProjectile(bedwars.ProjectileMeta[proj], proj, proj, shootPosition.Position, '', shootPosition.LookVector * speed, {drawDurationSeconds = 1})
-			if projectileRemote:InvokeServer(item.tool, proj, proj, shootPosition.Position, pos, shootPosition.LookVector * speed, httpService:GenerateGUID(true), {drawDurationSeconds = 1}, workspace:GetServerTimeNow() - 0.045) then
-				local shoot = bedwars.ItemMeta[item.itemType].projectileSource.launchSound
-				shoot = shoot and shoot[math.random(1, #shoot)] or nil
-				if shoot then
-					bedwars.SoundManager:playSound(shoot)
-				end
-			end
-		end
-		
-		local LongJumpMethods = {
-			cannon = function(_, pos, dir)
-				pos = pos - Vector3.new(0, (entitylib.character.HipHeight + (entitylib.character.RootPart.Size.Y / 2)) - 3, 0)
-				local rounded = Vector3.new(math.round(pos.X / 3) * 3, math.round(pos.Y / 3) * 3, math.round(pos.Z / 3) * 3)
-				bedwars.placeBlock(rounded, 'cannon', false)
-		
-				task.delay(0, function()
-					local block, blockpos = getPlacedBlock(rounded)
-					if block and block.Name == 'cannon' and (entitylib.character.RootPart.Position - block.Position).Magnitude < 20 then
-						local breaktype = bedwars.ItemMeta[block.Name].block.breakType
-						local tool = store.tools[breaktype]
-						if tool then
-							switchItem(tool.tool)
-						end
-		
-						bedwars.Client:Get(remotes.CannonAim):SendToServer({
-							cannonBlockPos = blockpos,
-							lookVector = dir
-						})
-		
-						local broken = 0.1
-						if bedwars.BlockController:calculateBlockDamage(lplr, {blockPosition = blockpos}) < block:GetAttribute('Health') then
-							broken = 0.4
-							bedwars.breakBlock(block, true, true)
-						end
-		
-						task.delay(broken, function()
-							for _ = 1, 3 do
-								local call = bedwars.Client:Get(remotes.CannonLaunch):CallServer({cannonBlockPos = blockpos})
-								if call then
-									bedwars.breakBlock(block, true, true)
-									JumpSpeed = 5.25 * Value.Value
-									JumpTick = tick() + 2.3
-									Direction = Vector3.new(dir.X, 0, dir.Z).Unit
-									break
-								end
-								task.wait(0.1)
-							end
-						end)
-					end
-				end)
-			end,
-			cat = function(_, _, dir)
-				LongJump:Clean(vapeEvents.CatPounce.Event:Connect(function()
-					JumpSpeed = 4 * Value.Value
-					JumpTick = tick() + 2.5
-					Direction = Vector3.new(dir.X, 0, dir.Z).Unit
-					entitylib.character.RootPart.Velocity = Vector3.zero
-				end))
-		
-				if not bedwars.AbilityController:canUseAbility('CAT_POUNCE') then
-					repeat task.wait() until bedwars.AbilityController:canUseAbility('CAT_POUNCE') or not LongJump.Enabled
-				end
-		
-				if bedwars.AbilityController:canUseAbility('CAT_POUNCE') and LongJump.Enabled then
-					bedwars.AbilityController:useAbility('CAT_POUNCE')
-				end
-			end,
-			fireball = function(item, pos, dir)
-				launchProjectile(item, pos, 'fireball', 60, dir)
-			end,
-			grappling_hook = function(item, pos, dir)
-				launchProjectile(item, pos, 'grappling_hook_projectile', 140, dir)
-			end,
-			jade_hammer = function(item, _, dir)
-				if JadePulse.Enabled then
-					JadeHammerPulse.active = true
-					JadeHammerPulse.nextPulse = 0
-				else
-					if not bedwars.AbilityController:canUseAbility(item.itemType..'_jump') then
-						repeat task.wait() until bedwars.AbilityController:canUseAbility(item.itemType..'_jump') or not LongJump.Enabled
-					end
-		
-					if bedwars.AbilityController:canUseAbility(item.itemType..'_jump') and LongJump.Enabled then
-						bedwars.AbilityController:useAbility(item.itemType..'_jump')
-						JumpSpeed = 1.4 * Value.Value
-						JumpTick = tick() + 2.5
-						Direction = Vector3.new(dir.X, 0, dir.Z).Unit
-					end
-				end
-			end,
-			tnt = function(item, pos, dir)
-				pos = pos - Vector3.new(0, (entitylib.character.HipHeight + (entitylib.character.RootPart.Size.Y / 2)) - 3, 0)
-				local rounded = Vector3.new(math.round(pos.X / 3) * 3, math.round(pos.Y / 3) * 3, math.round(pos.Z / 3) * 3)
-				start = Vector3.new(rounded.X, start.Y, rounded.Z) + (dir * (item.itemType == 'pirate_gunpowder_barrel' and 2.6 or 0.2))
-				bedwars.placeBlock(rounded, item.itemType, false)
-			end,
-			wood_dao = function(item, pos, dir)
-				if (lplr.Character:GetAttribute('CanDashNext') or 0) > workspace:GetServerTimeNow() or not bedwars.AbilityController:canUseAbility('dash') then
-					repeat task.wait() until (lplr.Character:GetAttribute('CanDashNext') or 0) < workspace:GetServerTimeNow() and bedwars.AbilityController:canUseAbility('dash') or not LongJump.Enabled
-				end
-		
-				if LongJump.Enabled then
-					bedwars.SwordController.lastAttack = workspace:GetServerTimeNow()
-					switchItem(item.tool, 0.1)
-					replicatedStorage['events-@easy-games/game-core:shared/game-core-networking@getEvents.Events'].useAbility:FireServer('dash', {
-						direction = dir,
-						origin = pos,
-						weapon = item.itemType
-					})
-					JumpSpeed = 4.5 * Value.Value
-					JumpTick = tick() + 2.4
-					Direction = Vector3.new(dir.X, 0, dir.Z).Unit
-				end
-			end
-		}
-		for _, v in {'stone_dao', 'iron_dao', 'diamond_dao', 'emerald_dao'} do
-			LongJumpMethods[v] = LongJumpMethods.wood_dao
-		end
-		LongJumpMethods.void_axe = LongJumpMethods.jade_hammer
-		LongJumpMethods.siege_tnt = LongJumpMethods.tnt
-		LongJumpMethods.pirate_gunpowder_barrel = LongJumpMethods.tnt
-		local Speds
-		LongJump = vape.Categories.Blatant:CreateModule({
-			Name = 'LongJump',
-			Function = function(callback)
-				frictionTable.LongJump = callback or nil
-				updateVelocity()
-				if callback then
-					LongJump:Clean(vapeEvents.EntityDamageEvent.Event:Connect(function(damageTable)
-						if damageTable.entityInstance == lplr.Character and damageTable.fromEntity == lplr.Character and (not damageTable.knockbackMultiplier or not damageTable.knockbackMultiplier.disabled) then
-							local knockbackBoost = bedwars.KnockbackUtil.calculateKnockbackVelocity(Vector3.one, 1, {
-								vertical = 0,
-								horizontal = (damageTable.knockbackMultiplier and damageTable.knockbackMultiplier.horizontal or 1)
-							}).Magnitude * 1.1
-		
-							if knockbackBoost >= JumpSpeed then
-								local pos = damageTable.fromPosition and Vector3.new(damageTable.fromPosition.X, damageTable.fromPosition.Y, damageTable.fromPosition.Z) or damageTable.fromEntity and damageTable.fromEntity.PrimaryPart.Position
-								if not pos then return end
-								local vec = (entitylib.character.RootPart.Position - pos)
-								JumpSpeed = knockbackBoost
-								JumpTick = tick() + 2.5
-								Direction = Vector3.new(vec.X, 0, vec.Z).Unit
-							end
-						end
-					end))
-					LongJump:Clean(vapeEvents.GrapplingHookFunctions.Event:Connect(function(dataTable)
-						if dataTable.hookFunction == 'PLAYER_IN_TRANSIT' then
-							local vec = entitylib.character.RootPart.CFrame.LookVector
-							JumpSpeed = 2.5 * Value.Value
-							JumpTick = tick() + 2.5
-							Direction = Vector3.new(vec.X, 0, vec.Z).Unit
-						end
-					end))
-		
-					start = entitylib.isAlive and entitylib.character.RootPart.Position or nil
-					LongJump:Clean(runService.PreSimulation:Connect(function(dt)
-						local root = entitylib.isAlive and entitylib.character.RootPart or nil
-						if root and isnetworkowner(root) then
-							if JadePulse["Enabled"] then
-								local foundItem, method
-								local jadeHammer = getItem("jade_hammer")
-								if jadeHammer then
-									foundItem, method = jadeHammer, LongJumpMethods.jade_hammer
-								end
-								if foundItem and method and LongJump.Enabled then
-									method(foundItem, nil, (CameraDir.Enabled and gameCamera or root).CFrame.LookVector)
-								else
-									JumpTick = 0
-									Direction = nil
-								end
-							end
-							if JadeHammerPulse.active then
-								if tick() >= JadeHammerPulse.nextPulse then
-									local item = getItem('jade_hammer') or getItem('void_axe')
-									if item and bedwars.AbilityController:canUseAbility(item.itemType..'_jump') then
-										bedwars.AbilityController:useAbility(item.itemType..'_jump')
-										JadeHammerPulse.boostEnd = tick() + 1.5
-										JadeHammerPulse.nextPulse = tick() + 2.5
-									end
-								end
-								if tick() < JadeHammerPulse.boostEnd then
-									local moveDir = entitylib.character.Humanoid.MoveDirection
-									if moveDir.Magnitude > 0 then
-										root.AssemblyLinearVelocity = moveDir.Unit * (getSpeed() + (1.0 * Value.Value)) + Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
-									else
-										root.AssemblyLinearVelocity = Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
-									end
-								else
-									local moveDir = entitylib.character.Humanoid.MoveDirection
-									if moveDir.Magnitude > 0 then
-										root.AssemblyLinearVelocity = moveDir.Unit * getSpeed() + Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
-									else
-										root.AssemblyLinearVelocity = Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
-									end
-								end
-							elseif JumpTick > tick() then
-								root.AssemblyLinearVelocity = Direction * (getSpeed() + ((JumpTick - tick()) > 1.1 and JumpSpeed or 0)) + Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
-								if entitylib.character.Humanoid.FloorMaterial == Enum.Material.Air and not start then
-									root.AssemblyLinearVelocity += Vector3.new(0, dt * (workspace.Gravity - 23), 0)
-								else
-									root.AssemblyLinearVelocity = Vector3.new(root.AssemblyLinearVelocity.X, 15, root.AssemblyLinearVelocity.Z)
-								end
-								start = nil
-							else
-								if not JadePulse["Enabled"] then
-									if start then
-										root.CFrame = CFrame.lookAlong(start, root.CFrame.LookVector)
-									end
-									root.AssemblyLinearVelocity = Vector3.zero
-								else
-									if entitylib.isAlive then
-										local humanoid = entitylib.character.Humanoid
-										local root = entitylib.character.RootPart
-										local state = humanoid:GetState()
-										if state == Enum.HumanoidStateType.Climbing then return end
-										local moveDirection = humanoid.MoveDirection
-										local velo = getSpeed()
-										local destination = moveDirection * math.max(Speds["Value"] - velo, 0) * dt 
-										root.CFrame += destination
-										root.AssemblyLinearVelocity = (moveDirection * Speds["Value"]) + Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
-									end
-                                end
-                                JumpSpeed = 0
-							end
-						else
-							start = nil
-						end
-					end))
-					if not JadePulse["Enabled"] then
-						if store.hand and LongJumpMethods[store.hand.tool.Name] then
-							task.spawn(LongJumpMethods[store.hand.tool.Name], getItem(store.hand.tool.Name), start, (CameraDir.Enabled and gameCamera or entitylib.character.RootPart).CFrame.LookVector)
-							return
-						end
-			
-						for i, v in LongJumpMethods do
-							local item = getItem(i)
-							if item or store.equippedKit == i then
-								task.spawn(v, item, start, (CameraDir.Enabled and gameCamera or entitylib.character.RootPart).CFrame.LookVector)
-								break
-							end
-						end
-					end
-				else
-					JumpTick = tick()
-					Direction = nil
-					JumpSpeed = 0
-					JadeHammerPulse.active = false
-					JadeHammerPulse.speed = 0
-				end
-			end,
-			ExtraText = function()
-				return 'Heatseeker'
-			end,
-			Tooltip = 'Lets you jump farther'
-		})
-		Value = LongJump:CreateSlider({
-			Name = 'Speed',
-			Min = 22,
-			Max = 36,
-			Default = 36,
-			Suffix = function(val)
-				return val == 1 and 'stud' or 'studs'
-			end
-		})
-		CameraDir = LongJump:CreateToggle({
-			Name = 'Camera Direction'
-		})
-		Speds = LongJump:CreateSlider({
-            Name = 'Walk Speed',
-            Min = 1,
-            Max = 21,
-            Default = 21,
-            Suffix = function(val)
-                return val == 1 and 'stud' or 'studs'
+    local Value
+    local CameraDir
+    local JumpTick, JumpSpeed, Direction = tick(), 0
+    local Speds
+
+    LongJump = vape.Categories.Blatant:CreateModule({
+        Name = 'LongJump',
+        Function = function(callback)
+            if callback then
+                LongJump:Clean(runService.PreSimulation:Connect(function(dt)
+                    local root = entitylib.isAlive and entitylib.character.RootPart or nil
+                    if root and isnetworkowner(root) then
+                        local humanoid = entitylib.character.Humanoid
+                        local moveDir = humanoid.MoveDirection
+                        
+                        -- Longjump logic when active
+                        if JumpTick > tick() then
+                            local horizontalSpeed = Direction * (getSpeed() + ((JumpTick - tick()) > 1.1 and JumpSpeed or 0))
+                            root.AssemblyLinearVelocity = horizontalSpeed + Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
+                            
+                            -- Anti-fall when in air
+                            if humanoid.FloorMaterial == Enum.Material.Air then
+                                root.AssemblyLinearVelocity += Vector3.new(0, dt * (workspace.Gravity - 23), 0)
+                            else
+                                root.AssemblyLinearVelocity = Vector3.new(root.AssemblyLinearVelocity.X, 15, root.AssemblyLinearVelocity.Z)
+                            end
+                        else
+                            -- Normal movement with speed boost
+                            if moveDir.Magnitude > 0 then
+                                root.AssemblyLinearVelocity = moveDir.Unit * Speds.Value + Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
+                            else
+                                root.AssemblyLinearVelocity = Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
+                            end
+                        end
+                    end
+                end))
+                
+                -- Clean up on damage (for knockback boost)
+                LongJump:Clean(vapeEvents.EntityDamageEvent.Event:Connect(function(damageTable)
+                    if damageTable.entityInstance == lplr.Character and damageTable.fromEntity == lplr.Character then
+                        local knockbackBoost = 25 -- Fixed knockback boost
+                        local pos = damageTable.fromPosition and Vector3.new(damageTable.fromPosition.X, damageTable.fromPosition.Y, damageTable.fromPosition.Z) or damageTable.fromEntity and damageTable.fromEntity.PrimaryPart.Position
+                        if pos then
+                            local vec = (entitylib.character.RootPart.Position - pos)
+                            JumpSpeed = knockbackBoost * Value.Value / 36
+                            JumpTick = tick() + 2.5
+                            Direction = Vector3.new(vec.X, 0, vec.Z).Unit
+                        end
+                    end
+                end))
+                
+                -- Manual trigger on keybind (space + forward)
+                LongJump:Clean(runService.Heartbeat:Connect(function()
+                    if entitylib.isAlive and lplr.Character.Humanoid.Jump then
+                        local root = entitylib.character.RootPart
+                        local moveDir = lplr.Character.Humanoid.MoveDirection
+                        
+                        if moveDir.Magnitude > 0 then
+                            JumpSpeed = 5.25 * Value.Value / 36 -- Normalized speed
+                            JumpTick = tick() + 2.3
+                            Direction = (CameraDir.Enabled and workspace.CurrentCamera.CFrame or root.CFrame).LookVector
+                            Direction = Vector3.new(Direction.X, 0, Direction.Z).Unit
+                        end
+                    end
+                end))
+                
+            else
+                JumpTick = tick()
+                Direction = nil
+                JumpSpeed = 0
             end
-        })
-		JadePulse = LongJump:CreateToggle({
-			Name = 'JadePulse',
-			Default = true,
-			Function = function(callback)
-				if Speds.Object then
-					Speds.Object.Visible = callback
-				end
-			end
-		})
-	end)
+        end,
+        ExtraText = function()
+            return 'Itemless'
+        end,
+        Tooltip = 'Jump far without needing any items'
+    })
+
+    Value = LongJump:CreateSlider({
+        Name = 'Jump Speed',
+        Min = 22,
+        Max = 60,
+        Default = 36,
+        Suffix = function(val)
+            return val == 1 and 'stud' or 'studs'
+        end
+    })
+    
+    CameraDir = LongJump:CreateToggle({
+        Name = 'Camera Direction',
+        Default = true
+    })
+    
+    Speds = LongJump:CreateSlider({
+        Name = 'Walk Speed',
+        Min = 16,
+        Max = 50,
+        Default = 21,
+        Suffix = function(val)
+            return val == 1 and 'stud' or 'studs'
+        end
+    })
+end)
+
 
 	
 run(function()
@@ -3380,246 +3414,145 @@ run(function()
 		end
 	})
 end)
-	
-local kit_fix = false
 
-run(function()
-	vape.Categories.World:CreateModule({
-		Name = 'Kit Speed Fix',
-		Function = function(callback)
-			kit_fix = callback
-		end,
-		Default = false,
-		Tooltip = 'Fixes movement kits not working when Speed is enabled.'
-	})
-end)
 	
 run(function()
-	local Speed
-	local Value
-	local WallCheck
-	local AutoJump
-	local AlwaysJump
+    local Speed
+    local SpeedValue
+    local WallCheck
+    local AutoJump
+    local JumpHeight
+    local AlwaysJump
+    local JumpSound
+    local VanillaJump
+    local SlowdownAnim
 
-	-- animation control
-	local AnimSlow
-	local AnimSpeed
-	local animConnection
+    local rayCheck = RaycastParams.new()
+    rayCheck.RespectCanCollide = true
 
-	-- pulse control
-	local Pulse
-	local PulseDelay
-	local pulseThread
+    Speed = vape.Categories.Blatant:CreateModule({
+        Name = 'Speed',
+        Function = function(callback)
+            frictionTable.Speed = callback or nil
+            updateVelocity()
+            pcall(function()
+                debug.setconstant(bedwars.WindWalkerController.updateSpeed, 7, callback and 'constantSpeedMultiplier' or 'moveSpeedMultiplier')
+            end)
 
-	local rayCheck = RaycastParams.new()
-	rayCheck.RespectCanCollide = true
-	
-	Speed = vape.Categories.Blatant:CreateModule({
-		Name = 'Speed',
-		Function = function(callback)
-			-- base speed handling (pulse overrides this)
-			if not Pulse or not Pulse.Enabled then
-				frictionTable.Speed = callback or nil
-			end
+            if callback then
+                Speed:Clean(runService.PreSimulation:Connect(function(dt)
+                    bedwars.StatefulEntityKnockbackController.lastImpulseTime = callback and math.huge or time()
+                    if entitylib.isAlive and not Fly.Enabled and not InfiniteFly.Enabled and not LongJump.Enabled and isnetworkowner(entitylib.character.RootPart) then
+                        local state = entitylib.character.Humanoid:GetState()
+                        if state == Enum.HumanoidStateType.Climbing then return end
 
-			updateVelocity()
+                        local root = entitylib.character.RootPart
+                        local velo = getSpeed()
+                        local moveDirection = AntiFallDirection or entitylib.character.Humanoid.MoveDirection
+                        local destination = (moveDirection * math.max(SpeedValue.Value - velo, 0) * dt)
 
-			pcall(function()
-				debug.setconstant(
-					bedwars.WindWalkerController.updateSpeed,
-					7,
-					callback and 'constantSpeedMultiplier' or 'moveSpeedMultiplier'
-				)
-			end)
+                        if WallCheck.Enabled then
+                            rayCheck.FilterDescendantsInstances = {lplr.Character, gameCamera}
+                            rayCheck.CollisionGroup = root.CollisionGroup
+                            local ray = workspace:Raycast(root.Position, destination, rayCheck)
+                            if ray then
+                                destination = ((ray.Position + ray.Normal) - root.Position)
+                            end
+                        end
 
-			-- stop pulse when speed disables
-			if not callback and pulseThread then
-				task.cancel(pulseThread)
-				pulseThread = nil
-				frictionTable.Speed = nil
-			end
-	
-			if callback then
-				-- start pulse loop if enabled
-				if Pulse and Pulse.Enabled and not pulseThread then
-					pulseThread = task.spawn(function()
-						while Speed.Enabled and Pulse.Enabled do
-							frictionTable.Speed = true
-							task.wait(PulseDelay.Value)
-							frictionTable.Speed = nil
-							task.wait(PulseDelay.Value)
-						end
-						frictionTable.Speed = Speed.Enabled or nil
-					end)
-				end
+                        root.CFrame += destination
+                        root.AssemblyLinearVelocity = (moveDirection * velo) + Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
 
-				Speed:Clean(runService.PreSimulation:Connect(function(dt)
-					bedwars.StatefulEntityKnockbackController.lastImpulseTime = math.huge
+                        if SlowdownAnim.Enabled then
+                            for _, anim in pairs(entitylib.character.Humanoid:GetPlayingAnimationTracks()) do
+                                if anim.Name == "WalkAnim" or anim.Name == "RunAnim" then
+                                    anim:AdjustSpeed(entitylib.character.Humanoid.WalkSpeed / 16)
+                                end
+                            end
+                        end
 
-					if entitylib.isAlive
-						and not Fly.Enabled
-						and not InfiniteFly.Enabled
-						and not LongJump.Enabled
-						and isnetworkowner(entitylib.character.RootPart)
-					then
-						local humanoid = entitylib.character.Humanoid
-						local state = humanoid:GetState()
-						if state == Enum.HumanoidStateType.Climbing then return end
-	
-						local root = entitylib.character.RootPart
-						local velo = getSpeed()
-						local moveDirection = AntiVoidDirection or humanoid.MoveDirection
-						local destination = moveDirection * math.max(Value.Value - velo, 0) * dt
-	
-						if WallCheck.Enabled then
-							rayCheck.FilterDescendantsInstances = {lplr.Character, gameCamera}
-							rayCheck.CollisionGroup = root.CollisionGroup
-							local ray = workspace:Raycast(root.Position, destination, rayCheck)
-							if ray then
-								destination = (ray.Position + ray.Normal) - root.Position
-							end
-						end
-	
-						root.CFrame += destination
-						if not kit_fix then
-							root.AssemblyLinearVelocity =
-								(moveDirection * velo)
-								+ Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
-						end
-	
-						if AutoJump.Enabled
-							and (state == Enum.HumanoidStateType.Running or state == Enum.HumanoidStateType.Landed)
-							and moveDirection ~= Vector3.zero
-							and (Attacking or AlwaysJump.Enabled)
-						then
-							humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-						end
-					end
-				end))
-			end
-		end,
-		ExtraText = function()
-			return 'Heatseeker'
-		end,
-		Tooltip = 'Increases your movement with various methods.'
-	})
+                        if AutoJump.Enabled and (state == Enum.HumanoidStateType.Running or state == Enum.HumanoidStateType.Landed) 
+                           and moveDirection ~= Vector3.zero and (Attacking or AlwaysJump.Enabled) then
+                            if VanillaJump.Enabled then
+                                entitylib.character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                            else
+                                local v = entitylib.character.HumanoidRootPart.Velocity
+                                entitylib.character.HumanoidRootPart.Velocity = Vector3.new(v.X, JumpHeight.Value, v.Z)
+                                if JumpSound.Enabled then
+                                    pcall(function() entitylib.character.HumanoidRootPart.Jumping:Play() end)
+                                end
+                            end
+                        end
+                    end
+                end))
+            end
+        end,
+        ExtraText = function()
+            return 'Heatseeker'
+        end,
+        Tooltip = 'Increases your movement'
+    })
 
-	-- SPEED SLIDER
-	Value = Speed:CreateSlider({
-		Name = 'Speed',
-		Min = 20,
-		Max = 44,
-		Default = 22,
-		Suffix = function(val)
-			return val == 1 and 'stud' or 'studs'
-		end
-	})
+    SpeedValue = Speed:CreateSlider({
+        Name = 'Speed',
+        Min = 1,
+        Max = 23,
+        Default = 23,
+        Suffix = function(val)
+            return val == 1 and 'stud' or 'studs'
+        end
+    })
 
-	-- WALL CHECK
-	WallCheck = Speed:CreateToggle({
-		Name = 'Wall Check',
-		Default = true
-	})
+    WallCheck = Speed:CreateToggle({
+        Name = 'Wall Check',
+        Default = true
+    })
 
-	-- AUTO JUMP
-	AutoJump = Speed:CreateToggle({
-		Name = 'AutoJump',
-		Function = function(callback)
-			AlwaysJump.Object.Visible = callback
-		end
-	})
+    JumpHeight = Speed:CreateSlider({
+        Name = 'Jump Height',
+        Min = 0,
+        Max = 30,
+        Default = 25
+    })
 
-	AlwaysJump = Speed:CreateToggle({
-		Name = 'Always Jump',
-		Visible = false,
-		Darker = true
-	})
+    AlwaysJump = Speed:CreateToggle({
+        Name = 'Always Jump',
+        Default = false,
+        Visible = false,
+        Darker = true
+    })
 
-	-- ⚡ PULSE TOGGLE
-	Pulse = Speed:CreateToggle({
-		Name = 'Pulse',
-		Function = function(enabled)
-			if pulseThread then
-				task.cancel(pulseThread)
-				pulseThread = nil
-			end
+    JumpSound = Speed:CreateToggle({
+        Name = 'Jump Sound',
+        Default = false,
+        Visible = false,
+        Darker = true
+    })
 
-			if enabled and Speed.Enabled then
-				pulseThread = task.spawn(function()
-					while Pulse.Enabled and Speed.Enabled do
-						frictionTable.Speed = true
-						task.wait(PulseDelay.Value)
-						frictionTable.Speed = nil
-						task.wait(PulseDelay.Value)
-					end
-					frictionTable.Speed = Speed.Enabled or nil
-				end)
-			else
-				frictionTable.Speed = Speed.Enabled or nil
-			end
-		end
-	})
+    VanillaJump = Speed:CreateToggle({
+        Name = 'Real Jump',
+        Default = false,
+        Visible = false,
+        Darker = true
+    })
 
-	-- 🎚️ PULSE DELAY SLIDER
-	PulseDelay = Speed:CreateSlider({
-		Name = 'Pulse Delay',
-		Min = 0.05,
-		Max = 1,
-		Default = 0.2,
-		Decimal = 2,
-		Suffix = function(v)
-			return v .. 's'
-		end
-	})
+    AutoJump = Speed:CreateToggle({
+        Name = 'AutoJump',
+        Default = true,
+        Function = function(callback)
+            JumpHeight.Object.Visible = callback
+            AlwaysJump.Object.Visible = callback
+            JumpSound.Object.Visible = callback
+            VanillaJump.Object.Visible = callback
+        end
+    })
 
-	-- 🔥 SLOW ANIMATIONS TOGGLE
-	AnimSlow = Speed:CreateToggle({
-		Name = 'Slow Animations',
-		Function = function(callback)
-			if animConnection then
-				animConnection:Disconnect()
-				animConnection = nil
-			end
-
-			if callback then
-				animConnection = runService.RenderStepped:Connect(function()
-					if entitylib.isAlive then
-						local humanoid = entitylib.character.Humanoid
-						local animator = humanoid:FindFirstChildOfClass('Animator')
-						if animator then
-							for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
-								pcall(function()
-									track:AdjustSpeed(AnimSpeed.Value)
-								end)
-							end
-						end
-					end
-				end)
-			else
-				if entitylib.isAlive then
-					local humanoid = entitylib.character.Humanoid
-					local animator = humanoid:FindFirstChildOfClass('Animator')
-					if animator then
-						for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
-							pcall(function()
-								track:AdjustSpeed(1)
-							end)
-						end
-					end
-				end
-			end
-		end
-	})
-
-	-- 🎚️ ANIMATION SPEED SLIDER
-	AnimSpeed = Speed:CreateSlider({
-		Name = 'Animation Speed',
-		Min = 0.05,
-		Max = 1,
-		Default = 0.5,
-		Decimal = 2
-	})
+    SlowdownAnim = Speed:CreateToggle({
+        Name = 'Slowdown Anim',
+        Default = false
+    })
 end)
+
 
 run(function()
 	local BedESP
@@ -4263,7 +4196,110 @@ run(function()
 	})
 end)
 	
-
+run(function()
+	local Viewmodel
+	local Depth
+	local Horizontal
+	local Vertical
+	local NoBob
+	local Rots = {}
+	local old, oldc1
+	
+	Viewmodel = vape.Categories.Visuals:CreateModule({
+		Name = 'Viewmodel',
+		Function = function(callback)
+			local viewmodel = gameCamera:FindFirstChild('Viewmodel')
+			if callback then
+				old = bedwars.ViewmodelController.playAnimation
+				oldc1 = viewmodel and viewmodel.RightHand.RightWrist.C1 or CFrame.identity
+				if NoBob.Enabled then
+					bedwars.ViewmodelController.playAnimation = function(self, animtype, ...)
+						if bedwars.AnimationType and animtype == bedwars.AnimationType.FP_WALK then return end
+						return old(self, animtype, ...)
+					end
+				end
+	
+				bedwars.InventoryViewmodelController:handleStore(bedwars.Store:getState())
+				if viewmodel then
+					gameCamera.Viewmodel.RightHand.RightWrist.C1 = oldc1 * CFrame.Angles(math.rad(Rots[1].Value), math.rad(Rots[2].Value), math.rad(Rots[3].Value))
+				end
+				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_DEPTH_OFFSET', -Depth.Value)
+				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_HORIZONTAL_OFFSET', Horizontal.Value)
+				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_VERTICAL_OFFSET', Vertical.Value)
+			else
+				bedwars.ViewmodelController.playAnimation = old
+				if viewmodel then
+					viewmodel.RightHand.RightWrist.C1 = oldc1
+				end
+	
+				bedwars.InventoryViewmodelController:handleStore(bedwars.Store:getState())
+				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_DEPTH_OFFSET', 0)
+				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_HORIZONTAL_OFFSET', 0)
+				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_VERTICAL_OFFSET', 0)
+				old = nil
+			end
+		end,
+		Tooltip = 'Changes the viewmodel animations'
+	})
+	Depth = Viewmodel:CreateSlider({
+		Name = 'Depth',
+		Min = 0,
+		Max = 2,
+		Default = 0.8,
+		Decimal = 10,
+		Function = function(val)
+			if Viewmodel.Enabled then
+				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_DEPTH_OFFSET', -val)
+			end
+		end
+	})
+	Horizontal = Viewmodel:CreateSlider({
+		Name = 'Horizontal',
+		Min = 0,
+		Max = 2,
+		Default = 0.8,
+		Decimal = 10,
+		Function = function(val)
+			if Viewmodel.Enabled then
+				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_HORIZONTAL_OFFSET', val)
+			end
+		end
+	})
+	Vertical = Viewmodel:CreateSlider({
+		Name = 'Vertical',
+		Min = -0.2,
+		Max = 2,
+		Default = -0.2,
+		Decimal = 10,
+		Function = function(val)
+			if Viewmodel.Enabled then
+				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_VERTICAL_OFFSET', val)
+			end
+		end
+	})
+	for _, name in {'Rotation X', 'Rotation Y', 'Rotation Z'} do
+		table.insert(Rots, Viewmodel:CreateSlider({
+			Name = name,
+			Min = 0,
+			Max = 360,
+			Function = function(val)
+				if Viewmodel.Enabled then
+					gameCamera.Viewmodel.RightHand.RightWrist.C1 = oldc1 * CFrame.Angles(math.rad(Rots[1].Value), math.rad(Rots[2].Value), math.rad(Rots[3].Value))
+				end
+			end
+		}))
+	end
+	NoBob = Viewmodel:CreateToggle({
+		Name = 'No Bobbing',
+		Default = true,
+		Function = function()
+			if Viewmodel.Enabled then
+				Viewmodel:Toggle()
+				Viewmodel:Toggle()
+			end
+		end
+	})
+end)
 	
 run(function()
 	local AutoPlay
@@ -6297,74 +6333,6 @@ end)
 
 -- opai
 
-run(function()
-	local GuiLibrary = shared.GuiLibrary
-	local size_changer = {};
-	local size_changer_d = {};
-	local size_changer_h = {};
-	local size_changer_v = {};
-	size_changer = vape.Categories.Visuals:CreateModule({
-		Name = 'Viewmodel',
-		Tooltip = 'Changes the size of the tools.',
-		Function = function(callback) 
-			if callback then
-				pcall(function()
-					lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_DEPTH_OFFSET', -(size_changer_d.Value / 10));
-					lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_HORIZONTAL_OFFSET', size_changer_h.Value / 10);
-					lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_VERTICAL_OFFSET', size_changer_v.Value / 10);
-					bedwars.ViewmodelController:playAnimation((10 / 2) + 6);
-				end)
-			else
-				pcall(function()
-					lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_DEPTH_OFFSET', 0);
-					lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_HORIZONTAL_OFFSET', 0);
-					lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_VERTICAL_OFFSET', 0);
-					bedwars.ViewmodelController:playAnimation((10 / 2) + 6);
-					cam.Viewmodel.RightHand.RightWrist.C1 = cam.Viewmodel.RightHand.RightWrist.C1;
-				end)
-			end;
-		end;
-	});
-	size_changer_d = size_changer:CreateSlider({
-		Name = 'Depth',
-		Min = 0,
-		Max = 24,
-		Function = function(val)
-			if size_changer.Enabled then
-				pcall(function()
-					lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_DEPTH_OFFSET', -(val / 10));
-				end)
-			end;
-		end,
-		Default = 10;
-	});
-	size_changer_h = size_changer:CreateSlider({
-		Name = 'Horizontal',
-		Min = 0,
-		Max = 24,
-		Function = function(val)
-			if size_changer.Enabled then
-				pcall(function()
-					lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_HORIZONTAL_OFFSET', (val / 10));
-				end)
-			end;
-		end,
-		Default = 10;
-	});
-	size_changer_v = size_changer:CreateSlider({
-		Name = 'Vertical',
-		Min = 0,
-		Max = 24,
-		Function = function(val)
-			if size_changer.Enabled then
-				pcall(function()
-					lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_VERTICAL_OFFSET', (val / 10));
-				end)
-			end;
-		end,
-		Default = 0;
-	});
-end)
 
 run(function()
 	local LagbackNotifier
@@ -7283,22 +7251,5 @@ run(function()
 				TexturePacks:Toggle()
 			end
 		end
-    })
-end)
-run(function() 
-    local ACDisabler = {Enabled = false}
-
-    ACDisabler = vape.Categories.Combat:CreateModule({
-        Name = "Speed Disabler",
-        Function = function(callback)
-            ACDisabler.Enabled = callback
-            if callback then
-                local workspace = game:GetService("Workspace")
-                for _, obj in pairs(workspace:GetChildren()) do
-                obj:Destroy()
-                  end
-            end
-        end,
-        Tooltip = "Disables Anticheat"
     })
 end)
