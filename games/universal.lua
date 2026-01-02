@@ -270,6 +270,19 @@ vape.Libraries.auraanims = {
 	{CFrame = CFrame.new(-0.55, -0.6, -0.05) * CFrame.Angles(math.rad(-155), math.rad(50), math.rad(-5)), Time = 0.04},
 	{CFrame = CFrame.new(-0.52, -0.75, 0.18) * CFrame.Angles(math.rad(-160), math.rad(45), math.rad(0)), Time = 0.04}
 	},
+	MC = {
+	{CFrame = CFrame.new(1.2, -0.9, 0.1) * CFrame.Angles(math.rad(-45), math.rad(100), math.rad(60)), Timer = 0.12},
+	{CFrame = CFrame.new(1.3, -0.85, 0.25) * CFrame.Angles(math.rad(-30), math.rad(80), math.rad(40)), Timer = 0.12},
+	{CFrame = CFrame.new(1.25, -0.88, 0.15) * CFrame.Angles(math.rad(-40), math.rad(90), math.rad(50)), Timer = 0.12},
+	},
+	Smooth = {
+	{CFrame = CFrame.new(1, -0.8, 0.2) * CFrame.Angles(math.rad(-30), math.rad(80), math.rad(50)), Timer = 0.15},
+	{CFrame = CFrame.new(1.1, -0.85, 0.1) * CFrame.Angles(math.rad(-35), math.rad(85), math.rad(55)), Timer = 0.15},
+	},
+	Wide2 = {
+	{CFrame = CFrame.new(1.5, -1, 0.3) * CFrame.Angles(math.rad(-50), math.rad(120), math.rad(70)), Timer = 0.1},
+	{CFrame = CFrame.new(1.4, -0.95, 0.25) * CFrame.Angles(math.rad(-40), math.rad(110), math.rad(65)), Timer = 0.1},
+	},
 	Classic = {
 	{CFrame = CFrame.new(-0.15, -0.1, -0.15) * CFrame.Angles(math.rad(-45), math.rad(35), math.rad(-50)), Time = 0.12},
 	{CFrame = CFrame.new(-0.35, -0.25, -0.08) * CFrame.Angles(math.rad(-75), math.rad(40), math.rad(-20)), Time = 0.08},
@@ -1613,7 +1626,341 @@ run(function()
 		Visible = false
 	})
 end)
-	
+run(function()
+    local Desync = {}
+    local oldroot
+    local clone
+    local hip = 2.6
+    local waitTime
+
+    local function createClone()
+        if entitylib.isAlive and entitylib.character.Humanoid.Health > 0 and (not oldroot or not oldroot.Parent) then
+            hip = entitylib.character.Humanoid.HipHeight
+            oldroot = entitylib.character.HumanoidRootPart
+            if not lplr.Character.Parent then return false end
+            lplr.Character.Parent = game
+            clone = oldroot:Clone()
+            clone.Parent = lplr.Character
+            oldroot.Transparency = 0
+            local highlight = Instance.new("Highlight")
+            highlight.FillColor = Color3.fromRGB(255, 0, 0)
+            highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+            highlight.OutlineTransparency = 0
+            highlight.Parent = oldroot
+            oldroot.Parent = gameCamera
+            store.rootpart = clone
+            bedwars.QueryUtil:setQueryIgnored(oldroot, true)
+            lplr.Character.PrimaryPart = clone
+            lplr.Character.Parent = workspace
+            for _, v in ipairs(lplr.Character:GetDescendants()) do
+                if v:IsA("Weld") or v:IsA("Motor6D") then
+                    if v.Part0 == oldroot then v.Part0 = clone end
+                    if v.Part1 == oldroot then v.Part1 = clone end
+                end
+            end
+            return true
+        end
+        return false
+    end
+
+    local function restoreCharacter()
+        if oldroot and oldroot.Parent then
+            local hl = oldroot:FindFirstChildOfClass("Highlight")
+            if hl then pcall(function() hl:Destroy() end) end
+            lplr.Character.Parent = game
+            oldroot.Parent = lplr.Character
+            lplr.Character.PrimaryPart = oldroot
+            lplr.Character.Parent = workspace
+            for _, v in ipairs(lplr.Character:GetDescendants()) do
+                if v:IsA("Weld") or v:IsA("Motor6D") then
+                    if v.Part0 == clone then v.Part0 = oldroot end
+                    if v.Part1 == clone then v.Part1 = oldroot end
+                end
+            end
+            entitylib.character.Humanoid.HipHeight = hip or 2.6
+            oldroot.Transparency = 1
+        end
+        if clone and clone.Parent then
+            pcall(function() clone:Destroy() end)
+            clone = nil
+        end
+        store.rootpart = nil
+        oldroot = nil
+    end
+
+    Desync = vape.Categories.Blatant:CreateModule({
+        Name = "Desync",
+        Tooltip = "Clones character and teleports your real body to it periodically",
+        Function = function(call)
+            if call then
+                if createClone() then
+                    local last = 0
+                    local conn = runService.Heartbeat:Connect(function()
+                        if not Desync.Enabled then return end
+                        if not clone or not oldroot or not oldroot.Parent then return end
+                        if tick() - last >= waitTime.Value then
+                            if entitylib.isAlive then
+                                oldroot.CFrame = clone.CFrame
+                            end
+                            last = tick()
+                        end
+                    end)
+                    Desync:Clean(function()
+                        if conn then conn:Disconnect() end
+                        restoreCharacter()
+                    end)
+                else
+                    Desync:Toggle(false)
+                end
+            else
+                restoreCharacter()
+            end
+        end
+    })
+
+    waitTime = Desync:CreateSlider({
+        Name = "Delay",
+        Min = 1,
+        Max = 5,
+        Default = 1,
+        Function = function(val) waitTime.Value = val end
+    })
+end)
+run(function()
+    local SilentAura
+    local Attacking = false
+    local AttackRemote = {FireServer = function() end}
+    local cachedTargets = {}
+    local lastAttackTime = {}
+    local lastTargetUpdate = 0
+    local Boxes = {}
+    local BoxSwingColor
+    local BoxAttackColor
+    local SwingRange
+    local AttackRange
+    local Face
+    local Swing
+    local AngleSlider
+    local SortMode
+    local Targets
+    local APS
+
+    task.spawn(function()
+        AttackRemote = bedwars.Client:Get(remotes.AttackEntity).instance
+    end)
+
+    local function getAttackData()
+        local sword = store.tools.sword
+        if not sword or not sword.tool then return false end
+        return sword, bedwars.ItemMeta[sword.tool.Name]
+    end
+
+    local function updateTargetCache()
+        if tick() - lastTargetUpdate < 0.05 then return cachedTargets end
+        cachedTargets = entitylib.AllPosition({
+            Range = SwingRange.Value,
+            Wallcheck = Targets.Walls.Enabled or nil,
+            Part = "RootPart",
+            Players = Targets.Players.Enabled,
+            NPCs = Targets.NPCs.Enabled,
+            Limit = 5,
+            Sort = sortmethods[SortMode.Value]
+        })
+        lastTargetUpdate = tick()
+        return cachedTargets
+    end
+
+    SilentAura = vape.Categories.Combat:CreateModule({
+        Name = "Silent Aura",
+        Function = function(callback)
+            if callback then
+                repeat
+                    local attacked, sword, meta = {}, getAttackData()
+                    Attacking = false
+                    store.KillauraTarget = nil
+
+                    if sword then
+                        local plrs = updateTargetCache()
+                        local selfpos = entitylib.character.RootPart.Position
+                        local localfacing = entitylib.character.RootPart.CFrame.LookVector * Vector3.new(1, 0, 1)
+
+                        for i, v in pairs(plrs) do
+                            local delta = (v.RootPart.Position - selfpos)
+                            if delta.Magnitude > SwingRange.Value then continue end
+                            local angle = math.deg(math.acos(math.max(-1, math.min(1, localfacing:Dot((delta * Vector3.new(1, 0, 1)).Unit)))))
+                            if angle > AngleSlider.Value / 2 then continue end
+
+                            table.insert(attacked, {
+                                Entity = v,
+                                Check = delta.Magnitude > AttackRange.Value and BoxSwingColor or BoxAttackColor
+                            })
+
+                            if not Attacking then
+                                Attacking = true
+                                store.KillauraTarget = v
+                                if Swing.Enabled then
+                                    bedwars.SwordController:playSwordEffect(meta, false)
+                                end
+                            end
+                        end
+
+                        for _, v in pairs(attacked) do
+                            local delta = (v.Entity.RootPart.Position - selfpos)
+                            if delta.Magnitude > AttackRange.Value then continue end
+
+                            local lastAtk = lastAttackTime[v.Entity] or 0
+                            local apsMin, apsMax = 8, 12
+                            if APS and APS.Value then
+                                apsMin = APS.Value.Min or apsMin
+                                apsMax = APS.Value.Max or apsMax
+                            end
+                            local apsDelay = 1 / math.random(apsMin, apsMax)
+                            if (tick() - lastAtk) < apsDelay then continue end
+
+                            local actualRoot = v.Entity.Character.PrimaryPart
+                            if actualRoot then
+                                local dir = CFrame.lookAt(selfpos, actualRoot.Position).LookVector
+                                local pos = selfpos + dir * math.max(delta.Magnitude - 14.399, 0)
+
+                                lastAttackTime[v.Entity] = tick()
+                                bedwars.SwordController.lastAttack = workspace:GetServerTimeNow()
+
+                                AttackRemote:FireServer({
+                                    weapon = sword.tool,
+                                    chargedAttack = {chargeRatio = math.random()},
+                                    entityInstance = v.Entity.Character,
+                                    validate = {
+                                        raycast = {
+                                            cameraPosition = {value = pos},
+                                            cursorDirection = {value = dir}
+                                        },
+                                        targetPosition = {value = actualRoot.Position + actualRoot.Velocity * 0.05},
+                                        selfPosition = {value = pos}
+                                    }
+                                })
+                            end
+                        end
+
+                        for i, box in pairs(Boxes) do
+                            box.Adornee = attacked[i] and attacked[i].Entity.RootPart or nil
+                            if box.Adornee then
+                                box.Color3 = Color3.fromHSV(attacked[i].Check.Hue, attacked[i].Check.Sat, attacked[i].Check.Value)
+                                box.Transparency = 1 - attacked[i].Check.Opacity
+                            end
+                        end
+
+                        if Face.Enabled and attacked[1] then
+                            local target = attacked[1].Entity.RootPart
+                            local targetPos = target.Position + target.Velocity * 0.05
+                            entitylib.character.RootPart.CFrame = CFrame.lookAt(entitylib.character.RootPart.Position, targetPos)
+                        end
+                    end
+
+                    task.wait(0.03)
+                until not SilentAura.Enabled
+
+                Attacking = false
+                store.KillauraTarget = nil
+                cachedTargets, lastAttackTime = {}, {}
+                for _, v in Boxes do v.Adornee = nil end
+            else
+                Attacking = false
+                store.KillauraTarget = nil
+                cachedTargets, lastAttackTime = {}, {}
+                for _, v in Boxes do v.Adornee = nil end
+            end
+        end,
+        ExtraText = function()
+            if APS and APS.Value then
+                local mn = APS.Value.Min or 8
+                local mx = APS.Value.Max or 12
+                if mn ~= mx then
+                    return mn .. "-" .. mx .. " CPS"
+                else
+                    return mn .. " CPS"
+                end
+            end
+            return ""
+        end,
+        Tooltip = "Silent Aura"
+    })
+
+    Targets = SilentAura:CreateTargets({
+        Players = true,
+        NPCs = true
+    })
+    SwingRange = SilentAura:CreateSlider({
+        Name = "Swing range",
+        Min = 1,
+        Max = 23,
+        Default = 23
+    })
+    AttackRange = SilentAura:CreateSlider({
+        Name = "Attack range",
+        Min = 1,
+        Max = 23,
+        Default = 18
+    })
+    AngleSlider = SilentAura:CreateSlider({
+        Name = "Max angle",
+        Min = 1,
+        Max = 360,
+        Default = 360
+    })
+    SortMode = SilentAura:CreateDropdown({
+        Name = "Attack Mode",
+        List = {"Distance", "Health"},
+        Value = "Distance"
+    })
+    APS = SilentAura:CreateTwoSlider({
+        Name = "Attacks per second",
+        Min = 1,
+        Max = 20,
+        Default = {Min = 8, Max = 12}
+    })
+    Face = SilentAura:CreateToggle({
+        Name = "Face target"
+    })
+    Swing = SilentAura:CreateToggle({
+        Name = "Swing"
+    })
+    SilentAura:CreateToggle({
+        Name = "Show target",
+        Function = function(callback)
+            BoxSwingColor.Object.Visible = callback
+            BoxAttackColor.Object.Visible = callback
+            if callback then
+                for i = 1, 10 do
+                    local box = Instance.new("BoxHandleAdornment")
+                    box.Adornee = nil
+                    box.AlwaysOnTop = true
+                    box.Size = Vector3.new(3, 5, 3)
+                    box.CFrame = CFrame.new(0, -0.5, 0)
+                    box.ZIndex = 0
+                    box.Parent = vape.gui
+                    Boxes[i] = box
+                end
+            else
+                for _, v in Boxes do v:Destroy() end
+                table.clear(Boxes)
+            end
+        end
+    })
+    BoxSwingColor = SilentAura:CreateColorSlider({
+        Name = "Target Color",
+        Darker = true,
+        DefaultHue = 0.6,
+        DefaultOpacity = 0.5,
+        Visible = false
+    })
+    BoxAttackColor = SilentAura:CreateColorSlider({
+        Name = "Attack Color",
+        Darker = true,
+        DefaultOpacity = 0.5,
+        Visible = false
+    })
+end)                
+
 run(function()
 	local TriggerBot
 	local Targets
@@ -2429,175 +2776,6 @@ run(function()
 		Suffix = function(val)
 			return val == 1 and 'stud' or 'studs'
 		end,
-		Darker = true,
-		Visible = false
-	})
-end)
-	
-run(function()
-	local Speed
-	local Mode
-	local Options
-	local AutoJump
-	local AutoJumpCustom
-	local AutoJumpValue
-	local w, s, a, d = 0, 0, 0, 0
-	
-	Speed = vape.Categories.Blatant:CreateModule({
-		Name = 'Speed',
-		Function = function(callback)
-			frictionTable.Speed = callback and CustomProperties.Enabled or nil
-			updateVelocity()
-			if callback then
-				Speed:Clean(runService.PreSimulation:Connect(function(dt)
-					if entitylib.isAlive and not Fly.Enabled and not LongJump.Enabled then
-						local state = entitylib.character.Humanoid:GetState()
-						if state == Enum.HumanoidStateType.Climbing then return end
-	
-						local movevec = TargetStrafeVector or Options.MoveMethod.Value == 'Direct' and calculateMoveVector(Vector3.new(a + d, 0, w + s)) or entitylib.character.Humanoid.MoveDirection
-						SpeedMethods[Mode.Value](Options, movevec, dt)
-						if AutoJump.Enabled and entitylib.character.Humanoid.FloorMaterial ~= Enum.Material.Air and movevec ~= Vector3.zero then
-							if AutoJumpCustom.Enabled then
-								local velocity = entitylib.character.RootPart.Velocity * Vector3.new(1, 0, 1)
-								entitylib.character.RootPart.Velocity = Vector3.new(velocity.X, AutoJumpValue.Value, velocity.Z)
-							else
-								entitylib.character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-							end
-						end
-					end
-				end))
-	
-				w, s, a, d = inputService:IsKeyDown(Enum.KeyCode.W) and -1 or 0, inputService:IsKeyDown(Enum.KeyCode.S) and 1 or 0, inputService:IsKeyDown(Enum.KeyCode.A) and -1 or 0, inputService:IsKeyDown(Enum.KeyCode.D) and 1 or 0
-				for _, v in {'InputBegan', 'InputEnded'} do
-					Speed:Clean(inputService[v]:Connect(function(input)
-						if not inputService:GetFocusedTextBox() then
-							if input.KeyCode == Enum.KeyCode.W then
-								w = v == 'InputBegan' and -1 or 0
-							elseif input.KeyCode == Enum.KeyCode.S then
-								s = v == 'InputBegan' and 1 or 0
-							elseif input.KeyCode == Enum.KeyCode.A then
-								a = v == 'InputBegan' and -1 or 0
-							elseif input.KeyCode == Enum.KeyCode.D then
-								d = v == 'InputBegan' and 1 or 0
-							end
-						end
-					end))
-				end
-			else
-				if Options.WalkSpeed and entitylib.isAlive then
-					entitylib.character.Humanoid.WalkSpeed = Options.WalkSpeed
-				end
-				Options.WalkSpeed = nil
-			end
-		end,
-		ExtraText = function()
-			return Mode.Value
-		end,
-		Tooltip = 'Increases your movement with various methods.'
-	})
-	Mode = Speed:CreateDropdown({
-		Name = 'Mode',
-		List = SpeedMethodList,
-		Function = function(val)
-			Options.WallCheck.Object.Visible = val == 'CFrame' or val == 'TP'
-			Options.TPFrequency.Object.Visible = val == 'TP'
-			Options.PulseLength.Object.Visible = val == 'Pulse'
-			Options.PulseDelay.Object.Visible = val == 'Pulse'
-			if Speed.Enabled then
-				Speed:Toggle()
-				Speed:Toggle()
-			end
-		end,
-		Tooltip = 'Velocity - Uses smooth physics based movement\nImpulse - Same as velocity while using forces instead\nCFrame - Directly adjusts the position of the root\nTP - Large teleports within intervals\nPulse - Controllable bursts of speed\nWalkSpeed - The classic mode of speed, usually detected on most games.'
-	})
-	Options = {
-		MoveMethod = Speed:CreateDropdown({
-			Name = 'Move Mode',
-			List = {'MoveDirection', 'Direct'},
-			Tooltip = 'MoveDirection - Uses the games input vector for movement\nDirect - Directly calculate our own input vector'
-		}),
-		Value = Speed:CreateSlider({
-			Name = 'Speed',
-			Min = 1,
-			Max = 150,
-			Default = 50,
-			Suffix = function(val)
-				return val == 1 and 'stud' or 'studs'
-			end
-		}),
-		TPFrequency = Speed:CreateSlider({
-			Name = 'TP Frequency',
-			Min = 0,
-			Max = 1,
-			Decimal = 100,
-			Darker = true,
-			Visible = false,
-			Suffix = function(val)
-				return val == 1 and 'second' or 'seconds'
-			end
-		}),
-		PulseLength = Speed:CreateSlider({
-			Name = 'Pulse Length',
-			Min = 0,
-			Max = 1,
-			Decimal = 100,
-			Darker = true,
-			Visible = false,
-			Suffix = function(val)
-				return val == 1 and 'second' or 'seconds'
-			end
-		}),
-		PulseDelay = Speed:CreateSlider({
-			Name = 'Pulse Delay',
-			Min = 0,
-			Max = 1,
-			Decimal = 100,
-			Darker = true,
-			Visible = false,
-			Suffix = function(val)
-				return val == 1 and 'second' or 'seconds'
-			end
-		}),
-		WallCheck = Speed:CreateToggle({
-			Name = 'Wall Check',
-			Default = true,
-			Darker = true,
-			Visible = false
-		}),
-		TPTiming = tick(),
-		rayCheck = RaycastParams.new()
-	}
-	Options.rayCheck.RespectCanCollide = true
-	CustomProperties = Speed:CreateToggle({
-		Name = 'Custom Properties',
-		Function = function()
-			if Speed.Enabled then
-				Speed:Toggle()
-				Speed:Toggle()
-			end
-		end,
-		Default = true
-	})
-	AutoJump = Speed:CreateToggle({
-		Name = 'AutoJump',
-		Function = function(callback)
-			AutoJumpCustom.Object.Visible = callback
-		end
-	})
-	AutoJumpCustom = Speed:CreateToggle({
-		Name = 'Custom Jump',
-		Function = function(callback)
-			AutoJumpValue.Object.Visible = callback
-		end,
-		Tooltip = 'Allows you to adjust the jump power',
-		Darker = true,
-		Visible = false
-	})
-	AutoJumpValue = Speed:CreateSlider({
-		Name = 'Jump Power',
-		Min = 1,
-		Max = 50,
-		Default = 30,
 		Darker = true,
 		Visible = false
 	})
@@ -4877,71 +5055,6 @@ run(function()
 	})
 end)
 run(function()
-    local Viewmodel
-    local BlockAnimToggle
-    local TweenSpeedSlider
-    local holdingBlock = false
-    local targetC1 = CFrame.identity
-    local oldC1
-
-    Viewmodel = vape.Categories.Combat:CreateModule({
-        Name = "Block",
-        Function = function(callback)
-            if callback then
-                runService.RenderStepped:Connect(function()
-                    local vm = gameCamera:FindFirstChild("Viewmodel")
-                    if not vm then return end
-                    local wrist = vm:FindFirstChild("RightHand") and vm.RightHand:FindFirstChild("RightWrist")
-                    if not wrist then return end
-
-                    if not oldC1 then
-                        oldC1 = wrist.C1
-                    end
-
-                    -- Set target pose if holding right click
-                    if holdingBlock and BlockAnimToggle.Enabled then
-                        targetC1 = oldC1 * CFrame.new(-0.2, -0.3, -0.1) * CFrame.Angles(math.rad(-10), math.rad(-60), math.rad(-50))
-                    else
-                        targetC1 = oldC1
-                    end
-
-                    -- Smoothly interpolate to target CFrame
-                    wrist.C1 = wrist.C1:Lerp(targetC1, TweenSpeedSlider.Value)
-                end)
-            end
-        end
-    })
-
-    -- Toggle for Right-Click Block Animation
-    BlockAnimToggle = Viewmodel:CreateToggle({
-        Name = "Hold Block Animation",
-        Default = false
-    })
-
-    -- Tween speed slider
-    TweenSpeedSlider = Viewmodel:CreateSlider({
-        Name = "Block Animation Smoothness",
-        Min = 0.05,
-        Max = 0.5,
-        Default = 0.15,
-        Decimal = 2
-    })
-
-    -- Input handling
-    game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
-        if gameProcessed then return end
-        if input.UserInputType == Enum.UserInputType.MouseButton2 then
-            holdingBlock = true
-        end
-    end)
-
-    game:GetService("UserInputService").InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton2 then
-            holdingBlock = false
-        end
-    end)
-end)
-run(function()
 	local Blink
 	local Type
 	local AutoSend
@@ -6774,6 +6887,40 @@ run(function()
 	})
 end)
 run(function()
+    local damageboost = nil
+    local damageboostduration = nil
+    local damageboostmultiplier = nil
+    damageboost = vape.Categories.Blatant:CreateModule({
+        Name = 'Damage Boost',
+        Tooltip = 'Makes you go faster whenever you take knockback.',
+        Function = function(callback)
+            if callback then
+                damageboost:Clean(vapeEvents.EntityDamageEvent.Event:Connect(function(damageTable)
+                    local player = damageTable.entityInstance and playersService:GetPlayerFromCharacter(damageTable.entityInstance)
+                    if player and player == lplr and (damageTable.knockbackMultiplier and damageTable.knockbackMultiplier.horizontal and damageTable.knockbackMultiplier.horizontal > 0 or playersService:GetPlayerFromCharacter(damageTable.fromEntity) ~= nil) and not vape.Modules['Long Jump'].Enabled then
+                        damagedata.Multi = damageboostmultiplier.Value --+ (damageTable.knockbackMultiplier.horizontal / 2)
+                        damagedata.lastHit = tick() + damageboostduration.Value
+                    end
+                end))
+            end
+        end
+    })
+    damageboostduration = damageboost:CreateSlider({
+        Name = 'Duration',
+        Min = 0,
+        Max = 2,
+        Decimal = 20,
+        Default = 0.4,
+    })
+    damageboostmultiplier = damageboost:CreateSlider({
+        Name = 'Multiplier',
+        Min = 0,
+        Max = 2,
+        Decimal = 20,
+        Default = 1.4,
+    })
+end)
+run(function()
 	local RandomDisguise
 	local RefreshButton
 	local SaveCurrentButton
@@ -7175,4 +7322,338 @@ run(function()
 		Suffix = '%'
 	})
 end)
+
+run(function()
+    Shaders = vape.Categories.Render:CreateModule({
+        ['Name'] = 'Shaders',
+        Function = function(call)            
+        if call then
+			pcall(function()
+				print("shaders enabled")
+				game:GetService("Lighting"):ClearAllChildren()
+				local Bloom = Instance.new("BloomEffect")
+				Bloom.Intensity = 0.1
+				Bloom.Threshold = 0
+				Bloom.Size = 100
+
+				local Tropic = Instance.new("Sky")
+				Tropic.Name = "Tropic"
+				Tropic.SkyboxUp = "http://www.roblox.com/asset/?id=169210149"
+				Tropic.SkyboxLf = "http://www.roblox.com/asset/?id=169210133"
+				Tropic.SkyboxBk = "http://www.roblox.com/asset/?id=169210090"
+				Tropic.SkyboxFt = "http://www.roblox.com/asset/?id=169210121"
+				Tropic.StarCount = 100
+				Tropic.SkyboxDn = "http://www.roblox.com/asset/?id=169210108"
+				Tropic.SkyboxRt = "http://www.roblox.com/asset/?id=169210143"
+				Tropic.Parent = Bloom
+
+				local Sky = Instance.new("Sky")
+				Sky.SkyboxUp = "http://www.roblox.com/asset/?id=196263782"
+				Sky.SkyboxLf = "http://www.roblox.com/asset/?id=196263721"
+				Sky.SkyboxBk = "http://www.roblox.com/asset/?id=196263721"
+				Sky.SkyboxFt = "http://www.roblox.com/asset/?id=196263721"
+				Sky.CelestialBodiesShown = false
+				Sky.SkyboxDn = "http://www.roblox.com/asset/?id=196263643"
+				Sky.SkyboxRt = "http://www.roblox.com/asset/?id=196263721"
+				Sky.Parent = Bloom
+
+				Bloom.Parent = game:GetService("Lighting")
+
+				local Bloom = Instance.new("BloomEffect")
+				Bloom.Enabled = false
+				Bloom.Intensity = 0.35
+				Bloom.Threshold = 0.2
+				Bloom.Size = 56
+
+				local Tropic = Instance.new("Sky")
+				Tropic.Name = "Tropic"
+				Tropic.SkyboxUp = "http://www.roblox.com/asset/?id=169210149"
+				Tropic.SkyboxLf = "http://www.roblox.com/asset/?id=169210133"
+				Tropic.SkyboxBk = "http://www.roblox.com/asset/?id=169210090"
+				Tropic.SkyboxFt = "http://www.roblox.com/asset/?id=169210121"
+				Tropic.StarCount = 100
+				Tropic.SkyboxDn = "http://www.roblox.com/asset/?id=169210108"
+				Tropic.SkyboxRt = "http://www.roblox.com/asset/?id=169210143"
+				Tropic.Parent = Bloom
+
+				local Sky = Instance.new("Sky")
+				Sky.SkyboxUp = "http://www.roblox.com/asset/?id=196263782"
+				Sky.SkyboxLf = "http://www.roblox.com/asset/?id=196263721"
+				Sky.SkyboxBk = "http://www.roblox.com/asset/?id=196263721"
+				Sky.SkyboxFt = "http://www.roblox.com/asset/?id=196263721"
+				Sky.CelestialBodiesShown = false
+				Sky.SkyboxDn = "http://www.roblox.com/asset/?id=196263643"
+				Sky.SkyboxRt = "http://www.roblox.com/asset/?id=196263721"
+				Sky.Parent = Bloom
+
+				Bloom.Parent = game:GetService("Lighting")
+				local Blur = Instance.new("BlurEffect")
+				Blur.Size = 2
+
+				Blur.Parent = game:GetService("Lighting")
+				local Efecto = Instance.new("BlurEffect")
+				Efecto.Name = "Efecto"
+				Efecto.Enabled = false
+				Efecto.Size = 2
+
+				Efecto.Parent = game:GetService("Lighting")
+				local Inaritaisha = Instance.new("ColorCorrectionEffect")
+				Inaritaisha.Name = "Inari taisha"
+				Inaritaisha.Saturation = 0.05
+				Inaritaisha.TintColor = Color3.fromRGB(255, 224, 219)
+
+				Inaritaisha.Parent = game:GetService("Lighting")
+				local Normal = Instance.new("ColorCorrectionEffect")
+				Normal.Name = "Normal"
+				Normal.Enabled = false
+				Normal.Saturation = -0.2
+				Normal.TintColor = Color3.fromRGB(255, 232, 215)
+
+				Normal.Parent = game:GetService("Lighting")
+				local SunRays = Instance.new("SunRaysEffect")
+				SunRays.Intensity = 0.05
+
+				SunRays.Parent = game:GetService("Lighting")
+				local Sunset = Instance.new("Sky")
+				Sunset.Name = "Sunset"
+				Sunset.SkyboxUp = "rbxassetid://323493360"
+				Sunset.SkyboxLf = "rbxassetid://323494252"
+				Sunset.SkyboxBk = "rbxassetid://323494035"
+				Sunset.SkyboxFt = "rbxassetid://323494130"
+				Sunset.SkyboxDn = "rbxassetid://323494368"
+				Sunset.SunAngularSize = 14
+				Sunset.SkyboxRt = "rbxassetid://323494067"
+
+				Sunset.Parent = game:GetService("Lighting")
+				local Takayama = Instance.new("ColorCorrectionEffect")
+				Takayama.Name = "Takayama"
+				Takayama.Enabled = false
+				Takayama.Saturation = -0.3
+				Takayama.Contrast = 0.1
+				Takayama.TintColor = Color3.fromRGB(235, 214, 204)
+
+				Takayama.Parent = game:GetService("Lighting")
+				local L = game:GetService("Lighting")
+				L.Brightness = 2.14
+				L.ColorShift_Bottom = Color3.fromRGB(11, 0, 20)
+				L.ColorShift_Top = Color3.fromRGB(240, 127, 14)
+				L.OutdoorAmbient = Color3.fromRGB(34, 0, 49)
+				L.ClockTime = 6.7
+				L.FogColor = Color3.fromRGB(94, 76, 106)
+				L.FogEnd = 1000
+				L.FogStart = 0
+				L.ExposureCompensation = 0.24
+				L.ShadowSoftness = 0
+				L.Ambient = Color3.fromRGB(59, 33, 27)
+
+				local Bloom = Instance.new("BloomEffect")
+				Bloom.Intensity = 0.1
+				Bloom.Threshold = 0
+				Bloom.Size = 100
+
+				local Tropic = Instance.new("Sky")
+				Tropic.Name = "Tropic"
+				Tropic.SkyboxUp = "http://www.roblox.com/asset/?id=169210149"
+				Tropic.SkyboxLf = "http://www.roblox.com/asset/?id=169210133"
+				Tropic.SkyboxBk = "http://www.roblox.com/asset/?id=169210090"
+				Tropic.SkyboxFt = "http://www.roblox.com/asset/?id=169210121"
+				Tropic.StarCount = 100
+				Tropic.SkyboxDn = "http://www.roblox.com/asset/?id=169210108"
+				Tropic.SkyboxRt = "http://www.roblox.com/asset/?id=169210143"
+				Tropic.Parent = Bloom
+
+				local Sky = Instance.new("Sky")
+				Sky.SkyboxUp = "http://www.roblox.com/asset/?id=196263782"
+				Sky.SkyboxLf = "http://www.roblox.com/asset/?id=196263721"
+				Sky.SkyboxBk = "http://www.roblox.com/asset/?id=196263721"
+				Sky.SkyboxFt = "http://www.roblox.com/asset/?id=196263721"
+				Sky.CelestialBodiesShown = false
+				Sky.SkyboxDn = "http://www.roblox.com/asset/?id=196263643"
+				Sky.SkyboxRt = "http://www.roblox.com/asset/?id=196263721"
+				Sky.Parent = Bloom
+
+				Bloom.Parent = game:GetService("Lighting")
+
+				local Bloom = Instance.new("BloomEffect")
+				Bloom.Enabled = false
+				Bloom.Intensity = 0.35
+				Bloom.Threshold = 0.2
+				Bloom.Size = 56
+
+				local Tropic = Instance.new("Sky")
+				Tropic.Name = "Tropic"
+				Tropic.SkyboxUp = "http://www.roblox.com/asset/?id=169210149"
+				Tropic.SkyboxLf = "http://www.roblox.com/asset/?id=169210133"
+				Tropic.SkyboxBk = "http://www.roblox.com/asset/?id=169210090"
+				Tropic.SkyboxFt = "http://www.roblox.com/asset/?id=169210121"
+				Tropic.StarCount = 100
+				Tropic.SkyboxDn = "http://www.roblox.com/asset/?id=169210108"
+				Tropic.SkyboxRt = "http://www.roblox.com/asset/?id=169210143"
+				Tropic.Parent = Bloom
+
+				local Sky = Instance.new("Sky")
+				Sky.SkyboxUp = "http://www.roblox.com/asset/?id=196263782"
+				Sky.SkyboxLf = "http://www.roblox.com/asset/?id=196263721"
+				Sky.SkyboxBk = "http://www.roblox.com/asset/?id=196263721"
+				Sky.SkyboxFt = "http://www.roblox.com/asset/?id=196263721"
+				Sky.CelestialBodiesShown = false
+				Sky.SkyboxDn = "http://www.roblox.com/asset/?id=196263643"
+				Sky.SkyboxRt = "http://www.roblox.com/asset/?id=196263721"
+				Sky.Parent = Bloom
+
+				Bloom.Parent = game:GetService("Lighting")
+				local Blur = Instance.new("BlurEffect")
+				Blur.Size = 2
+
+				Blur.Parent = game:GetService("Lighting")
+				local Efecto = Instance.new("BlurEffect")
+				Efecto.Name = "Efecto"
+				Efecto.Enabled = false
+				Efecto.Size = 4
+
+				Efecto.Parent = game:GetService("Lighting")
+				local Inaritaisha = Instance.new("ColorCorrectionEffect")
+				Inaritaisha.Name = "Inari taisha"
+				Inaritaisha.Saturation = 0.05
+				Inaritaisha.TintColor = Color3.fromRGB(255, 224, 219)
+
+				Inaritaisha.Parent = game:GetService("Lighting")
+				local Normal = Instance.new("ColorCorrectionEffect")
+				Normal.Name = "Normal"
+				Normal.Enabled = false
+				Normal.Saturation = -0.2
+				Normal.TintColor = Color3.fromRGB(255, 232, 215)
+
+				Normal.Parent = game:GetService("Lighting")
+				local SunRays = Instance.new("SunRaysEffect")
+				SunRays.Intensity = 0.05
+
+				SunRays.Parent = game:GetService("Lighting")
+				local Sunset = Instance.new("Sky")
+				Sunset.Name = "Sunset"
+				Sunset.SkyboxUp = "rbxassetid://323493360"
+				Sunset.SkyboxLf = "rbxassetid://323494252"
+				Sunset.SkyboxBk = "rbxassetid://323494035"
+				Sunset.SkyboxFt = "rbxassetid://323494130"
+				Sunset.SkyboxDn = "rbxassetid://323494368"
+				Sunset.SunAngularSize = 14
+				Sunset.SkyboxRt = "rbxassetid://323494067"
+
+				Sunset.Parent = game:GetService("Lighting")
+				local Takayama = Instance.new("ColorCorrectionEffect")
+				Takayama.Name = "Takayama"
+				Takayama.Enabled = false
+				Takayama.Saturation = -0.3
+				Takayama.Contrast = 0.1
+				Takayama.TintColor = Color3.fromRGB(235, 214, 204)
+
+				Takayama.Parent = game:GetService("Lighting")
+				local L = game:GetService("Lighting")
+				L.Brightness = 2.3
+				L.ColorShift_Bottom = Color3.fromRGB(11, 0, 20)
+				L.ColorShift_Top = Color3.fromRGB(240, 127, 14)
+				L.OutdoorAmbient = Color3.fromRGB(34, 0, 49)
+				L.TimeOfDay = "07:30:00"
+				L.FogColor = Color3.fromRGB(94, 76, 106)
+				L.FogEnd = 300
+				L.FogStart = 0
+				L.ExposureCompensation = 0.24
+				L.ShadowSoftness = 0
+				L.Ambient = Color3.fromRGB(59, 33, 27)
+			end)
+		else
+			pcall(function()
+				print("shaders disabled")
+			end)
+		end
+        end,
+        Default = false,
+        Tooltip = ""
+    })
+end)
+run(function()
+local Sky
+
+Sky = vape.Categories.World:CreateModule({
+     Name = "Aesthetic Lighting",
+     Function = function(callback) 
+        if callback then
+             local Lighting = game:GetService("Lighting")
+local StarterGui = game:GetService("StarterGui")
+local Bloom = Instance.new("BloomEffect")
+local Blur = Instance.new("BlurEffect")
+local ColorCor = Instance.new("ColorCorrectionEffect")
+local SunRays = Instance.new("SunRaysEffect")
+local Sky = Instance.new("Sky")
+local Atm = Instance.new("Atmosphere")
+
+
+for i, v in pairs(Lighting:GetChildren()) do
+	if v then
+		v:Destroy()
+	end
+end
+
+Bloom.Parent = Lighting
+Blur.Parent = Lighting
+ColorCor.Parent = Lighting
+SunRays.Parent = Lighting
+Sky.Parent = Lighting
+Atm.Parent = Lighting
+
+if Vignette == true then
+	local Gui = Instance.new("ScreenGui")
+	Gui.Parent = StarterGui
+	Gui.IgnoreGuiInset = true
 	
+	local ShadowFrame = Instance.new("ImageLabel")
+	ShadowFrame.Parent = Gui
+	ShadowFrame.AnchorPoint = Vector2.new(0.5,1)
+	ShadowFrame.Position = UDim2.new(0.5,0,1,0)
+	ShadowFrame.Size = UDim2.new(1,0,1.05,0)
+	ShadowFrame.BackgroundTransparency = 1
+	ShadowFrame.Image = "rbxassetid://4576475446"
+	ShadowFrame.ImageTransparency = 0.3
+	ShadowFrame.ZIndex = 10
+end
+
+Bloom.Intensity = 1
+Bloom.Size = 2
+Bloom.Threshold = 2
+
+Blur.Size = 0
+
+ColorCor.Brightness = 0.1
+ColorCor.Contrast = 0
+ColorCor.Saturation = -0.3
+ColorCor.TintColor = Color3.fromRGB(107, 78, 173)
+
+SunRays.Intensity = 0.03
+SunRays.Spread = 0.727
+
+Sky.SkyboxBk = "http://www.roblox.com/asset/?id=8139677359"
+Sky.SkyboxDn = "http://www.roblox.com/asset/?id=8139677253"
+Sky.SkyboxFt = "http://www.roblox.com/asset/?id=8139677111"
+Sky.SkyboxLf = "http://www.roblox.com/asset/?id=8139676988"
+Sky.SkyboxRt = "http://www.roblox.com/asset/?id=8139676842"
+Sky.SkyboxUp = "http://www.roblox.com/asset/?id=8139676647"
+Sky.SunAngularSize = 10
+
+Lighting.Ambient = Color3.fromRGB(128,128,128)
+Lighting.Brightness = 2
+Lighting.ColorShift_Bottom = Color3.fromRGB(0,0,0)
+Lighting.ColorShift_Top = Color3.fromRGB(0,0,0)
+Lighting.EnvironmentDiffuseScale = 0.2
+Lighting.EnvironmentSpecularScale = 0.2
+Lighting.GlobalShadows = false
+Lighting.OutdoorAmbient = Color3.fromRGB(0,0,0)
+Lighting.ShadowSoftness = 0.2
+Lighting.ClockTime = 14
+Lighting.GeographicLatitude = 45
+Lighting.ExposureCompensation = 0.5
+
+         end
+      end,
+    Tooltip = "AestheticLightingV2"
+    })
+end)
