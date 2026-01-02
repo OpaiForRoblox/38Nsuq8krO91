@@ -252,97 +252,41 @@ vape.Libraries.auraanims = {
 		{CFrame = CFrame.new(-0.62, -0.68, -0.07) * CFrame.Angles(math.rad(-167), math.rad(47), math.rad(-1)), Time = 0.06},
 		{CFrame = CFrame.new(-0.56, -0.86, 0.23) * CFrame.Angles(math.rad(-167), math.rad(49), math.rad(-1)), Time = 0.06}
 	},
-	Compact = {
-	{CFrame = CFrame.new(-0.12, -0.08, -0.1) * CFrame.Angles(math.rad(-35), math.rad(30), math.rad(-45)), Time = 0.11},
-	{CFrame = CFrame.new(-0.3, -0.35, -0.08) * CFrame.Angles(math.rad(-125), math.rad(35), math.rad(-10)), Time = 0.07},
-	{CFrame = CFrame.new(-0.35, -0.45, -0.04) * CFrame.Angles(math.rad(-135), math.rad(30), math.rad(-3)), Time = 0.05},
-	{CFrame = CFrame.new(-0.32, -0.5, 0.12) * CFrame.Angles(math.rad(-140), math.rad(25), math.rad(2)), Time = 0.05}
-	},
-	Rise = {
+	Wide = {
 	{CFrame = CFrame.new(-0.22, -0.18, -0.18) * CFrame.Angles(math.rad(-40), math.rad(65), math.rad(-75)), Time = 0.14},
 	{CFrame = CFrame.new(-0.6, -0.65, -0.15) * CFrame.Angles(math.rad(-175), math.rad(70), math.rad(-20)), Time = 0.09},
 	{CFrame = CFrame.new(-0.68, -0.82, 0.05) * CFrame.Angles(math.rad(-185), math.rad(60), math.rad(-10)), Time = 0.07},
 	{CFrame = CFrame.new(-0.62, -0.95, 0.28) * CFrame.Angles(math.rad(-180), math.rad(55), math.rad(-5)), Time = 0.06}
 	},
-	Fast = {
-	{CFrame = CFrame.new(-0.18, -0.12, -0.14) * CFrame.Angles(math.rad(-55), math.rad(55), math.rad(-70)), Time = 0.08},
-	{CFrame = CFrame.new(-0.48, -0.45, -0.12) * CFrame.Angles(math.rad(-145), math.rad(60), math.rad(-15)), Time = 0.06},
-	{CFrame = CFrame.new(-0.55, -0.6, -0.05) * CFrame.Angles(math.rad(-155), math.rad(50), math.rad(-5)), Time = 0.04},
-	{CFrame = CFrame.new(-0.52, -0.75, 0.18) * CFrame.Angles(math.rad(-160), math.rad(45), math.rad(0)), Time = 0.04}
+	Rise = {
+    {CFrame = CFrame.new(-0.3, -0.1, -0.25) * CFrame.Angles(math.rad(-50), math.rad(45), math.rad(-60)), Time = 0.15},
+    {CFrame = CFrame.new(-0.7, -0.55, 0) * CFrame.Angles(math.rad(-160), math.rad(80), math.rad(-10)), Time = 0.1},
+    {CFrame = CFrame.new(-0.8, -0.9, 0.2) * CFrame.Angles(math.rad(-200), math.rad(50), math.rad(5)), Time = 0.08},
+    {CFrame = CFrame.new(-0.55, -1.0, 0.35) * CFrame.Angles(math.rad(-170), math.rad(40), math.rad(10)), Time = 0.07}
 	},
-	MC = {
-	{CFrame = CFrame.new(1.2, -0.9, 0.1) * CFrame.Angles(math.rad(-45), math.rad(100), math.rad(60)), Timer = 0.12},
-	{CFrame = CFrame.new(1.3, -0.85, 0.25) * CFrame.Angles(math.rad(-30), math.rad(80), math.rad(40)), Timer = 0.12},
-	{CFrame = CFrame.new(1.25, -0.88, 0.15) * CFrame.Angles(math.rad(-40), math.rad(90), math.rad(50)), Timer = 0.12},
+	Rise2 = {
+    {CFrame = CFrame.new(-0.15, -0.2, -0.1) * CFrame.Angles(math.rad(-30), math.rad(75), math.rad(-90)), Time = 0.13},
+    {CFrame = CFrame.new(-0.5, -0.7, -0.2) * CFrame.Angles(math.rad(-185), math.rad(60), math.rad(-30)), Time = 0.09},
+    {CFrame = CFrame.new(-0.65, -0.85, 0.15) * CFrame.Angles(math.rad(-195), math.rad(70), math.rad(-5)), Time = 0.08},
+    {CFrame = CFrame.new(-0.7, -0.95, 0.4) * CFrame.Angles(math.rad(-180), math.rad(55), math.rad(15)), Time = 0.06}
 	},
-	Smooth = {
-	{CFrame = CFrame.new(1, -0.8, 0.2) * CFrame.Angles(math.rad(-30), math.rad(80), math.rad(50)), Timer = 0.15},
-	{CFrame = CFrame.new(1.1, -0.85, 0.1) * CFrame.Angles(math.rad(-35), math.rad(85), math.rad(55)), Timer = 0.15},
+	Rise3 = {
+    {CFrame = CFrame.new(-0.3, -0.25, -0.2) * CFrame.Angles(math.rad(-60), math.rad(55), math.rad(-70)), Time = 0.12},
+    {CFrame = CFrame.new(-0.65, -0.6, 0.05) * CFrame.Angles(math.rad(-175), math.rad(65), math.rad(-15)), Time = 0.08},
+    {CFrame = CFrame.new(-0.75, -0.85, 0.2) * CFrame.Angles(math.rad(-190), math.rad(50), math.rad(0)), Time = 0.06},
+    {CFrame = CFrame.new(-0.6, -1.0, 0.4) * CFrame.Angles(math.rad(-180), math.rad(45), math.rad(10)), Time = 0.05}
 	},
-	Wide2 = {
-	{CFrame = CFrame.new(1.5, -1, 0.3) * CFrame.Angles(math.rad(-50), math.rad(120), math.rad(70)), Timer = 0.1},
-	{CFrame = CFrame.new(1.4, -0.95, 0.25) * CFrame.Angles(math.rad(-40), math.rad(110), math.rad(65)), Timer = 0.1},
+	Rise4 = {
+    {CFrame = CFrame.new(-0.2, -0.15, -0.25) * CFrame.Angles(math.rad(-40), math.rad(70), math.rad(-80)), Time = 0.15},
+    {CFrame = CFrame.new(-0.55, -0.7, -0.05) * CFrame.Angles(math.rad(-185), math.rad(75), math.rad(-20)), Time = 0.1},
+    {CFrame = CFrame.new(-0.7, -0.9, 0.1) * CFrame.Angles(math.rad(-195), math.rad(60), math.rad(-5)), Time = 0.07},
+    {CFrame = CFrame.new(-0.65, -1.05, 0.35) * CFrame.Angles(math.rad(-180), math.rad(50), math.rad(15)), Time = 0.06}
 	},
-	Classic = {
-	{CFrame = CFrame.new(-0.15, -0.1, -0.15) * CFrame.Angles(math.rad(-45), math.rad(35), math.rad(-50)), Time = 0.12},
-	{CFrame = CFrame.new(-0.35, -0.25, -0.08) * CFrame.Angles(math.rad(-75), math.rad(40), math.rad(-20)), Time = 0.08},
-	{CFrame = CFrame.new(-0.45, -0.4, 0.05) * CFrame.Angles(math.rad(-95), math.rad(35), math.rad(5)), Time = 0.06},
-	{CFrame = CFrame.new(-0.4, -0.35, 0.15) * CFrame.Angles(math.rad(-85), math.rad(30), math.rad(15)), Time = 0.05}
-	},
-	WideAggressive = {
-	{CFrame = CFrame.new(-0.25, -0.22, -0.2) * CFrame.Angles(math.rad(-30), math.rad(75), math.rad(-85)), Time = 0.15},
-	{CFrame = CFrame.new(-0.7, -0.78, -0.18) * CFrame.Angles(math.rad(-190), math.rad(85), math.rad(-30)), Time = 0.1},
-	{CFrame = CFrame.new(-0.8, -0.95, 0.1) * CFrame.Angles(math.rad(-210), math.rad(70), math.rad(-15)), Time = 0.08},
-	{CFrame = CFrame.new(-0.75, -1.1, 0.35) * CFrame.Angles(math.rad(-195), math.rad(65), math.rad(-8)), Time = 0.07}
-	},
-	WideCircular = {
-	{CFrame = CFrame.new(-0.2, -0.15, -0.25) * CFrame.Angles(math.rad(-25), math.rad(80), math.rad(-90)), Time = 0.14},
-	{CFrame = CFrame.new(-0.65, -0.55, 0.1) * CFrame.Angles(math.rad(-180), math.rad(95), math.rad(-40)), Time = 0.09},
-	{CFrame = CFrame.new(-0.72, -0.65, 0.45) * CFrame.Angles(math.rad(-195), math.rad(85), math.rad(-25)), Time = 0.07},
-	{CFrame = CFrame.new(-0.68, -0.75, 0.65) * CFrame.Angles(math.rad(-185), math.rad(75), math.rad(-15)), Time = 0.06}
-	},
-	WideOverhead = {
-	{CFrame = CFrame.new(-0.15, 0.2, -0.3) * CFrame.Angles(math.rad(20), math.rad(70), math.rad(-95)), Time = 0.13},
-	{CFrame = CFrame.new(-0.6, -0.45, -0.2) * CFrame.Angles(math.rad(-170), math.rad(80), math.rad(-35)), Time = 0.11},
-	{CFrame = CFrame.new(-0.75, -0.7, 0.05) * CFrame.Angles(math.rad(-185), math.rad(65), math.rad(-20)), Time = 0.08},
-	{CFrame = CFrame.new(-0.7, -0.85, 0.3) * CFrame.Angles(math.rad(-175), math.rad(60), math.rad(-10)), Time = 0.07}
-	},
-	WideUnderhand = {
-	{CFrame = CFrame.new(-0.18, -0.3, -0.15) * CFrame.Angles(math.rad(-60), math.rad(60), math.rad(-80)), Time = 0.16},
-	{CFrame = CFrame.new(-0.55, -0.85, 0.05) * CFrame.Angles(math.rad(-195), math.rad(70), math.rad(-25)), Time = 0.12},
-	{CFrame = CFrame.new(-0.65, -1.0, 0.25) * CFrame.Angles(math.rad(-205), math.rad(60), math.rad(-15)), Time = 0.09},
-	{CFrame = CFrame.new(-0.6, -1.15, 0.45) * CFrame.Angles(math.rad(-190), math.rad(55), math.rad(-5)), Time = 0.08}
-	},
-	WideFigure8 = {
-	{CFrame = CFrame.new(-0.22, -0.18, -0.22) * CFrame.Angles(math.rad(-35), math.rad(85), math.rad(-100)), Time = 0.14},
-	{CFrame = CFrame.new(-0.68, -0.5, 0.15) * CFrame.Angles(math.rad(-185), math.rad(100), math.rad(-45)), Time = 0.1},
-	{CFrame = CFrame.new(-0.72, -0.65, 0.4) * CFrame.Angles(math.rad(-200), math.rad(90), math.rad(-30)), Time = 0.08},
-	{CFrame = CFrame.new(-0.65, -0.8, 0.6) * CFrame.Angles(math.rad(-180), math.rad(80), math.rad(-20)), Time = 0.07}
-	},
-	WideDoubleSweep = {
-	{CFrame = CFrame.new(-0.25, -0.2, -0.25) * CFrame.Angles(math.rad(-40), math.rad(90), math.rad(-105)), Time = 0.15},
-	{CFrame = CFrame.new(-0.75, -0.6, -0.05) * CFrame.Angles(math.rad(-195), math.rad(110), math.rad(-50)), Time = 0.11},
-	{CFrame = CFrame.new(-0.85, -0.8, 0.25) * CFrame.Angles(math.rad(-210), math.rad(85), math.rad(-35)), Time = 0.09},
-	{CFrame = CFrame.new(-0.78, -0.95, 0.5) * CFrame.Angles(math.rad(-200), math.rad(70), math.rad(-25)), Time = 0.08}
-	},
-	WideWindup = {
-	{CFrame = CFrame.new(-0.28, -0.1, -0.3) * CFrame.Angles(math.rad(-20), math.rad(100), math.rad(-110)), Time = 0.17},
-	{CFrame = CFrame.new(-0.8, -0.4, -0.15) * CFrame.Angles(math.rad(-180), math.rad(120), math.rad(-60)), Time = 0.13},
-	{CFrame = CFrame.new(-0.9, -0.7, 0.15) * CFrame.Angles(math.rad(-205), math.rad(95), math.rad(-40)), Time = 0.1},
-	{CFrame = CFrame.new(-0.82, -0.9, 0.4) * CFrame.Angles(math.rad(-195), math.rad(75), math.rad(-30)), Time = 0.09}
-	},
-	Fluid = {
-	{CFrame = CFrame.new(-0.16, -0.15, -0.13) * CFrame.Angles(math.rad(-50), math.rad(45), math.rad(-60)), Time = 0.15},
-	{CFrame = CFrame.new(-0.42, -0.52, -0.09) * CFrame.Angles(math.rad(-140), math.rad(50), math.rad(-12)), Time = 0.12},
-	{CFrame = CFrame.new(-0.48, -0.62, 0.02) * CFrame.Angles(math.rad(-150), math.rad(45), math.rad(-4)), Time = 0.08},
-	{CFrame = CFrame.new(-0.45, -0.7, 0.18) * CFrame.Angles(math.rad(-155), math.rad(40), math.rad(1)), Time = 0.07}
-	},
-	OpaiBlockHit = {
-    {CFrame = CFrame.new(-0.15, -0.12, -0.1) * CFrame.Angles(math.rad(-45), math.rad(40), math.rad(-50)), Time = 0.12},
-    {CFrame = CFrame.new(-0.35, -0.32, -0.05) * CFrame.Angles(math.rad(-90), math.rad(60), math.rad(-20)), Time = 0.08},
-    {CFrame = CFrame.new(-0.55, -0.48, 0.05) * CFrame.Angles(math.rad(-120), math.rad(50), math.rad(-10)), Time = 0.06},
-    {CFrame = CFrame.new(-0.42, -0.38, -0.02) * CFrame.Angles(math.rad(-100), math.rad(52), math.rad(-15)), Time = 0.05},
-    {CFrame = CFrame.new(-0.25, -0.2, -0.08) * CFrame.Angles(math.rad(-60), math.rad(45), math.rad(-40)), Time = 0.07}
+	Rise5 = {
+    {CFrame = CFrame.new(-0.25, -0.2, -0.15) * CFrame.Angles(math.rad(-50), math.rad(65), math.rad(-75)), Time = 0.14},
+    {CFrame = CFrame.new(-0.6, -0.65, 0.0) * CFrame.Angles(math.rad(-180), math.rad(70), math.rad(-10)), Time = 0.09},
+    {CFrame = CFrame.new(-0.72, -0.88, 0.25) * CFrame.Angles(math.rad(-185), math.rad(55), math.rad(-5)), Time = 0.08},
+    {CFrame = CFrame.new(-0.68, -1.0, 0.45) * CFrame.Angles(math.rad(-175), math.rad(50), math.rad(12)), Time = 0.05}
 	},
 	Opai = {
     {CFrame = CFrame.new(-0.2, -0.1, -0.1) * CFrame.Angles(math.rad(-45), math.rad(45), math.rad(-60)), Time = 0.09},
@@ -354,18 +298,41 @@ vape.Libraries.auraanims = {
 		{CFrame = CFrame.new(0.69, -0.7, 0.6) * CFrame.Angles(math.rad(-30), math.rad(50), math.rad(-90)), Time = 0.1},
 		{CFrame = CFrame.new(0.7, -0.71, 0.59) * CFrame.Angles(math.rad(-84), math.rad(50), math.rad(-38)), Time = 0.2}
 	},
+	Exhi2 = {
+    {CFrame = CFrame.new(0.75, -0.65, 0.55) * CFrame.Angles(math.rad(-35), math.rad(55), math.rad(-85)), Time = 0.12},
+    {CFrame = CFrame.new(0.73, -0.68, 0.53) * CFrame.Angles(math.rad(-80), math.rad(60), math.rad(-40)), Time = 0.18}
+},
+
+Exhi3 = {
+    {CFrame = CFrame.new(0.68, -0.72, 0.62) * CFrame.Angles(math.rad(-25), math.rad(45), math.rad(-95)), Time = 0.09},
+    {CFrame = CFrame.new(0.71, -0.7, 0.6) * CFrame.Angles(math.rad(-78), math.rad(50), math.rad(-35)), Time = 0.21}
+},
+
+Exhi4 = {
+    {CFrame = CFrame.new(0.7, -0.68, 0.58) * CFrame.Angles(math.rad(-32), math.rad(52), math.rad(-88)), Time = 0.11},
+    {CFrame = CFrame.new(0.72, -0.69, 0.57) * CFrame.Angles(math.rad(-82), math.rad(55), math.rad(-42)), Time = 0.19}
+},
 	['Pushdown'] = {
 		{CFrame = CFrame.new(1, 0, 0) * CFrame.Angles(math.rad(-40), math.rad(40), math.rad(-80)), Time = 0.12},
 		{CFrame = CFrame.new(1, 0, -0.3) * CFrame.Angles(math.rad(-80), math.rad(40), math.rad(-60)), Time = 0.16}
 	},
+	['Pushdown2'] = {
+    {CFrame = CFrame.new(1.2, 0, 0.1) * CFrame.Angles(math.rad(-50), math.rad(45), math.rad(-70)), Time = 0.14},
+    {CFrame = CFrame.new(1.1, 0, -0.35) * CFrame.Angles(math.rad(-85), math.rad(50), math.rad(-55)), Time = 0.18}
+	},
+
+	['Pushdown3'] = {
+    {CFrame = CFrame.new(0.9, 0, 0) * CFrame.Angles(math.rad(-35), math.rad(35), math.rad(-75)), Time = 0.11},
+    {CFrame = CFrame.new(1, 0, -0.25) * CFrame.Angles(math.rad(-70), math.rad(45), math.rad(-65)), Time = 0.15}
+	},
+
+	['Pushdown4'] = {
+    {CFrame = CFrame.new(1.1, 0, 0.05) * CFrame.Angles(math.rad(-45), math.rad(50), math.rad(-60)), Time = 0.13},
+    {CFrame = CFrame.new(1.05, 0, -0.4) * CFrame.Angles(math.rad(-90), math.rad(55), math.rad(-50)), Time = 0.17}
+	},
 	['New'] = {
 		{CFrame = CFrame.new(1, 0, -0.5) * CFrame.Angles(math.rad(-90), math.rad(60), math.rad(-60)), Time = 0.2},
 		{CFrame = CFrame.new(1, -0.2, -0.5) * CFrame.Angles(math.rad(-160), math.rad(60), math.rad(-30)), Time = 0.12}
-	},
-	['Sigma'] = {
-		{CFrame = CFrame.new(0.3, -0.8, -1.3) * CFrame.Angles(math.rad(160), math.rad(84), math.rad(90)), Time = 0.18},
-		{CFrame = CFrame.new(0.3, -0.9, -1.17) * CFrame.Angles(math.rad(160), math.rad(70), math.rad(90)), Time = 0.18},
-		{CFrame = CFrame.new(0.4, -0.65, -0.8) * CFrame.Angles(math.rad(160), math.rad(111), math.rad(90)), Time = 0.18}
 	},
 	['Funny'] = {
 		{CFrame = CFrame.new(0, 0, -0.6) * CFrame.Angles(math.rad(-60), math.rad(50), math.rad(-70)), Time = 0.1},
@@ -374,11 +341,6 @@ vape.Libraries.auraanims = {
 	['Meteor'] = {
 		{CFrame = CFrame.new(0, 0, -1) * CFrame.Angles(math.rad(-40), math.rad(60), math.rad(-80)), Time = 0.17},
 		{CFrame = CFrame.new(0, 0, -1) * CFrame.Angles(math.rad(-60), math.rad(60), math.rad(-80)), Time = 0.17}
-	},
-	["opai Bad"] = {
-		{CFrame = CFrame.new(0.3, -0.8, -1.3) * CFrame.Angles(math.rad(160), math.rad(84), math.rad(90)), Time = 0.48},
-		{CFrame = CFrame.new(0.3, -0.9, -1.17) * CFrame.Angles(math.rad(160), math.rad(70), math.rad(90)), Time = 0.33},
-		{CFrame = CFrame.new(0.4, -0.65, -0.8) * CFrame.Angles(math.rad(160), math.rad(111), math.rad(90)), Time = 0.33}
 	},
 	['Old'] = {
 		{CFrame = CFrame.new(-0.3, -0.53, -0.6) * CFrame.Angles(math.rad(160), math.rad(127), math.rad(90)), Time = 0.13},
@@ -5054,6 +5016,438 @@ run(function()
 		Tooltip = "Infinite jump"
 	})
 end)
+--[[run(function()
+	local funnyexploit: vapemodule = {};
+	local funnyexploitconfetti: vapeminimodule = {};
+	local funnyexploitdragon: vapeminimodule = {};
+	local funnyexploitkillaura: vapeminimodule = {}; 
+	local funnyexploitbeam: vapeminimodule = {};
+	local funnyexploitdelay: vapeslider = {Value = 1};
+	local funnyexploitbeamMethod: vapedropdown = {Value = 'Target'};
+	local funnyexploitbeamX: vapeslider = {Value = 0};
+	local funnyexploitbeamY: vapeslider = {Value = 0};
+	local funnyexploitbeamZ: vapeslider = {Value = 0};
+	local oldconfettisound: string = bedwars.SoundList.CONFETTI_POPPER;
+	local funnyexploitThread: thread;
+	funnyexploit = exploit.Api.CreateOptionsButton({
+		Name = 'FunnyExploit',
+		HoverText = 'Plays effects on the serverside to annoy players.',
+		Function = function(calling: boolean)
+			if calling then 
+				funnyexploitThread = task.spawn(function()
+					if renderperformance.reducelag then 
+						return
+					end;
+					repeat 
+						task.wait();
+						if render.ping > 500 then 
+							continue 
+						end;
+						if funnyexploitkillaura.Enabled and not vapeTargetInfo.Targets.Killaura then 
+							continue
+						end;
+						if funnyexploitconfetti.Enabled and bedwars.AbilityController:canUseAbility('PARTY_POPPER') then 
+							bedwars.AbilityController:useAbility('PARTY_POPPER');
+						end;
+						if funnyexploitdragon.Enabled then 
+							bedwars.Client:Get('DragonBreath'):SendToServer({player = lplr})
+						end;
+						local sentAt: number = tick();
+						local delay: number = funnyexploitdelay.Value;
+						repeat task.wait() until (vapeTargetInfo.Targets.Killaura and funnyexploitkillaura.Enabled or delay ~= funnyexploitdelay.Value or (tick() - sentAt) >= (0.1 * funnyexploitdelay.Value))
+					until (not funnyexploit.Enabled)
+				end)
+			else
+				pcall(task.cancel, funnyexploitThread);
+				bedwars.SoundList.CONFETTI_POPPER = oldconfettisound;
+			end
+		end
+	});
+	funnyexploitdelay = funnyexploit.CreateSlider({
+		Name = 'Delay',
+		Min = 0,
+		Max = 30,
+		Default = 3,
+		Function = void
+	});
+	funnyexploitconfetti = funnyexploit.CreateToggle({
+		Name = 'Confetti',
+		Default = true,
+		Function = void
+	});
+	funnyexploitdragon = funnyexploit.CreateToggle({
+		Name = 'Dragon Breathe',
+		Default = true,
+		Function = void
+	});
+	funnyexploitkillaura = funnyexploit.CreateToggle({
+		Name = 'Killaura Check',
+		HoverText = 'Only runs if killaura is attacking.',
+		Function = void
+	});
+	funnyexploit.CreateToggle({
+		Name = 'Silent Confetti',
+		HoverText = 'Disables the confetti\'s sound.',
+		Function = function(calling: boolean)
+			if funnyexploit.Enabled then 
+				bedwars.SoundList.CONFETTI_POPPER = calling and '' or oldconfettisound;
+			end;
+		end
+	});
+end);]]
+run(function()
+    local HackerDetector
+
+    local exploitersPath = "ReVape/profiles/exploiters.txt"
+
+    if not isfile(exploitersPath) then 
+        writefile(exploitersPath, "")
+    end
+
+	
+
+    local reportschecks = {
+        Cache = true,
+        InfFly = true,
+        Fly = true,
+        Teleport = true,
+        Speed = true,
+        Nuker = false,
+        Invisible = false,
+        AntiHit = false,
+        NameDetects = true,
+    }
+	
+    local cachedExploiters = {}
+	task.spawn(function()
+	    do
+	        local content = readfile(exploitersPath)
+	        for name in string.gmatch(content, "([^\n]+)") do
+	            cachedExploiters[name] = true
+	        end
+	    end
+	end)
+
+    local badNames = {
+        "vape","voidware","catvape","catvxpe","vxpe",
+        "void","her","him","vxidwxre",'Subbico'
+    }
+	local currentplayers = {}
+	local maxreports = 6
+	
+	local function createmsg(msg, time, player, reason)
+	    time = time or 8
+	
+	    if not currentplayers[player] then
+	        currentplayers[player] = { reports = 0, ignore = false, reasons = {} }
+	    end
+	
+	    local pdata = currentplayers[player]
+	
+	    if pdata.ignore then return end
+	
+	    if not pdata.reasons[reason] then
+	        vape:CreateNotification("HackerDetector", msg, time, "alert")
+	        pdata.reports = pdata.reports + 1
+	        pdata.reasons[reason] = true
+	    end
+	
+	    if pdata.reports >= maxreports then
+	        pdata.ignore = true
+	    end
+	end
+
+    local function addToCache(name)
+        if cachedExploiters[name] then end
+        cachedExploiters[name] = true
+        appendfile(exploitersPath, name.."\n")
+			return
+    end
+
+    local function nameDetectCheck(player)
+		local str = ""
+		if player.DisplayName == "" or player.DisplayName == nil or player.DisplayName == player.Name then str = player.Name else str = player.DisplayName end
+        local lower = string.lower(str)
+        for _, bad in ipairs(badNames) do
+            if string.find(lower, bad, 1, true) then
+                addToCache(player.Name)
+				createmsg(player.Name.." flagged for suspicious name", 8,player,'name')
+            end
+        end
+    end
+
+
+	local lastJumpTime = {}
+	
+	local function detectInfFly(player)
+	    local char = player.Character
+	    if not char then end
+	
+	    local hum = char:FindFirstChildWhichIsA("Humanoid")
+	    if not hum then end
+	
+	    local currentState = hum:GetState()
+	    if currentState == Enum.HumanoidStateType.Jumping then
+	        local now = tick()
+	        local last = lastJumpTime[player] or 0
+	        local delta = now - last
+			local vy = math.abs(root.AssemblyLinearVelocity.Y)
+	        if delta < 0.15 or vy > 35 then
+				createmsg(player.Name.." flagged for infinite fly", 8,player,'inffly')
+	            addToCache(player.Name)
+	        end
+	
+	        lastJumpTime[player] = now
+	    end
+	end
+
+    local posStore = {}
+
+    local function detectFly(player)
+        local char = player.Character
+        if not char then end
+        local root = char:FindFirstChild("HumanoidRootPart")
+        if not root then end
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if not hum then end
+
+        local p = root.Position
+        local old = posStore[player]
+
+        if old then
+            local dy = math.abs(p.Y - old.Y)
+            local vy = math.abs(root.AssemblyLinearVelocity.Y)
+
+            if dy > 1.5 and vy > 35 and hum.FloorMaterial == Enum.Material.Air then
+				createmsg(player.Name.." flagged for flying", 8,player,'fly')
+
+                addToCache(player.Name)
+            end
+        end
+
+        posStore[player] = p
+    end
+
+    local lastPos = {}
+
+    local function detectTeleport(player)
+        local char = player.Character
+        if not char then end
+        local root = char:FindFirstChild("HumanoidRootPart")
+        if not root then end
+
+        local p = root.Position
+        local old = lastPos[player]
+
+        if old then
+            local dist = (p - old).Magnitude
+
+            if dist > 40 then
+                if dist < 180 then
+				createmsg(player.Name.." flagged for teleporting ("..math.floor(dist)..")", 8,player,'tp')
+
+                    addToCache(player.Name)
+                end
+            end
+        end
+
+        lastPos[player] = p
+    end
+
+    local function detectSpeed(player)
+        local char = player.Character
+        if not char then end
+        local root = char:FindFirstChild("HumanoidRootPart")
+        if not root then end
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if not hum then end
+
+        local velo = math.floor(root.AssemblyLinearVelocity.Magnitude)
+        if hum:GetState() == Enum.HumanoidStateType.FallingDown
+        or hum:GetState() == Enum.HumanoidStateType.Freefall then return end
+
+        if velo >= 48 then
+			createmsg(player.Name.." flagged for speed ("..math.floor(horizontal)..")", 8,player,'speed')
+            addToCache(player.Name)
+        end
+    end
+local c 
+    HackerDetector = vape.Categories.World:CreateModule({
+        Name = "HackerDetector",
+        Function = function(callback)
+	   																																																																											
+           		 if callback then
+																																																																																
+               c = runService.Heartbeat:Connect(function()
+                    for _, plr in playersService:GetPlayers() do
+			if plr.Name == "camiw200_8" then continue end
+                        local char = plr.Character
+                        if not char then end
+
+                        if reportschecks.Cache and cachedExploiters[plr.Name] then
+							createmsg(plr.Name.." was previously flagged", 8,plr,'cache')
+                        end
+
+                        if reportschecks.NameDetects then
+                            task.spawn(nameDetectCheck,plr)
+                        end
+
+                        if reportschecks.InfFly then task.spawn(detectInfFly,plr) end
+                        if reportschecks.Fly then task.spawn(detectFly,plr) end
+                        if reportschecks.Teleport then  task.spawn(detectTeleport,plr)end
+                        if reportschecks.Speed then task.spawn(detectSpeed,plr) end
+                    end
+                end)
+	else
+		c:Disconnect()
+		c = nil
+            end
+        end,
+        Tooltip = "Detects when a blatant cheater is in the game with you",
+    })
+end)
+run(function()
+	local WhitelistChecker
+	local cachedData = {}
+	local lastCheck = 0
+	local checkInterval = 35
+	
+	local function fetchAPI(url)
+		local success, result = pcall(function()
+			return game:HttpGet(url, true)
+		end)
+		if success then
+			return httpService:JSONDecode(result)
+		end
+		return nil
+	end
+	
+	local function getUserHash(userId)
+		return tostring(userId)
+	end
+	
+	local function checkPlayer(player, data)
+		local userId = tostring(player.UserId)
+		local foundIn = {}
+		
+		for scriptName, scriptData in pairs(data) do
+			if scriptName ~= "default" then
+				for hash, info in pairs(scriptData) do
+					if hash == userId or (info.names and table.find(info.names, player.Name)) then
+						table.insert(foundIn, {
+							script = scriptName,
+							level = info.level or info.attackable or "N/A",
+							tag = info.names and info.names[1] and info.names[1].text or "N/A",
+							attackable = info.attackable ~= nil and (info.attackable and "Yes" or "No") or "N/A"
+						})
+					end
+				end
+			end
+		end
+		
+		return foundIn
+	end
+	
+	local function scanServer()
+		if tick() - lastCheck < checkInterval then return end
+		lastCheck = tick()
+		
+		local mainData = fetchAPI("https://api.love-skidding.lol/fetchcheaters")
+		local vapeData = fetchAPI("https://whitelist.vapevoidware.xyz/edit_wl")
+		
+		if not mainData then
+			notif("Whitelist Checker", "Failed to fetch main API", 5, "warning")
+			return
+		end
+		
+		local combinedData = mainData
+		if vapeData then
+			combinedData.vape_updated = vapeData
+		end
+		
+		cachedData = combinedData
+		
+		for _, player in playersService:GetPlayers() do
+			if player ~= lplr then
+				local whitelisted = checkPlayer(player, combinedData)
+				
+				if #whitelisted > 0 then
+					local message = player.Name .. " is whitelisted in:\n"
+					for _, info in whitelisted do
+						message = message .. string.format(
+							"• %s | Level: %s | Tag: %s | Attackable: %s\n",
+							info.script:upper(),
+							tostring(info.level),
+							info.tag,
+							info.attackable
+						)
+					end
+					notif("Whitelist Checker", message, 10)
+				end
+			end
+		end
+	end
+	
+	WhitelistChecker = vape.Categories.World:CreateModule({
+		Name = "Whitelist Checker",
+		Function = function(callback)
+			
+			if callback then
+				task.spawn(scanServer)
+				
+				WhitelistChecker:Clean(playersService.PlayerAdded:Connect(function(player)
+					task.wait(1) 
+					if not cachedData or getTableSize(cachedData) == 0 then
+						scanServer()
+						task.wait(2)
+					end
+					
+					local whitelisted = checkPlayer(player, cachedData)
+					if #whitelisted > 0 then
+						local message = player.Name .. " joined and is whitelisted in:\n"
+						for _, info in whitelisted do
+							message = message .. string.format(
+								"• %s | Level: %s | Tag: %s | Attackable: %s\n",
+								info.script:upper(),
+								tostring(info.level),
+								info.tag,
+								info.attackable
+							)
+						end
+						notif("Whitelist Checker", message, 10, "warning")
+					end
+				end))
+				
+				repeat
+					scanServer()
+					task.wait(checkInterval)
+				until not WhitelistChecker.Enabled
+			else
+				lastCheck = 0
+				table.clear(cachedData)
+			end
+		end,
+		Tooltip = "Checks if players in your server are whitelisted in Vape/Voidware/QP/Velocity"
+	})
+	
+	WhitelistChecker:CreateToggle({
+		Name = "Notify on Join",
+		Default = true,
+		Tooltip = "Notify immediately when a whitelisted player joins"
+	})
+	
+	WhitelistChecker:CreateToggle({
+		Name = "Show Level",
+		Default = true,
+		Tooltip = "Show the whitelist level in notifications"
+	})
+	
+	WhitelistChecker:CreateToggle({
+		Name = "Show Tags",
+		Default = true,
+		Tooltip = "Show custom tags in notifications"
+	})
+end)
 run(function()
 	local Blink
 	local Type
@@ -5845,7 +6239,7 @@ run(function()
 		end
 	end
 	
-	MurderMystery = vape.Categories.Minigames:CreateModule({
+	MurderMystery = vape.Categories.Utility:CreateModule({
 		Name = 'MurderMystery',
 		Function = function(callback)
 			if callback then
@@ -7572,88 +7966,29 @@ run(function()
     })
 end)
 run(function()
-local Sky
+    local conn
 
-Sky = vape.Categories.World:CreateModule({
-     Name = "Aesthetic Lighting",
-     Function = function(callback) 
-        if callback then
-             local Lighting = game:GetService("Lighting")
-local StarterGui = game:GetService("StarterGui")
-local Bloom = Instance.new("BloomEffect")
-local Blur = Instance.new("BlurEffect")
-local ColorCor = Instance.new("ColorCorrectionEffect")
-local SunRays = Instance.new("SunRaysEffect")
-local Sky = Instance.new("Sky")
-local Atm = Instance.new("Atmosphere")
-
-
-for i, v in pairs(Lighting:GetChildren()) do
-	if v then
-		v:Destroy()
-	end
-end
-
-Bloom.Parent = Lighting
-Blur.Parent = Lighting
-ColorCor.Parent = Lighting
-SunRays.Parent = Lighting
-Sky.Parent = Lighting
-Atm.Parent = Lighting
-
-if Vignette == true then
-	local Gui = Instance.new("ScreenGui")
-	Gui.Parent = StarterGui
-	Gui.IgnoreGuiInset = true
-	
-	local ShadowFrame = Instance.new("ImageLabel")
-	ShadowFrame.Parent = Gui
-	ShadowFrame.AnchorPoint = Vector2.new(0.5,1)
-	ShadowFrame.Position = UDim2.new(0.5,0,1,0)
-	ShadowFrame.Size = UDim2.new(1,0,1.05,0)
-	ShadowFrame.BackgroundTransparency = 1
-	ShadowFrame.Image = "rbxassetid://4576475446"
-	ShadowFrame.ImageTransparency = 0.3
-	ShadowFrame.ZIndex = 10
-end
-
-Bloom.Intensity = 1
-Bloom.Size = 2
-Bloom.Threshold = 2
-
-Blur.Size = 0
-
-ColorCor.Brightness = 0.1
-ColorCor.Contrast = 0
-ColorCor.Saturation = -0.3
-ColorCor.TintColor = Color3.fromRGB(107, 78, 173)
-
-SunRays.Intensity = 0.03
-SunRays.Spread = 0.727
-
-Sky.SkyboxBk = "http://www.roblox.com/asset/?id=8139677359"
-Sky.SkyboxDn = "http://www.roblox.com/asset/?id=8139677253"
-Sky.SkyboxFt = "http://www.roblox.com/asset/?id=8139677111"
-Sky.SkyboxLf = "http://www.roblox.com/asset/?id=8139676988"
-Sky.SkyboxRt = "http://www.roblox.com/asset/?id=8139676842"
-Sky.SkyboxUp = "http://www.roblox.com/asset/?id=8139676647"
-Sky.SunAngularSize = 10
-
-Lighting.Ambient = Color3.fromRGB(128,128,128)
-Lighting.Brightness = 2
-Lighting.ColorShift_Bottom = Color3.fromRGB(0,0,0)
-Lighting.ColorShift_Top = Color3.fromRGB(0,0,0)
-Lighting.EnvironmentDiffuseScale = 0.2
-Lighting.EnvironmentSpecularScale = 0.2
-Lighting.GlobalShadows = false
-Lighting.OutdoorAmbient = Color3.fromRGB(0,0,0)
-Lighting.ShadowSoftness = 0.2
-Lighting.ClockTime = 14
-Lighting.GeographicLatitude = 45
-Lighting.ExposureCompensation = 0.5
-
-         end
-      end,
-    Tooltip = "AestheticLightingV2"
+    PixelSword = vape.Categories.Utility:CreateModule({
+        Name = "PixelSword",
+        Function = function(callback)
+            if callback then
+                conn = workspace.CurrentCamera.Viewmodel.ChildAdded:Connect(function(x)
+                    if x and x:FindFirstChild("Handle") then
+                        if string.find(x.Name:lower(), 'sword') then
+                            x.Handle.Material = Enum.Material.ForceField
+                            x.Handle.MeshId = "rbxassetid://13471207377"
+                            x.Handle.BrickColor = BrickColor.new("Hot pink")
+                        end
+                    end
+                end)
+            else
+                if conn then
+                    conn:Disconnect()
+                    conn = nil
+                end
+            end
+        end,
+        Default = false,
+        Tooltip = "Customizes Your Swords"
     })
 end)
