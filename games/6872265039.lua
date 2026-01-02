@@ -1,3 +1,4 @@
+--This watermark is used to delete the file if its cached, remove it to make the file persist after opai updates.
 local run = function(func) func() end
 local cloneref = cloneref or function(obj) return obj end
 
@@ -90,7 +91,7 @@ end)
 run(function()
 	local AutoGamble
 	
-	AutoGamble = vape.Categories.Minigames:CreateModule({
+	AutoGamble = vape.Categories.World:CreateModule({
 		Name = 'AutoGamble',
 		Function = function(callback)
 			if callback then
